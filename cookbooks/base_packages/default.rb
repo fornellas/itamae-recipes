@@ -61,4 +61,3 @@ remote_file '/etc/default/locale'  do
 	group 'root'
 	mode '644'
 end
-
