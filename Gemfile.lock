@@ -9,6 +9,8 @@ GEM
       schash (~> 0.1.0)
       specinfra (>= 2.64.0, < 3.0.0)
       thor
+    itamae-plugin-resource-authorized_keys (0.1.0)
+      itamae
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (4.2.0)
@@ -27,6 +29,7 @@ PLATFORMS
 
 DEPENDENCIES
   itamae
+  itamae-plugin-resource-authorized_keys
 
 RUBY VERSION
    ruby 2.4.1p111
