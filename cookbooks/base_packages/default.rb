@@ -16,6 +16,17 @@ package 'nload'
 package 'nmap'
 package 'ntpdate'
 package 'openntpd'
+
+package 'openssh-server'
+file "/etc/ssh/sshd_config" do
+  action :edit
+  block do |content|
+    content.gsub!("PermitRootLogin yes", "PermitRootLogin no")
+  end
+  notifies :restart, 'service[sshd]', :immediately
+end
+service 'sshd'
+
 package 'p7zip'
 package 'pm-utils'
 package 'pv'
