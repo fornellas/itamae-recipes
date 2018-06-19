@@ -42,7 +42,18 @@ package 'ubuntu-core-libs'
 package 'ubuntu-core-libs-dev'
 package 'ubuntu-minimal'
 package 'ubuntu-standard'
+
 package 'unattended-upgrades'
+remote_file '/etc/apt/apt.conf.d/50unattended-upgrades' do
+	owner 'root'
+	group 'root'
+	mode '644'
+	notifies :restart, 'service[unattended-upgrades]', :immediately
+end
+service 'unattended-upgrades' do
+	action :enable
+end
+
 package 'unzip'
 
 package 'vim' do
