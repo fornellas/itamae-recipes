@@ -1,6 +1,7 @@
 require 'etc'
 require 'itamae/plugin/resource/authorized_keys'
 require 'shellwords'
+include_recipe "../group_add"
 
 username = Etc.getlogin
 shellname = Etc.getpwuid.shell
@@ -8,17 +9,6 @@ home_dir = Etc.getpwuid.dir
 shadow_encrypted_password = `sudo getent shadow #{username} | cut -d: -f2`.chomp
 raise unless $?.success?
 groupname = Etc.getgrgid.name
-
-define :group_add, groups: nil do
-	username_group_add = params[:name]
-	params[:groups].each do |group|
-		execute "gpasswd -a #{username_group_add} #{group}" do
-			user 'root'
-			command "gpasswd -a #{username_group_add} #{group}"
-			not_if "groups #{username_group_add} | cut -d : -f2- | tr \\  \\\\n | grep -Ev '^$' | grep -E '^#{group}$'"
-		end
-	end
-end
 
 define :user_shadow, encrypted_password: nil do
 	username_user_shadow = params[:name]
