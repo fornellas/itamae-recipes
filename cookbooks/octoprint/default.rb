@@ -69,19 +69,30 @@ remote_file '/etc/init.d/octoprint' do
 end
 
 template "/etc/default/octoprint" do
-  mode '644'
-  owner 'root'
-  group 'root'
-  variables(
-	octoprint_user: 'octoprint',
-	basedir: basedir_path,
-	configfile: configfile_path,
-	port: port,
-	daemon: "#{virtualenv_path}/bin/octoprint",
-  )
-  notifies :restart, 'service[octoprint]', :immediately
+	mode '644'
+	owner 'root'
+	group 'root'
+	variables(
+		octoprint_user: 'octoprint',
+		basedir: basedir_path,
+		configfile: configfile_path,
+		port: port,
+		daemon: "#{virtualenv_path}/bin/octoprint",
+	)
+	notifies :restart, 'service[octoprint]', :immediately
 end
 
 service "octoprint" do
+	action :enable
+end
+
+package 'nginx'
+remote_file '/etc/nginx/sites-enabled/octoprint' do
+	mode '644'
+	owner 'root'
+	group 'root'
+	notifies :restart, 'service[nginx]', :immediately
+end
+service "nginx" do
 	action :enable
 end
