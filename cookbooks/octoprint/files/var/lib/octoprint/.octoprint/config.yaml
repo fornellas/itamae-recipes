@@ -1,2 +1,4 @@
 server:
-    host: 127.0.0.1
+  host: 127.0.0.1
+  commands:
+    serverRestartCommand: /usr/sbin/service octoprint restart

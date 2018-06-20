@@ -1,10 +1,12 @@
 include_recipe "../group_add"
 
 home_path = '/var/lib/octoprint'
-basedir_path = "#{home_path}/.octoprint"
-configfile_path = "#{basedir_path}/config.yaml"
 port = 5000
 git_repo_url = "https://github.com/foosel/OctoPrint.git"
+domain = 'odroid.local' # FIXME
+
+basedir_path = "#{home_path}/.octoprint"
+configfile_path = "#{basedir_path}/config.yaml"
 git_repo_path = "#{home_path}/OctoPrint"
 virtualenv_path = "#{home_path}/virtualenv"
 
@@ -55,6 +57,12 @@ execute "mkdir #{basedir_path}" do
 	not_if "test -d #{basedir_path}"
 end
 
+remote_file "/etc/sudoers.d/octoprint" do
+	mode '644'
+	owner 'root'
+	group 'root'
+end
+
 remote_file configfile_path do
 	mode '644'
 	owner 'octoprint'
@@ -86,13 +94,15 @@ service "octoprint" do
 	action :enable
 end
 
-package 'nginx'
-remote_file '/etc/nginx/sites-enabled/octoprint' do
+include_recipe "../nginx"
+
+template '/etc/nginx/sites-enabled/octoprint' do
 	mode '644'
 	owner 'root'
 	group 'root'
+	variables(
+		domain: domain,
+		port: port,
+	)
 	notifies :restart, 'service[nginx]', :immediately
-end
-service "nginx" do
-	action :enable
 end
