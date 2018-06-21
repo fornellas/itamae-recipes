@@ -9,6 +9,7 @@ basedir_path = "#{home_path}/.octoprint"
 configfile_path = "#{basedir_path}/config.yaml"
 git_repo_path = "#{home_path}/OctoPrint"
 virtualenv_path = "#{home_path}/virtualenv"
+unix_chkpwd_wrapper_path = "#{home_path}/unix_chkpwd_wrapper.sh"
 
 package 'python-pip'
 package 'python-dev'
@@ -57,10 +58,13 @@ execute "mkdir #{basedir_path}" do
 	not_if "test -d #{basedir_path}"
 end
 
-remote_file "/etc/sudoers.d/octoprint" do
+template "/etc/sudoers.d/octoprint" do
 	mode '644'
 	owner 'root'
 	group 'root'
+	variables(
+		unix_chkpwd_wrapper_path: unix_chkpwd_wrapper_path,
+	)
 end
 
 remote_file configfile_path do
@@ -95,6 +99,23 @@ service "octoprint" do
 end
 
 include_recipe "../nginx"
+
+remote_file unix_chkpwd_wrapper_path do
+	mode '755'
+	owner 'root'
+	group 'root'
+end
+
+package "libnginx-mod-http-auth-pam"
+
+template "/etc/pam.d/octoprint" do
+	mode '644'
+	owner 'root'
+	group 'root'
+	variables(
+		unix_chkpwd_wrapper_path: unix_chkpwd_wrapper_path,
+	)
+end
 
 template '/etc/nginx/sites-enabled/octoprint' do
 	mode '644'

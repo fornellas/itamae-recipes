@@ -1,1 +1,0 @@
-octoprint   ALL=(ALL:ALL) NOPASSWD: /usr/sbin/service octoprint restart
