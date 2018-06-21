@@ -1,4 +1,4 @@
-auth requisite pam_succeed_if.so uid >= 1000
+auth [success=ignore new_authtok_reqd=ignore ignore=ignore default=die] pam_succeed_if.so uid >= 1000
 auth sufficient pam_exec.so expose_authtok /usr/bin/sudo -nu root <%= @unix_chkpwd_wrapper_path %>
-@include common-account
+account required pam_permit.so
 @include common-session-noninteractive

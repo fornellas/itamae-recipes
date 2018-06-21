@@ -3,7 +3,7 @@ server {
   server_name <%= @domain %>;
   location / {
     auth_pam "Octoprint";
-    auth_pam_service_name octoprint;
+    auth_pam_service_name "octoprint";
 
     proxy_pass http://127.0.0.1:<%= @port %>;
 	proxy_set_header Host $http_host;
