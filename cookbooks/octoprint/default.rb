@@ -3,7 +3,7 @@ include_recipe "../group_add"
 home_path = '/var/lib/octoprint'
 port = 5000
 git_repo_url = "https://github.com/foosel/OctoPrint.git"
-domain = 'odroid.local' # FIXME
+domain = 'octoprint.sigstop.co.uk'
 
 basedir_path = "#{home_path}/.octoprint"
 configfile_path = "#{basedir_path}/config.yaml"
