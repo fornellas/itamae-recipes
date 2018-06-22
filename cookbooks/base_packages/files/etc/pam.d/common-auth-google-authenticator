@@ -1,0 +1,4 @@
+# Dismiss Google Authenticator for trusted networks
+auth [success=1 default=ignore] pam_access.so accessfile=/etc/security/access-no-google-authenticator.conf
+# Enforce Google Authenticator for everything else
+auth required pam_google_authenticator.so [authtok_prompt=Google Authenticator Token: ]
