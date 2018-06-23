@@ -115,6 +115,7 @@ service 'sshd'
 ## Unattended Upgrades
 ##
 
+package 'apt-listchanges'
 package 'unattended-upgrades'
 
 remote_file '/etc/apt/apt.conf.d/50unattended-upgrades' do
