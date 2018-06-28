@@ -17,7 +17,7 @@ file "/etc/aliases" do
 	block do |content|
 		newalias = "root: #{email}"
 		unless content.include?(newalias)
-			content.replace("#{content}\nnewalias")
+			content.replace("#{content}\n#{newalias}")
 		end
 	end
 	notifies :run, 'execute[/usr/bin/newaliases]', :immediately
