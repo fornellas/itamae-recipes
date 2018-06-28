@@ -102,7 +102,7 @@ execute "#{dotfiles_git} remote add origin #{dotfiles_remote_repo_url}" do
 	EOF
 end
 
-execute "#{dotfiles_git} fetch origin && #{dotfiles_git} checkout -f origin/master && #{dotfiles_git} branch master" do
+execute "#{dotfiles_git} fetch origin && #{dotfiles_git} checkout -f origin/master && #{dotfiles_git} branch -f master && #{dotfiles_git} branch --set-upstream-to=origin/master master" do
 	user username
 	cwd home_dir
 	not_if <<~EOF
