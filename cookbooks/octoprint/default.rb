@@ -153,28 +153,20 @@ service "octoprint" do
 end
 
 ##
+## Let's encrypt
+##
+
+include_recipe "../letsencrypt"
+
+letsencrypt domain
+
+##
 ## Nginx
 ##
 
 include_recipe "../nginx"
 
 package "libnginx-mod-http-auth-pam"
-
-letsencrypt_requirements = [
-	'/etc/letsencrypt/live/octoprint.sigstop.co.uk/fullchain.pem',
-	'/etc/letsencrypt/live/octoprint.sigstop.co.uk/privkey.pem',
-	'/etc/letsencrypt/options-ssl-nginx.conf',
-	'/etc/letsencrypt/ssl-dhparams.pem',
-]
-
-test_has_letsencrypt_files = "#{letsencrypt_requirements.map{|f| "test -f #{f}"}.join(' ; ')}"
-
-execute "/usr/bin/certbot certonly -d #{domain} --nginx -n -m #{email} --agree-tos" do
-	user 'root'
-	not_if test_has_letsencrypt_files
-end
-
-run_command(test_has_letsencrypt_files, user: 'root')
 
 template '/etc/nginx/sites-enabled/octoprint' do
 	mode '644'
