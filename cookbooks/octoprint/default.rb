@@ -18,7 +18,6 @@ basedir_path = "#{home_path}/.octoprint"
 configfile_path = "#{basedir_path}/config.yaml"
 git_repo_path = "#{home_path}/OctoPrint"
 virtualenv_path = "#{home_path}/virtualenv"
-unix_chkpwd_wrapper_path = "#{home_path}/unix_chkpwd_wrapper.sh"
 
 ##
 ## Packages
@@ -97,34 +96,6 @@ remote_file configfile_path do
 end
 
 ##
-## Sudo / PAM
-##
-
-remote_file unix_chkpwd_wrapper_path do
-	mode '755'
-	owner 'root'
-	group 'root'
-end
-
-template "/etc/sudoers.d/octoprint" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(
-		unix_chkpwd_wrapper_path: unix_chkpwd_wrapper_path,
-	)
-end
-
-template "/etc/pam.d/octoprint" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(
-		unix_chkpwd_wrapper_path: unix_chkpwd_wrapper_path,
-	)
-end
-
-##
 ## Service
 ##
 
@@ -167,6 +138,12 @@ letsencrypt domain
 include_recipe "../nginx"
 
 package "libnginx-mod-http-auth-pam"
+
+remote_file "/etc/pam.d/octoprint" do
+	mode '644'
+	owner 'root'
+	group 'root'
+end
 
 template '/etc/nginx/sites-enabled/octoprint' do
 	mode '644'

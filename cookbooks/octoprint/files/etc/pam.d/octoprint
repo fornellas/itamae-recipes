@@ -1,0 +1,11 @@
+# Standard Un*x authentication.
+@include common-auth
+
+# Standard Un*x authorization.
+@include common-account
+
+# Standard Un*x session setup and teardown.
+@include common-session
+
+# Standard Un*x password updating.
+@include common-password
