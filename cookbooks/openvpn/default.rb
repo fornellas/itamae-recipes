@@ -139,6 +139,7 @@ template "/etc/openvpn/#{domain}.conf" do
 	owner 'root'
 	group 'root'
 	notifies :restart, 'service[openvpn]'
+	variables(domain: domain, port: port)
 end
 
 remote_file "/etc/default/openvpn" do
