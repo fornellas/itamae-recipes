@@ -1,0 +1,44 @@
+server {
+  server_name <%= @domain %>;
+
+  listen 80;
+
+  location / {
+    return 301 https://$server_name$request_uri;
+  }
+}
+
+server {
+  server_name <%= @domain %>;
+
+  listen <%= @port %> ssl;
+
+  ssl_certificate /etc/letsencrypt/live/<%= @domain %>/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/<%= @domain %>/privkey.pem;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+  keepalive_timeout   300;
+  root <%= @fpm_pool_prefix %>;
+
+  location /cache {
+      deny all;
+  }
+
+  location = /config.php {
+      deny all;
+  }
+
+  location / {
+    index index.php;
+    try_files $uri $uri/ /index.php;
+    
+    location ~ \.php$ {
+       fastcgi_index index.php;
+       include fastcgi_params;
+       fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+       fastcgi_split_path_info ^(.+\.php)(/.+)$;
+       fastcgi_pass unix:<%= @socket_path %>;
+    }
+  }
+}
