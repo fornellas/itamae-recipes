@@ -122,7 +122,7 @@ file "/etc/systemd/system/openvpn@#{domain}.service.d/override.conf" do
 		# Required by pam_google_authenticator.so
 		ProtectHome=false
 		# Required by pam_unix.so
-		ProtectSystem=false
+		CapabilityBoundingSet=CAP_AUDIT_WRITE
 	EOF
 	notifies :run, 'execute[systemctl daemon-reload]'
 end
