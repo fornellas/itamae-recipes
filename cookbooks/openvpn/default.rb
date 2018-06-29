@@ -107,6 +107,22 @@ end
 
 package 'openvpn'
 
+template "/etc/openvpn/#{domain}.conf" do
+	source "templates/etc/openvpn/domain.conf"
+	mode '644'
+	owner 'root'
+	group 'root'
+	notifies :restart, 'service[openvpn]'
+	variables(domain: domain, port: port)
+end
+
+remote_file "/etc/default/openvpn" do
+	mode '644'
+	owner 'root'
+	group 'root'
+	notifies :restart, 'service[openvpn]'
+end
+
 directory "/etc/systemd/system/openvpn@#{domain}.service.d" do
 	mode '755'
 	owner 'root'
@@ -130,22 +146,6 @@ end
 execute "systemctl daemon-reload" do
 	action :nothing
 	user 'root'
-	notifies :restart, 'service[openvpn]'
-end
-
-template "/etc/openvpn/#{domain}.conf" do
-	source "templates/etc/openvpn/domain.conf"
-	mode '644'
-	owner 'root'
-	group 'root'
-	notifies :restart, 'service[openvpn]'
-	variables(domain: domain, port: port)
-end
-
-remote_file "/etc/default/openvpn" do
-	mode '644'
-	owner 'root'
-	group 'root'
 	notifies :restart, 'service[openvpn]'
 end
 
