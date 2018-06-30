@@ -1,0 +1,14 @@
+[Unit]
+Description=CherryMusic server
+Requires=network.target
+After=network.target
+
+[Service]
+User=cherrymusic
+Type=simple
+ExecStart=<%= "#{@install_path}/cherrymusic" %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
