@@ -2,9 +2,9 @@ domain = "tt-rss.sigstop.co.uk"
 port = "443"
 php_major_version = "7"
 php_minor_version = "2"
-home_path = '/var/lib/tt-rss'
 php_version = "#{php_major_version}.#{php_minor_version}"
 socket_path = "/run/php/php#{php_version}-fpm-tt-rss.sock"
+home_path = '/var/lib/tt-rss'
 install_path = "#{home_path}/TinyTinyRSS"
 
 ##
@@ -43,13 +43,15 @@ end
 ## TinyTinyRSS
 ##
 
-# FPM
+# TinyTinyRSS
 
 git install_path do
 	user "tt-rss"
 	revision "master"
 	repository "https://tt-rss.org/git/tt-rss.git"
 end
+
+# videoframes
 
 git "#{home_path}/ttrss-videoframes" do
 	user "tt-rss"
@@ -61,6 +63,8 @@ link "#{install_path}/plugins.local/videoframes" do
 	user 'tt-rss'
 	to "#{home_path}/ttrss-videoframes/videoframes"
 end
+
+# FPM
 
 template "/etc/php/#{php_version}/fpm/pool.d/tt-rss.conf" do
 	source "templates/etc/php/fpm/pool.d/tt-rss.conf"
@@ -95,16 +99,15 @@ service "tt-rss-update_daemon" do
 end
 
 ##
-## Let's Encrypt
-##
-
-include_recipe "../letsencrypt"
-
-letsencrypt domain
-
-##
 ## Nginx
 ##
+
+# Let's Encrypt
+
+include_recipe "../letsencrypt"
+letsencrypt domain
+
+# Nginx
 
 include_recipe "../nginx"
 
