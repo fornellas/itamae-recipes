@@ -1,5 +1,6 @@
 require 'ipaddr'
 
+package 'aptitude'
 package 'curl'
 package 'dc'
 package 'debhelper'
