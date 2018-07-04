@@ -64,10 +64,11 @@ end
 
 pip = "#{virtualenv_path}/bin/pip"
 
-execute "virtualenv #{virtualenv_path}" do
+# Fix for https://github.com/foosel/OctoPrint/issues/2687
+# Not needed for Octoprint 1.3.9
+execute "#{pip} install sarge==0.1.4" do
 	user 'octoprint'
-	cwd home_path
-	not_if "#{virtualenv_path}/bin/python -V"
+	not_if "#{pip} list | grep -E '^sarge +0.1.4'"
 end
 
 execute "#{pip} install https://github.com/foosel/OctoPrint/archive/#{octoprint_version}.zip" do
