@@ -9,6 +9,7 @@ port = 5000
 git_repo_url = "https://github.com/foosel/OctoPrint.git"
 domain = 'octoprint.sigstop.co.uk'
 email = 'fabio.ornellas@gmail.com'
+webcam_server = '192.168.0.150'
 
 ##
 ## SetUp
@@ -152,6 +153,7 @@ template '/etc/nginx/sites-enabled/octoprint' do
 	variables(
 		domain: domain,
 		port: port,
+		webcam_server: webcam_server,
 	)
 	notifies :restart, 'service[nginx]', :immediately
 end
