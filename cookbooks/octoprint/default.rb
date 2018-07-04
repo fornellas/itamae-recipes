@@ -6,7 +6,7 @@ include_recipe "../group_add"
 
 home_path = '/var/lib/octoprint'
 port = 5000
-git_repo_url = "https://github.com/foosel/OctoPrint.git"
+octoprint_version = "1.3.8"
 domain = 'octoprint.sigstop.co.uk'
 email = 'fabio.ornellas@gmail.com'
 webcam_server = '192.168.0.150'
@@ -17,7 +17,6 @@ webcam_server = '192.168.0.150'
 
 basedir_path = "#{home_path}/.octoprint"
 configfile_path = "#{basedir_path}/config.yaml"
-git_repo_path = "#{home_path}/OctoPrint"
 virtualenv_path = "#{home_path}/virtualenv"
 
 ##
@@ -51,22 +50,19 @@ group_add 'octoprint' do
 end
 
 ##
-## Git
+## Octoprint
 ##
 
-execute "git clone #{git_repo_url} #{git_repo_path}" do
+# Virtualenv
+
+execute "virtualenv --python=/usr/bin/python2 #{virtualenv_path}" do
 	user 'octoprint'
-	cwd home_path
-	not_if <<~EOF
-		git -C #{git_repo_path} remote get-url --all origin | grep -E ^#{
-			Shellwords.shellescape(Regexp.escape(git_repo_url))
-		}\\$
-	EOF
+	not_if "test -d #{virtualenv_path}"
 end
 
-##
-## Install to VirtualEnv
-##
+# install
+
+pip = "#{virtualenv_path}/bin/pip"
 
 execute "virtualenv #{virtualenv_path}" do
 	user 'octoprint'
@@ -74,10 +70,9 @@ execute "virtualenv #{virtualenv_path}" do
 	not_if "#{virtualenv_path}/bin/python -V"
 end
 
-execute "#{virtualenv_path}/bin/python setup.py install" do
+execute "#{pip} install https://github.com/foosel/OctoPrint/archive/#{octoprint_version}.zip" do
 	user 'octoprint'
-	cwd git_repo_path
-	not_if "#{virtualenv_path}/bin/pip list | grep -E '^OctoPrint +'"
+	not_if "#{pip} list | grep -E '^OctoPrint +'"
 end
 
 # sudo
