@@ -80,20 +80,32 @@ execute "#{virtualenv_path}/bin/python setup.py install" do
 	not_if "#{virtualenv_path}/bin/pip list | grep -E '^OctoPrint +'"
 end
 
-##
-## Default config
-##
+# sudo
+
+restart_service_cmd = "/usr/bin/sudo /bin/systemctl restart octoprint.service"
+
+file "/etc/sudoers.d/octoprint" do
+	mode '644'
+	owner 'root'
+	group 'root'
+	content "octoprint ALL=(ALL:ALL) NOPASSWD:#{restart_service_cmd}\n"
+end
+
+# Default Config
 
 execute "mkdir #{basedir_path}" do
 	user 'octoprint'
 	not_if "test -d #{basedir_path}"
 end
 
-remote_file configfile_path do
+template configfile_path do
 	mode '644'
 	owner 'octoprint'
 	group 'octoprint'
 	not_if "test -e #{configfile_path}"
+	variables(
+		serverRestartCommand: restart_service_cmd
+	)
 end
 
 ##
