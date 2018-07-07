@@ -18,6 +18,14 @@ webcam_server = '192.168.0.150'
 basedir_path = "#{home_path}/.octoprint"
 configfile_path = "#{basedir_path}/config.yaml"
 virtualenv_path = "#{home_path}/virtualenv"
+local_networks = run_command(
+	"/sbin/ip addr | /bin/grep -E ' inet ' | /usr/bin/gawk '{print $2}'",
+).stdout.split("\n").map do |line|
+	address, mask = line.split("/")
+	mask = '32' unless mask
+	network_address = IPAddr.new(line).to_s
+	"#{network_address}/#{mask}"
+end
 
 ##
 ## Packages
@@ -162,6 +170,7 @@ template '/etc/nginx/sites-enabled/octoprint' do
 		domain: domain,
 		port: port,
 		webcam_server: webcam_server,
+		local_networks: local_networks,
 	)
 	notifies :restart, 'service[nginx]', :immediately
 end
