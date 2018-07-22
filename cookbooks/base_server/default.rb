@@ -3,6 +3,9 @@
 package 'ifupdown'
 package 'openntpd'
 
+include_recipe "../../cookbooks/bind"
+include_recipe "../../cookbooks/postfix"
+
 ##
 ## OpenSSH Server
 ##
