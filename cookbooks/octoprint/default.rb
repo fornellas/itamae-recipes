@@ -86,13 +86,13 @@ end
 
 # sudo
 
-restart_service_cmd = "/usr/bin/sudo /bin/systemctl restart octoprint.service"
+restart_service_cmd = "/bin/systemctl restart octoprint.service"
 
 file "/etc/sudoers.d/octoprint" do
 	mode '644'
 	owner 'root'
 	group 'root'
-	content "octoprint ALL=(ALL:ALL) NOPASSWD:#{restart_service_cmd}\n"
+	content "octoprint ALL=(ALL:ALL) NOPASSWD: #{restart_service_cmd}\n"
 end
 
 # Default Config
@@ -108,7 +108,7 @@ template configfile_path do
 	group 'octoprint'
 	not_if "test -e #{configfile_path}"
 	variables(
-		serverRestartCommand: restart_service_cmd
+		serverRestartCommand: "/usr/bin/sudo #{restart_service_cmd}"
 	)
 end
 
