@@ -1,4 +1,5 @@
 include_recipe "../group_add"
+include_recipe "../backblaze"
 
 ##
 ## Configuration
@@ -173,4 +174,13 @@ template '/etc/nginx/sites-enabled/octoprint' do
 		local_networks: local_networks,
 	)
 	notifies :restart, 'service[nginx]', :immediately
+end
+
+##
+## Backup
+##
+
+backblaze "#{node['fqdn'].tr('.', '-')}-octoprint" do
+	backup_path home_path
+	user 'octoprint'
 end
