@@ -1,9 +1,14 @@
 email = "fabio.ornellas@gmail.com"
 
 include_recipe "../nginx"
+include_recipe "../backblaze"
 
 package 'python3-certbot-nginx'
 package 'certbot'
+
+backblaze "#{node['fqdn'].tr('.', '-')}-letsencrypt" do
+	backup_path "/etc/letsencrypt"
+end
 
 define :letsencrypt, domain: nil do
 	domain = if params[:domain]
