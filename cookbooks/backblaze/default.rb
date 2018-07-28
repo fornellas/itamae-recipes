@@ -12,8 +12,12 @@ end
 
 define(
     :backblaze,
+    command_before: '/bin/true',
     bucket: nil,
     backup_paths: nil,
+    backup_cmd_stdout: nil,
+    backup_cmd_stdout_filename: nil,
+    command_after: '/bin/true',
     cron_minute: 0,
     cron_hour: 6,
     keep_hourly: 24,
@@ -23,6 +27,7 @@ define(
     keep_yearly: 5,
     user: 'root',
 ) do
+    command_before = params[:command_before]
     bucket = if params[:bucket]
         params[:bucket]
     else
@@ -46,6 +51,9 @@ define(
     end
     password = node[:backblaze][bucket][:password]
     backup_paths = params[:backup_paths]
+    backup_cmd_stdout = params[:backup_cmd_stdout]
+    backup_cmd_stdout_filename = params[:backup_cmd_stdout_filename]
+    command_after = params[:command_after]
     keep_hourly = params[:keep_hourly]
     keep_daily = params[:keep_daily]
     keep_weekly = params[:keep_weekly]
@@ -85,7 +93,14 @@ define(
         not_if "#{restic_script_path} snapshots"
     end
 
-    backup_cmd = "#{restic_script_path} backup #{backup_paths.map{|p| Shellwords.shellescape(p)}.join(' ')}"
+    backup_cmd = []
+    if backup_paths
+        backup_cmd << "#{restic_script_path} backup #{backup_paths.map{|p| Shellwords.shellescape(p)}.join(' ')}"
+    end
+    if backup_cmd_stdout
+        backup_cmd << "#{backup_cmd_stdout} | #{restic_script_path} backup --stdin --stdin-filename #{Shellwords.shellescape(backup_cmd_stdout_filename)}"
+    end
+    backup_cmd = backup_cmd.join(' && ')
     forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
     check_cmd = "#{restic_script_path} check"
 
@@ -93,6 +108,6 @@ define(
         mode '644'
         owner 'root'
         group 'root'
-        content "#{cron_minute} #{cron_hour} * * * root #{backup_cmd} && #{forget_cmd} && #{check_cmd}\n"
+        content "#{cron_minute} #{cron_hour} * * * root #{command_before} && #{backup_cmd} && #{command_after} && #{forget_cmd} && #{check_cmd}\n"
     end
 end
