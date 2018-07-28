@@ -7,7 +7,7 @@ package 'python3-certbot-nginx'
 package 'certbot'
 
 backblaze "#{node['fqdn'].tr('.', '-')}-letsencrypt" do
-	backup_path "/etc/letsencrypt"
+	backup_paths ["/etc/letsencrypt"]
 end
 
 define :letsencrypt, domain: nil do

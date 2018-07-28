@@ -24,6 +24,7 @@ package "php#{php_version}-xml"
 
 include_recipe "../mysql"
 include_recipe "../php-fpm"
+include_recipe "../backblaze"
 
 ##
 ## User / Group
@@ -124,4 +125,16 @@ template '/etc/nginx/sites-enabled/tt-rss' do
 		socket_path: socket_path,
 	)
 	notifies :restart, 'service[nginx]', :immediately
+end
+
+##
+## Backup
+##
+
+backblaze "#{node['fqdn'].tr('.', '-')}-tt-rss" do
+	backup_paths [home_path]
+	backup_cmd_stdout '/usr/bin/mysqldump ttrss'
+	backup_cmd_stdout_filename "ttrss.sql"
+	user 'tt-rss'
+	cron_minute 30
 end
