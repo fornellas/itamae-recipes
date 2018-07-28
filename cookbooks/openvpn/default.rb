@@ -14,6 +14,25 @@ default_gateway_dev_addr = run_command(
 ## Nginx
 ##
 
+# Client configurations
+directory "/etc/openvpn/#{domain}/" do
+       mode '755'
+       owner 'root'
+       group 'root'
+end
+
+template "/etc/openvpn/#{domain}/#{domain}-udp.ovpn" do
+       source "templates/etc/openvpn/domain/domain-udp.ovpn"
+       mode '755'
+       owner 'root'
+       group 'root'
+       variables(
+               domain: domain,
+               port: port,
+               letsencrypt_ca: letsencrypt_ca
+       )
+end
+
 include_recipe "../nginx"
 
 template '/etc/nginx/sites-enabled/openvpn' do
@@ -86,6 +105,8 @@ end
 ##
 ## OpenVPN
 ##
+
+# Server
 
 package 'openvpn'
 
