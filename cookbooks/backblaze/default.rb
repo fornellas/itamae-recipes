@@ -1,20 +1,19 @@
 require 'shellwords'
 
-node.validate! do
-  {
-    backblaze: {
-      account_id: string,
-      account_key: string,
-    }
-  }
-end
+cache_path = "/var/cache/restic"
 
 package 'restic'
+
+directory cache_path do
+    owner 'root'
+    group 'root'
+    mode '755'
+end
 
 define(
     :backblaze,
     bucket: nil,
-    backup_path: nil,
+    backup_paths: nil,
     cron_minute: 0,
     cron_hour: 6,
     keep_hourly: 24,
@@ -31,12 +30,22 @@ define(
     end
     user = params[:user]
     user_home = run_command("getent passwd #{user}").stdout.split(':')[5]
-    password_file_path = "#{user_home}/.restic_password-#{bucket}"
+    restic_script_path = "#{user_home}/.restic-#{bucket}"
+    password_file_path = "#{user_home}/.restic-#{bucket}-password"
+    restic_cache_path = "#{cache_path}/#{user}-#{bucket}"
     node.validate! do
-      {backblaze: {bucket_passwords: {bucket => string}}}
+        {
+            backblaze: {
+                bucket => {
+                    account_id: string,
+                    account_key: string,
+                    password: string,
+                }
+            }
+        }
     end
-    password = node[:backblaze][:bucket_passwords][bucket]
-    backup_path = params[:backup_path]
+    password = node[:backblaze][bucket][:password]
+    backup_paths = params[:backup_paths]
     keep_hourly = params[:keep_hourly]
     keep_daily = params[:keep_daily]
     keep_weekly = params[:keep_weekly]
@@ -47,12 +56,19 @@ define(
 
     env = {
         RESTIC_REPOSITORY: "b2:#{bucket}",
-        B2_ACCOUNT_ID: node[:backblaze][:account_id],
-        B2_ACCOUNT_KEY: node[:backblaze][:account_key],
+        B2_ACCOUNT_ID: node[:backblaze][bucket][:account_id],
+        B2_ACCOUNT_KEY: node[:backblaze][bucket][:account_key],
         RESTIC_PASSWORD_FILE: password_file_path,
     }
 
-    restic_cmd = "/usr/bin/sudo -u #{user} #{env.to_a.map{|key, value| "#{key}=#{Shellwords.shellescape(value)}"}.join(" ")} /usr/bin/restic --quiet"
+    file restic_script_path do
+        mode '700'
+        owner user
+        content <<~EOF
+            #!/bin/sh
+            /usr/bin/sudo -u #{user} #{env.to_a.map{|key, value| "#{key}=#{Shellwords.shellescape(value)}"}.join(" ")} /usr/bin/restic --quiet --cache-dir #{Shellwords.shellescape(restic_cache_path)} \"$@\"
+        EOF
+    end
 
     file password_file_path do
         mode '600'
@@ -60,16 +76,21 @@ define(
         content password
     end
 
-    execute "#{restic_cmd} init" do
-        not_if "#{restic_cmd} snapshots"
+    directory restic_cache_path do
+        owner user
+        mode '700'
     end
 
-    backup_cmd = "#{restic_cmd} backup #{Shellwords.shellescape(backup_path)}"
-    forget_cmd = "#{restic_cmd} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
-    check_cmd = "#{restic_cmd} check"
+    execute "#{restic_script_path} init" do
+        not_if "#{restic_script_path} snapshots"
+    end
+
+    backup_cmd = "#{restic_script_path} backup #{backup_paths.map{|p| Shellwords.shellescape(p)}.join(' ')}"
+    forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
+    check_cmd = "#{restic_script_path} check"
 
     file "/etc/cron.d/restic-#{bucket}" do
-        mode '600'
+        mode '644'
         owner 'root'
         group 'root'
         content "#{cron_minute} #{cron_hour} * * * root #{backup_cmd} && #{forget_cmd} && #{check_cmd}\n"
