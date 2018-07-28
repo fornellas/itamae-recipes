@@ -11,6 +11,20 @@ default_gateway_dev_addr = run_command(
 ).stdout.chomp
 
 ##
+## Nginx
+##
+
+include_recipe "../nginx"
+
+template '/etc/nginx/sites-enabled/openvpn' do
+	mode '644'
+	owner 'root'
+	group 'root'
+	variables(domain: domain)
+	notifies :restart, 'service[nginx]', :immediately
+end
+
+##
 ## Certificate
 ##
 
@@ -70,38 +84,6 @@ execute "iptables-save" do
 end
 
 ##
-## Nginx
-##
-
-include_recipe "../nginx"
-
-directory "/etc/openvpn/#{domain}/" do
-	mode '755'
-	owner 'root'
-	group 'root'
-end
-
-template "/etc/openvpn/#{domain}/#{domain}-udp.ovpn" do
-	source "templates/etc/openvpn/domain/domain-udp.ovpn"
-	mode '755'
-	owner 'root'
-	group 'root'
-	variables(
-		domain: domain,
-		port: port,
-		letsencrypt_ca: letsencrypt_ca
-	)
-end
-
-template '/etc/nginx/sites-enabled/openvpn' do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(domain: domain)
-	notifies :restart, 'service[nginx]', :immediately
-end
-
-##
 ## OpenVPN
 ##
 
@@ -112,15 +94,15 @@ template "/etc/openvpn/#{domain}.conf" do
 	mode '644'
 	owner 'root'
 	group 'root'
-	notifies :restart, 'service[openvpn]'
 	variables(domain: domain, port: port)
+	notifies :restart, "service[openvpn@#{domain}]"
 end
 
 remote_file "/etc/default/openvpn" do
 	mode '644'
 	owner 'root'
 	group 'root'
-	notifies :restart, 'service[openvpn]'
+	notifies :restart, "service[openvpn@#{domain}]"
 end
 
 directory "/etc/systemd/system/openvpn@#{domain}.service.d" do
@@ -146,7 +128,9 @@ end
 execute "systemctl daemon-reload" do
 	action :nothing
 	user 'root'
-	notifies :restart, 'service[openvpn]'
+	notifies :restart, "service[openvpn@#{domain}]"
 end
 
-service 'openvpn'
+service "openvpn@#{domain}" do
+	action [:enable, :start]
+end
