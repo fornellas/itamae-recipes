@@ -125,7 +125,7 @@ end
 # https://docs.nextcloud.com/server/12/admin_manual/maintenance/backup.html
 
 backblaze "#{node['fqdn'].tr('.', '-')}-nextcloud" do
-	command_before "sudo -u nextcloud /usr/bin/php#{php_version} #{install_path}/occ maintenance:mode --on > /dev/null"
+	command_before "sudo -u nextcloud /usr/bin/php#{php_version} #{install_path}/occ maintenance:mode --on &> /dev/null"
 	backup_paths [
 		"#{install_path}/config/",
 		"#{install_path}/data/",
@@ -133,7 +133,7 @@ backblaze "#{node['fqdn'].tr('.', '-')}-nextcloud" do
 	]
 	backup_cmd_stdout '/usr/bin/mysqldump nextcloud'
 	backup_cmd_stdout_filename "nextcloud.sql"
-	command_after "sudo -u nextcloud /usr/bin/php#{php_version} #{install_path}/occ maintenance:mode --off > /dev/null"
+	command_after "sudo -u nextcloud /usr/bin/php#{php_version} #{install_path}/occ maintenance:mode --off &> /dev/null"
 	user 'nextcloud'
 	cron_minute 55
 end
