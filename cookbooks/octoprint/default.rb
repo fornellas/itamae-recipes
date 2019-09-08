@@ -7,7 +7,7 @@ include_recipe "../backblaze"
 
 home_path = '/var/lib/octoprint'
 port = 5000
-octoprint_version = "1.3.8"
+octoprint_version = "1.3.10"
 domain = 'octoprint.sigstop.co.uk'
 email = 'fabio.ornellas@gmail.com'
 webcam_server = '192.168.0.150'
@@ -72,13 +72,6 @@ end
 # install
 
 pip = "#{virtualenv_path}/bin/pip"
-
-# Fix for https://github.com/foosel/OctoPrint/issues/2687
-# Not needed for Octoprint 1.3.9
-execute "#{pip} install sarge==0.1.4" do
-	user 'octoprint'
-	not_if "#{pip} list | grep -E '^sarge +0.1.4'"
-end
 
 execute "#{pip} install https://github.com/foosel/OctoPrint/archive/#{octoprint_version}.zip" do
 	user 'octoprint'
