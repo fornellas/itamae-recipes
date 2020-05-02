@@ -7,7 +7,7 @@ include_recipe "../backblaze"
 
 home_path = '/var/lib/octoprint'
 port = 5000
-octoprint_version = "1.3.10"
+octoprint_version = "1.4.0"
 domain = 'octoprint.sigstop.co.uk'
 email = 'fabio.ornellas@gmail.com'
 webcam_server = '192.168.0.150'
@@ -32,10 +32,9 @@ end
 ## Packages
 ##
 
-package 'python-pip'
-package 'python-dev'
-package 'python-setuptools'
-package 'python-virtualenv'
+package 'python3-pip'
+package 'python3-dev'
+package 'python3-virtualenv'
 package 'git'
 package 'libyaml-dev'
 package 'build-essential'
@@ -64,7 +63,7 @@ end
 
 # Virtualenv
 
-execute "virtualenv --python=/usr/bin/python2 #{virtualenv_path}" do
+execute "virtualenv --python=/usr/bin/python3 #{virtualenv_path}" do
 	user 'octoprint'
 	not_if "test -d #{virtualenv_path}"
 end
