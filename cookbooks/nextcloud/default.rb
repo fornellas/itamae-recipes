@@ -95,7 +95,7 @@ end
 directory "#{home_path}/data" do
     owner 'nextcloud'
     group 'nextcloud'
-    mode '755'
+    mode '770'
 end
 
 link "#{install_path}/data" do
