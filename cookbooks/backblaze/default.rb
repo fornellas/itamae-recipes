@@ -108,6 +108,6 @@ define(
         mode '644'
         owner 'root'
         group 'root'
-        content "#{cron_minute} #{cron_hour} * * * root #{command_before} && #{backup_cmd} && #{command_after} && #{forget_cmd} && if date +%w | grep -qE ^0$ ; then #{check_cmd} ; fi\n"
+        content "#{cron_minute} #{cron_hour} * * * root #{command_before} && #{backup_cmd} && #{command_after} && #{forget_cmd} && date +%w | grep -qE ^0$ && #{check_cmd}\n"
     end
 end
