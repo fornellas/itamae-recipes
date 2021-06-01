@@ -36,6 +36,7 @@ define(
     user = params[:user]
     user_home = run_command("getent passwd #{user}").stdout.split(':')[5]
     restic_script_path = "#{user_home}/.restic-#{bucket}"
+    restic_cron_script_path = "#{user_home}/.restic-#{bucket}-cron"
     password_file_path = "#{user_home}/.restic-#{bucket}-password"
     restic_cache_path = "#{cache_path}/#{user}-#{bucket}"
     node.validate! do
@@ -104,10 +105,51 @@ define(
     forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
     check_cmd = "#{restic_script_path} check"
 
+    file restic_cron_script_path do
+        mode '700'
+        owner user
+        content <<~EOF
+            #!/bin/bash
+            EXIT=0
+            if #{command_before}
+            then
+                if #{backup_cmd}
+                then
+                    if #{forget_cmd}
+                    then
+                        if date +%w | grep -qE ^0$
+                        then
+                            if ! #{check_cmd}
+                            then
+                                echo Check failed! 1>&2
+                                EXIT=1
+                            fi
+                        fi
+                    else
+                        echo Forget failed! 1>&2
+                        EXIT=1
+                    fi
+                else
+                    echo Backup failed! 1>&2
+                    EXIT=1
+                fi
+                if ! #{command_after}
+                then
+                    echo After hook failed! 1>&2
+                    EXIT=1
+                fi
+            else
+                echo Before hook failed! 1>&2
+                EXIT=1
+            fi
+            exit $EXIT
+        EOF
+    end
+
     file "/etc/cron.d/restic-#{bucket}" do
         mode '644'
         owner 'root'
         group 'root'
-        content "#{cron_minute} #{cron_hour} * * * root #{command_before} && #{backup_cmd} && #{command_after} && #{forget_cmd} && date +%w | grep -qE ^0$ && #{check_cmd}\n"
+        content "#{cron_minute} #{cron_hour} * * * root #{restic_cron_script_path}\n"
     end
 end
