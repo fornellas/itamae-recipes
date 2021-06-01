@@ -2,7 +2,7 @@ domain = "nextcloud.sigstop.co.uk"
 port = "443"
 # Must upgrade step by step:
 # https://docs.nextcloud.com/server/20/admin_manual/maintenance/upgrade.html#how-to-upgrade
-nextcloud_version = "20.0.7"
+nextcloud_version = "20.0.8"
 
 php_major_version = "7"
 php_minor_version = "2"
