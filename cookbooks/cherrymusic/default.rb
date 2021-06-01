@@ -44,8 +44,8 @@ end
 
 git install_path do
 	user "cherrymusic"
-	revision "origin/master"
-	repository "git://github.com/devsnd/cherrymusic.git"
+	revision "origin/devel"
+	repository "git://github.com/fornellas/cherrymusic.git"
 end
 
 execute "/usr/bin/yes | #{install_path}/cherrymusic" do
