@@ -19,7 +19,7 @@ define(
     backup_cmd_stdout_filename: nil,
     command_after: '/bin/true',
     cron_minute: 0,
-    cron_hour: 6,
+    cron_hour: 4,
     keep_hourly: 24,
     keep_daily: 7,
     keep_weekly: 4,
