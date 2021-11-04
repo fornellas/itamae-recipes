@@ -1,7 +1,7 @@
 domain = "vpn.sigstop.co.uk"
 port = "443"
 
-letsencrypt_ca = run_command("cat /etc/ssl/certs/DST_Root_CA_X3.pem").stdout.chomp
+letsencrypt_ca = run_command("cat /usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt").stdout.chomp
 default_gateway_dev = run_command(
 	"/sbin/ip route | /usr/bin/gawk '/^default via/{print $5}'",
 ).stdout.chomp
