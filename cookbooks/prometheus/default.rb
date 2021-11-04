@@ -33,6 +33,21 @@ service "prometheus" do
 end
 
 ##
+## Backup
+##
+
+include_recipe "../backblaze"
+
+backblaze "#{node['fqdn'].tr('.', '-')}-prometheus" do
+	command_before "/usr/bin/curl -s -XPOST http://localhost:#{prometheus_port}/api/v1/admin/tsdb/snapshot > /dev/null"
+	backup_paths ["/var/lib/prometheus/metrics2/snapshots"]
+	command_after "/bin/rm -rf /var/lib/prometheus/metrics2/snapshots/*"
+  cron_minute 0
+  cron_hour 33
+	user 'prometheus'
+end
+
+##
 ## Let's Encrypt
 ##
 
