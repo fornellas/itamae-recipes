@@ -15,6 +15,7 @@ define(
     command_before: '/bin/true',
     bucket: nil,
     backup_paths: nil,
+    backup_exclude: nil,
     backup_cmd_stdout: nil,
     backup_cmd_stdout_filename: nil,
     command_after: '/bin/true',
@@ -52,6 +53,7 @@ define(
     end
     password = node[:backblaze][bucket][:password]
     backup_paths = params[:backup_paths]
+    backup_exclude = params[:backup_exclude]
     backup_cmd_stdout = params[:backup_cmd_stdout]
     backup_cmd_stdout_filename = params[:backup_cmd_stdout_filename]
     command_after = params[:command_after]
@@ -96,7 +98,13 @@ define(
 
     backup_cmd = []
     if backup_paths
-        backup_cmd << "#{restic_script_path} backup #{backup_paths.map{|p| Shellwords.shellescape(p)}.join(' ')}"
+        exclude = ""
+        if backup_exclude
+            backup_exclude.each do |pattern|
+                exclude += "--exclude #{Shellwords.shellescape(pattern)}"
+            end
+        end
+        backup_cmd << "#{restic_script_path} backup #{exclude} #{backup_paths.map{|path| Shellwords.shellescape(path)}.join(' ')}"
     end
     if backup_cmd_stdout
         backup_cmd << "#{backup_cmd_stdout} | #{restic_script_path} backup --stdin --stdin-filename #{Shellwords.shellescape(backup_cmd_stdout_filename)}"
