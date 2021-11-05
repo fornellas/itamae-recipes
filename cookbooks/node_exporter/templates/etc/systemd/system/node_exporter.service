@@ -1,0 +1,14 @@
+[Unit]
+Description=Node Exporter Service
+Requires=network.target
+After=network.target
+
+[Service]
+User=node_exporter
+Type=simple
+ExecStart=<%= "#{@install_path}/node_exporter" %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

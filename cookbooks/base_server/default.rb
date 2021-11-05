@@ -2,8 +2,8 @@
 
 package 'ifupdown'
 package 'openntpd'
-package 'prometheus-node-exporter'
 
+include_recipe "../../cookbooks/node_exporter"
 include_recipe "../../cookbooks/bind"
 include_recipe "../../cookbooks/postfix"
 
