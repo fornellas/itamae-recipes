@@ -27,6 +27,7 @@ define(
     keep_monthly: 12,
     keep_yearly: 5,
     user: 'root',
+    bin_path: nil,
 ) do
     command_before = params[:command_before]
     bucket = if params[:bucket]
@@ -35,10 +36,13 @@ define(
         params[:name]
     end
     user = params[:user]
-    user_home = run_command("getent passwd #{user}").stdout.split(':')[5]
-    restic_script_path = "#{user_home}/.restic-#{bucket}"
-    restic_cron_script_path = "#{user_home}/.restic-#{bucket}-cron"
-    password_file_path = "#{user_home}/.restic-#{bucket}-password"
+    bin_path = params[:bin_path]
+    if not bin_path
+        bin_path = run_command("getent passwd #{user}").stdout.split(':')[5]
+    end
+    restic_script_path = "#{bin_path}/.restic-#{bucket}"
+    restic_cron_script_path = "#{bin_path}/.restic-#{bucket}-cron"
+    password_file_path = "#{bin_path}/.restic-#{bucket}-password"
     restic_cache_path = "#{cache_path}/#{user}-#{bucket}"
     node.validate! do
         {
