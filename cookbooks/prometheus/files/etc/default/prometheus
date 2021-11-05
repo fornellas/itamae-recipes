@@ -1,5 +1,5 @@
 # Set the command-line arguments to pass to the server.
-ARGS="--web.listen-address="127.0.0.1:9090 --web.enable-admin-api"
+ARGS="--web.listen-address=127.0.0.1:9090 --web.enable-admin-api"
 
 # Prometheus supports the following options:
 #  --config.file="/etc/prometheus/prometheus.yml"
