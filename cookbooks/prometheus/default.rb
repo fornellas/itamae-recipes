@@ -6,6 +6,8 @@ version = "2.31.0"
 arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
+include_recipe "../../cookbooks/blackbox_exporter"
+
 ##
 ## Prometheus
 ##

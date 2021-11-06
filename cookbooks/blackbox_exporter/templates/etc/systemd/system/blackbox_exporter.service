@@ -1,0 +1,14 @@
+[Unit]
+Description=Blackbox Exporter
+Requires=network.target
+After=network.target
+
+[Service]
+User=blackbox_exporter
+Type=simple
+ExecStart=<%= "#{@install_path}/blackbox_exporter" %> --config.file=<%= @config_file %> --web.listen-address=127.0.0.1:9115
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

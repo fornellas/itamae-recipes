@@ -1,0 +1,30 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 4s
+    http:
+      preferred_ip_protocol: ip4
+  http_401:
+    prober: http
+    timeout: 4s
+    http:
+      preferred_ip_protocol: ip4
+      valid_status_codes: [401]
+  tcp_connect:
+    prober: tcp
+    timeout: 4s
+    tcp:
+      preferred_ip_protocol: ip4
+  ssh_banner:
+    prober: tcp
+    timeout: 4s
+    tcp:
+      preferred_ip_protocol: ip4
+      query_response:
+      - expect: "^SSH-2.0-"
+      - send: "SSH-2.0-blackbox-ssh-check"
+  icmp:
+    prober: icmp
+    timeout: 4s
+    icmp:
+      preferred_ip_protocol: ip4
