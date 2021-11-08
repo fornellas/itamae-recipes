@@ -1,0 +1,14 @@
+[Unit]
+Description=AlertManager
+Requires=network.target
+After=network.target
+
+[Service]
+User=alertmanager
+Type=simple
+ExecStart=<%= "#{@install_path}/alertmanager" %> --config.file=<%= @config_file %> --storage.path=<%= @storage_path %> --cluster.listen-address=<%= @cluster_listen_address %> --web.listen-address=<%= @web_listen_address %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
