@@ -1,6 +1,6 @@
 home_path = "/var/lib/prometheus"
 domain = "prometheus.sigstop.co.uk"
-prometheus_port = "9090"
+web_listen_port = "9090"
 nginx_port = "443"
 version = "2.31.0"
 arch = "armv7"
@@ -51,7 +51,7 @@ end
 # Backup
 
 backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
-  command_before "/usr/bin/curl -s -XPOST http://localhost:#{prometheus_port}/api/v1/admin/tsdb/snapshot > /dev/null"
+  command_before "/usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
   backup_paths ["#{home_path}/tsdb/snapshots"]
   command_after "/bin/rm -rf #{home_path}/tsdb/snapshots/*"
   cron_hour 6
@@ -64,7 +64,7 @@ end
 
 iptables_rule_drop_not_user "Drop not www-data|grafana user to Prometheus" do
   users ["www-data", "grafana"]
-  port prometheus_port
+  port web_listen_port
 end
 
 # Service
@@ -77,6 +77,7 @@ template "/etc/systemd/system/prometheus.service" do
     install_path: "/opt/prometheus",
     config_file: "/etc/prometheus/prometheus.yml",
     storage_tsdb_path: "#{home_path}/tsdb",
+    web_listen_address: "127.0.0.1:#{web_listen_port}",
   )
   notifies :run, "execute[systemctl daemon-reload]"
 end
@@ -120,7 +121,7 @@ template "/etc/nginx/sites-enabled/prometheus" do
   variables(
     domain: domain,
     port: nginx_port,
-    prometheus_port: prometheus_port,
+    prometheus_port: web_listen_port,
   )
   notifies :restart, "service[nginx]", :immediately
 end
