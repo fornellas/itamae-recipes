@@ -34,7 +34,7 @@ DEPENDENCIES
   rufo
 
 RUBY VERSION
-   ruby 2.6.3p62
+   ruby 3.0.2p107
 
 BUNDLED WITH
-   1.17.2
+   2.2.22
