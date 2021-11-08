@@ -43,8 +43,8 @@ backblaze "#{node['fqdn'].tr('.', '-')}-grafana" do
   backup_exclude ["grafana.db"]
   backup_cmd_stdout 'sqlite3 /var/lib/grafana/grafana.db .dump'
   backup_cmd_stdout_filename "grafana.db"
-  cron_minute 2
-  cron_hour 33
+  cron_hour 5
+  cron_minute 30
   user 'grafana'
 end
 

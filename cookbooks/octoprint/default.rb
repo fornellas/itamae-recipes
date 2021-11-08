@@ -175,5 +175,6 @@ end
 backblaze "#{node['fqdn'].tr('.', '-')}-octoprint" do
 	backup_paths [home_path]
 	user 'octoprint'
-	cron_minute 15
+	cron_hour 3
+	cron_minute 10
 end
