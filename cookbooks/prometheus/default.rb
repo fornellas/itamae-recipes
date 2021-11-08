@@ -27,10 +27,10 @@ end
 
 # Install
 
-execute "wget -O prometheus.tar.gz #{tar_gz_url} && tar zxf prometheus.tar.gz && chown root.root -R prometheus-#{version}.linux-#{arch} && rm -rf /opt/prometheus-tmp && mv prometheus-#{version}.linux-#{arch} /opt/prometheus-tmp && mv /opt/prometheus-tmp /opt/prometheus-#{version}" do
+execute "wget -O prometheus.tar.gz #{tar_gz_url} && tar zxf prometheus.tar.gz && chown root.root -R prometheus-#{version}.linux-#{arch} && rm -rf /opt/prometheus && mv prometheus-#{version}.linux-#{arch} /opt/prometheus && touch /opt/prometheus/#{version}.ok" do
   user "root"
   cwd "/tmp"
-  not_if "test -d /opt/prometheus-#{version}"
+  not_if "test -d /opt/prometheus/#{version}.ok"
 end
 
 # Configuration

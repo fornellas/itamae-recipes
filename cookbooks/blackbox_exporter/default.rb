@@ -20,10 +20,10 @@ end
 
 # Install
 
-execute "wget -O blackbox_exporter.tar.gz #{tar_gz_url} && tar zxf blackbox_exporter.tar.gz && chown root.root -R blackbox_exporter-#{version}.linux-#{arch} && rm -rf /opt/blackbox_exporter-tmp && mv blackbox_exporter-#{version}.linux-#{arch} /opt/blackbox_exporter-tmp && mv /opt/blackbox_exporter-tmp /opt/blackbox_exporter-#{version}" do
+execute "wget -O blackbox_exporter.tar.gz #{tar_gz_url} && tar zxf blackbox_exporter.tar.gz && chown root.root -R blackbox_exporter-#{version}.linux-#{arch} && rm -rf /opt/blackbox_exporter && mv blackbox_exporter-#{version}.linux-#{arch} /opt/blackbox_exporter && touch /opt/blackbox_exporter/.#{version}.ok" do
   user "root"
   cwd "/tmp"
-  not_if "test -d /opt/blackbox_exporter-#{version}"
+  not_if "test -d /opt/blackbox_exporter/.#{version}.ok"
 end
 
 # Configuration
@@ -55,7 +55,7 @@ template "/etc/systemd/system/blackbox_exporter.service" do
   owner "root"
   group "root"
   variables(
-    install_path: "/opt/blackbox_exporter-#{version}",
+    install_path: "/opt/blackbox_exporter",
     config_file: "/etc/blackbox_exporter/blackbox.yml",
   )
   notifies :run, "execute[systemctl daemon-reload]"
