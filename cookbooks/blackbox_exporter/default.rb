@@ -23,7 +23,7 @@ end
 execute "wget -O blackbox_exporter.tar.gz #{tar_gz_url} && tar zxf blackbox_exporter.tar.gz && chown root.root -R blackbox_exporter-#{version}.linux-#{arch} && rm -rf /opt/blackbox_exporter && mv blackbox_exporter-#{version}.linux-#{arch} /opt/blackbox_exporter && touch /opt/blackbox_exporter/.#{version}.ok" do
   user "root"
   cwd "/tmp"
-  not_if "test -d /opt/blackbox_exporter/.#{version}.ok"
+  not_if "test -f /opt/blackbox_exporter/.#{version}.ok"
 end
 
 # Configuration

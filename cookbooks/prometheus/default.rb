@@ -27,10 +27,10 @@ end
 
 # Install
 
-execute "wget -O prometheus.tar.gz #{tar_gz_url} && tar zxf prometheus.tar.gz && chown root.root -R prometheus-#{version}.linux-#{arch} && rm -rf /opt/prometheus && mv prometheus-#{version}.linux-#{arch} /opt/prometheus && touch /opt/prometheus/#{version}.ok" do
+execute "wget -O prometheus.tar.gz #{tar_gz_url} && tar zxf prometheus.tar.gz && chown root.root -R prometheus-#{version}.linux-#{arch} && rm -rf /opt/prometheus && mv prometheus-#{version}.linux-#{arch} /opt/prometheus && touch /opt/prometheus/.#{version}.ok" do
   user "root"
   cwd "/tmp"
-  not_if "test -d /opt/prometheus/#{version}.ok"
+  not_if "test -f /opt/prometheus/.#{version}.ok"
 end
 
 # Configuration
@@ -74,7 +74,7 @@ template "/etc/systemd/system/prometheus.service" do
   owner "root"
   group "root"
   variables(
-    install_path: "/opt/prometheus-#{version}",
+    install_path: "/opt/prometheus",
     config_file: "/etc/prometheus/prometheus.yml",
     storage_tsdb_path: "#{home_path}/tsdb",
   )

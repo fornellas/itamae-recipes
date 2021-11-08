@@ -22,10 +22,10 @@ end
 
 # Install
 
-execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar.gz && chown root.root -R node_exporter-#{version}.linux-#{arch} && rm -rf /opt/node_exporter && mv node_exporter-#{version}.linux-#{arch} /opt/node_exporter && touch /opt/node_exporter/#{version}.ok" do
+execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar.gz && chown root.root -R node_exporter-#{version}.linux-#{arch} && rm -rf /opt/node_exporter && mv node_exporter-#{version}.linux-#{arch} /opt/node_exporter && touch /opt/node_exporter/.#{version}.ok" do
   user "root"
   cwd "/tmp"
-  not_if "test -d /opt/node_exporter/#{version}.ok"
+  not_if "test -f /opt/node_exporter/.#{version}.ok"
 end
 
 # iptables
