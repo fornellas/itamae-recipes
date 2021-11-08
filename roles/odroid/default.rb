@@ -7,29 +7,29 @@ hostname = "odroid.sigstop.co.uk"
 update_hostname_command = "/bin/hostname #{hostname} && /usr/bin/touch /var/run/reboot-required"
 
 file "/etc/hostname" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	content "#{hostname}"
-	notifies :run, "execute[#{update_hostname_command}]", :immediately
+  mode "644"
+  owner "root"
+  group "root"
+  content "#{hostname}"
+  notifies :run, "execute[#{update_hostname_command}]", :immediately
 end
 
 execute update_hostname_command do
-	user 'root'
-	action :nothing
+  user "root"
+  action :nothing
 end
 
 remote_file "/etc/rc.local" do
-	mode '755'
-	owner 'root'
-	group 'root'
+  mode "755"
+  owner "root"
+  group "root"
 end
 
 file "/etc/cron.d/kernel_reboot" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	content "30 7 * * * root if [ \"$(/bin/ls -1tr /boot/initrd.img-* | /usr/bin/tail -n 1 | /usr/bin/cut -d- -f2-)\" != \"$(uname -r)\" ] ; then /sbin/reboot ; fi
+  mode "644"
+  owner "root"
+  group "root"
+  content "30 7 * * * root if [ \"$(/bin/ls -1tr /boot/initrd.img-* | /usr/bin/tail -n 1 | /usr/bin/cut -d- -f2-)\" != \"$(uname -r)\" ] ; then /sbin/reboot ; fi
 \n"
 end
 

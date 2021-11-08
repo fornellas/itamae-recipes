@@ -18,10 +18,10 @@ end
 # Configuration
 
 remote_file "/etc/grafana/grafana.ini" do
-  mode '640'
-  owner 'root'
-  group 'grafana'
-  notifies :restart, 'service[grafana-server]'
+  mode "640"
+  owner "root"
+  group "grafana"
+  notifies :restart, "service[grafana-server]"
 end
 
 # Service
@@ -36,16 +36,16 @@ end
 
 include_recipe "../backblaze"
 
-package 'sqlite3'
+package "sqlite3"
 
-backblaze "#{node['fqdn'].tr('.', '-')}-grafana" do
+backblaze "#{node["fqdn"].tr(".", "-")}-grafana" do
   backup_paths ["/var/lib/grafana/"]
   backup_exclude ["grafana.db"]
-  backup_cmd_stdout 'sqlite3 /var/lib/grafana/grafana.db .dump'
+  backup_cmd_stdout "sqlite3 /var/lib/grafana/grafana.db .dump"
   backup_cmd_stdout_filename "grafana.db"
   cron_hour 5
   cron_minute 30
-  user 'grafana'
+  user "grafana"
 end
 
 ##
@@ -65,19 +65,19 @@ include_recipe "../nginx"
 package "libnginx-mod-http-auth-pam"
 
 remote_file "/etc/pam.d/grafana" do
-  mode '644'
-  owner 'root'
-  group 'root'
+  mode "644"
+  owner "root"
+  group "root"
 end
 
-template '/etc/nginx/sites-enabled/grafana' do
-  mode '644'
-  owner 'root'
-  group 'root'
+template "/etc/nginx/sites-enabled/grafana" do
+  mode "644"
+  owner "root"
+  group "root"
   variables(
     domain: domain,
     port: nginx_port,
     grafana_port: grafana_port,
   )
-  notifies :restart, 'service[nginx]', :immediately
+  notifies :restart, "service[nginx]", :immediately
 end

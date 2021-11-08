@@ -5,12 +5,12 @@ include_recipe "../backblaze"
 ## Configuration
 ##
 
-home_path = '/var/lib/octoprint'
+home_path = "/var/lib/octoprint"
 port = 5000
 octoprint_version = "1.4.0"
-domain = 'octoprint.sigstop.co.uk'
-email = 'fabio.ornellas@gmail.com'
-webcam_server = '192.168.0.150'
+domain = "octoprint.sigstop.co.uk"
+email = "fabio.ornellas@gmail.com"
+webcam_server = "192.168.0.150"
 
 ##
 ## SetUp
@@ -20,41 +20,41 @@ basedir_path = "#{home_path}/.octoprint"
 configfile_path = "#{basedir_path}/config.yaml"
 virtualenv_path = "#{home_path}/virtualenv"
 local_networks = run_command(
-	"/sbin/ip addr | /bin/grep -E ' inet ' | /usr/bin/gawk '{print $2}'",
+  "/sbin/ip addr | /bin/grep -E ' inet ' | /usr/bin/gawk '{print $2}'",
 ).stdout.split("\n").map do |line|
-	address, mask = line.split("/")
-	mask = '32' unless mask
-	network_address = IPAddr.new(line).to_s
-	"#{network_address}/#{mask}"
+  address, mask = line.split("/")
+  mask = "32" unless mask
+  network_address = IPAddr.new(line).to_s
+  "#{network_address}/#{mask}"
 end
 
 ##
 ## Packages
 ##
 
-package 'python3-pip'
-package 'python3-dev'
-package 'python3-virtualenv'
-package 'git'
-package 'libyaml-dev'
-package 'build-essential'
+package "python3-pip"
+package "python3-dev"
+package "python3-virtualenv"
+package "git"
+package "libyaml-dev"
+package "build-essential"
 
 ##
 ## User/Group
 ##
 
-group 'octoprint'
+group "octoprint"
 
-user 'octoprint' do
-	gid 'octoprint'
-	home home_path
-	system_user true
-	shell '/usr/sbin/nologin'
-	create_home true
+user "octoprint" do
+  gid "octoprint"
+  home home_path
+  system_user true
+  shell "/usr/sbin/nologin"
+  create_home true
 end
 
-group_add 'octoprint' do
-	groups ['tty', 'dialout']
+group_add "octoprint" do
+  groups ["tty", "dialout"]
 end
 
 ##
@@ -64,8 +64,8 @@ end
 # Virtualenv
 
 execute "virtualenv --python=/usr/bin/python3 #{virtualenv_path}" do
-	user 'octoprint'
-	not_if "test -d #{virtualenv_path}"
+  user "octoprint"
+  not_if "test -d #{virtualenv_path}"
 end
 
 # install
@@ -73,8 +73,8 @@ end
 pip = "#{virtualenv_path}/bin/pip"
 
 execute "#{pip} install https://github.com/foosel/OctoPrint/archive/#{octoprint_version}.zip" do
-	user 'octoprint'
-	not_if "#{pip} list | grep -E '^OctoPrint +'"
+  user "octoprint"
+  not_if "#{pip} list | grep -E '^OctoPrint +'"
 end
 
 # sudo
@@ -82,27 +82,27 @@ end
 restart_service_cmd = "/bin/systemctl restart octoprint.service"
 
 file "/etc/sudoers.d/octoprint" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	content "octoprint ALL=(ALL:ALL) NOPASSWD: #{restart_service_cmd}\n"
+  mode "644"
+  owner "root"
+  group "root"
+  content "octoprint ALL=(ALL:ALL) NOPASSWD: #{restart_service_cmd}\n"
 end
 
 # Default Config
 
 execute "mkdir #{basedir_path}" do
-	user 'octoprint'
-	not_if "test -d #{basedir_path}"
+  user "octoprint"
+  not_if "test -d #{basedir_path}"
 end
 
 template configfile_path do
-	mode '644'
-	owner 'octoprint'
-	group 'octoprint'
-	not_if "test -e #{configfile_path}"
-	variables(
-		serverRestartCommand: "/usr/bin/sudo #{restart_service_cmd}"
-	)
+  mode "644"
+  owner "octoprint"
+  group "octoprint"
+  not_if "test -e #{configfile_path}"
+  variables(
+    serverRestartCommand: "/usr/bin/sudo #{restart_service_cmd}",
+  )
 end
 
 ##
@@ -110,27 +110,27 @@ end
 ##
 
 template "/etc/default/octoprint" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(
-		octoprint_user: 'octoprint',
-		basedir: basedir_path,
-		configfile: configfile_path,
-		port: port,
-		daemon: "#{virtualenv_path}/bin/octoprint",
-	)
-	notifies :restart, 'service[octoprint]', :immediately
+  mode "644"
+  owner "root"
+  group "root"
+  variables(
+    octoprint_user: "octoprint",
+    basedir: basedir_path,
+    configfile: configfile_path,
+    port: port,
+    daemon: "#{virtualenv_path}/bin/octoprint",
+  )
+  notifies :restart, "service[octoprint]", :immediately
 end
 
-remote_file '/etc/init.d/octoprint' do
-	mode '755'
-	owner 'root'
-	group 'root'
+remote_file "/etc/init.d/octoprint" do
+  mode "755"
+  owner "root"
+  group "root"
 end
 
 service "octoprint" do
-	action :enable
+  action :enable
 end
 
 ##
@@ -150,31 +150,31 @@ include_recipe "../nginx"
 package "libnginx-mod-http-auth-pam"
 
 remote_file "/etc/pam.d/octoprint" do
-	mode '644'
-	owner 'root'
-	group 'root'
+  mode "644"
+  owner "root"
+  group "root"
 end
 
-template '/etc/nginx/sites-enabled/octoprint' do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(
-		domain: domain,
-		port: port,
-		webcam_server: webcam_server,
-		local_networks: local_networks,
-	)
-	notifies :restart, 'service[nginx]', :immediately
+template "/etc/nginx/sites-enabled/octoprint" do
+  mode "644"
+  owner "root"
+  group "root"
+  variables(
+    domain: domain,
+    port: port,
+    webcam_server: webcam_server,
+    local_networks: local_networks,
+  )
+  notifies :restart, "service[nginx]", :immediately
 end
 
 ##
 ## Backup
 ##
 
-backblaze "#{node['fqdn'].tr('.', '-')}-octoprint" do
-	backup_paths [home_path]
-	user 'octoprint'
-	cron_hour 3
-	cron_minute 10
+backblaze "#{node["fqdn"].tr(".", "-")}-octoprint" do
+  backup_paths [home_path]
+  user "octoprint"
+  cron_hour 3
+  cron_minute 10
 end

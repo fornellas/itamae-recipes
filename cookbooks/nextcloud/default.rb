@@ -8,7 +8,7 @@ php_major_version = "7"
 php_minor_version = "2"
 php_version = "#{php_major_version}.#{php_minor_version}"
 socket_path = "/run/php/php#{php_version}-fpm-nextcloud.sock"
-home_path = '/var/lib/nextcloud'
+home_path = "/var/lib/nextcloud"
 install_path = "#{home_path}/NextCloud"
 occ = "sudo -u nextcloud /usr/bin/php#{php_version} #{install_path}/occ"
 
@@ -39,14 +39,14 @@ package "libreoffice"
 ## User / Group
 ##
 
-group 'nextcloud'
+group "nextcloud"
 
-user 'nextcloud' do
-	gid 'nextcloud'
-	home home_path
-	system_user true
-	shell '/usr/sbin/nologin'
-	create_home true
+user "nextcloud" do
+  gid "nextcloud"
+  home home_path
+  system_user true
+  shell "/usr/sbin/nologin"
+  create_home true
 end
 
 ##
@@ -75,43 +75,43 @@ unpack_command = <<-EOF
 EOF
 
 execute unpack_command do
-	user 'nextcloud'
+  user "nextcloud"
   not_if "test -e #{install_path}/.ok.#{nextcloud_version}"
 end
 
 # Symlinks
 
 directory "#{home_path}/config" do
-    owner 'nextcloud'
-    group 'nextcloud'
-    mode '755'
+  owner "nextcloud"
+  group "nextcloud"
+  mode "755"
 end
 
 link "#{install_path}/config" do
-	user 'nextcloud'
-	to "#{home_path}/config"
+  user "nextcloud"
+  to "#{home_path}/config"
 end
 
 directory "#{home_path}/data" do
-    owner 'nextcloud'
-    group 'nextcloud'
-    mode '770'
+  owner "nextcloud"
+  group "nextcloud"
+  mode "770"
 end
 
 link "#{install_path}/data" do
-	user 'nextcloud'
-	to "#{home_path}/data"
+  user "nextcloud"
+  to "#{home_path}/data"
 end
 
 directory "#{home_path}/themes" do
-    owner 'nextcloud'
-    group 'nextcloud'
-    mode '755'
+  owner "nextcloud"
+  group "nextcloud"
+  mode "755"
 end
 
 link "#{install_path}/themes" do
-	user 'nextcloud'
-	to "#{home_path}/themes"
+  user "nextcloud"
+  to "#{home_path}/themes"
 end
 
 # Upgrade
@@ -135,26 +135,26 @@ end
 ##
 
 template "/etc/php/#{php_version}/fpm/pool.d/nextcloud.conf" do
-	source "templates/etc/php/fpm/pool.d/nextcloud.conf"
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(
-		prefix: install_path,
-		socket_path: socket_path,
-	)
-	notifies :restart, "service[php#{php_version}-fpm]"
+  source "templates/etc/php/fpm/pool.d/nextcloud.conf"
+  mode "644"
+  owner "root"
+  group "root"
+  variables(
+    prefix: install_path,
+    socket_path: socket_path,
+  )
+  notifies :restart, "service[php#{php_version}-fpm]"
 end
 
 # Cron
 
 file "/etc/cron.d/nextcloud" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	content <<~EOF
-		*/15  *  *  *  * nextcloud /usr/bin/php#{php_version} -f #{install_path}/cron.php
-	EOF
+  mode "644"
+  owner "root"
+  group "root"
+  content <<~EOF
+            */15  *  *  *  * nextcloud /usr/bin/php#{php_version} -f #{install_path}/cron.php
+          EOF
 end
 
 ##
@@ -172,17 +172,17 @@ include_recipe "../nginx"
 
 package "libnginx-mod-http-auth-pam"
 
-template '/etc/nginx/sites-enabled/nextcloud' do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(
-		domain: domain,
-		port: port,
-		fpm_pool_prefix: install_path,
-		socket_path: socket_path,
-	)
-	notifies :restart, 'service[nginx]', :immediately
+template "/etc/nginx/sites-enabled/nextcloud" do
+  mode "644"
+  owner "root"
+  group "root"
+  variables(
+    domain: domain,
+    port: port,
+    fpm_pool_prefix: install_path,
+    socket_path: socket_path,
+  )
+  notifies :restart, "service[nginx]", :immediately
 end
 
 ##
@@ -191,17 +191,17 @@ end
 
 # https://docs.nextcloud.com/server/12/admin_manual/maintenance/backup.html
 
-backblaze "#{node['fqdn'].tr('.', '-')}-nextcloud" do
-	command_before "#{occ} maintenance:mode --on &> /dev/null"
-	backup_paths [
-		"#{install_path}/config/",
-		"#{install_path}/data/",
-		"#{install_path}/themes/",
-	]
-	backup_cmd_stdout '/usr/bin/mysqldump nextcloud'
-	backup_cmd_stdout_filename "nextcloud.sql"
-	command_after "#{occ} maintenance:mode --off &> /dev/null"
-	user 'nextcloud'
-	cron_hour 6
-	cron_minute 30
+backblaze "#{node["fqdn"].tr(".", "-")}-nextcloud" do
+  command_before "#{occ} maintenance:mode --on &> /dev/null"
+  backup_paths [
+                 "#{install_path}/config/",
+                 "#{install_path}/data/",
+                 "#{install_path}/themes/",
+               ]
+  backup_cmd_stdout "/usr/bin/mysqldump nextcloud"
+  backup_cmd_stdout_filename "nextcloud.sql"
+  command_after "#{occ} maintenance:mode --off &> /dev/null"
+  user "nextcloud"
+  cron_hour 6
+  cron_minute 30
 end

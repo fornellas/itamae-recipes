@@ -9,40 +9,40 @@ tar_gz_url = "https://github.com/prometheus/node_exporter/releases/download/v#{v
 
 # User / Group
 
-group 'node_exporter'
+group "node_exporter"
 
-user 'node_exporter' do
-	gid 'node_exporter'
-	home home_path
-	system_user true
-	shell '/usr/sbin/nologin'
-	create_home true
+user "node_exporter" do
+  gid "node_exporter"
+  home home_path
+  system_user true
+  shell "/usr/sbin/nologin"
+  create_home true
 end
 
 # Install
 
 execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar.gz && chown root.root -R node_exporter-#{version}.linux-#{arch} && rm -rf /opt/node_exporter-tmp && mv node_exporter-#{version}.linux-#{arch} /opt/node_exporter-tmp && mv /opt/node_exporter-tmp /opt/node_exporter-#{version}" do
-	user 'root'
-	cwd "/tmp"
-	not_if "test -d /opt/node_exporter-#{version}"
+  user "root"
+  cwd "/tmp"
+  not_if "test -d /opt/node_exporter-#{version}"
 end
 
 # Service
 
 template "/etc/systemd/system/node_exporter.service" do
-	mode '644'
-	owner 'root'
-	group 'root'
-	variables(install_path: "/opt/node_exporter-#{version}")
-	notifies :run, 'execute[systemctl daemon-reload]'
+  mode "644"
+  owner "root"
+  group "root"
+  variables(install_path: "/opt/node_exporter-#{version}")
+  notifies :run, "execute[systemctl daemon-reload]"
 end
 
 execute "systemctl daemon-reload" do
-	action :nothing
-	user 'root'
-	notifies :restart, 'service[node_exporter]'
+  action :nothing
+  user "root"
+  notifies :restart, "service[node_exporter]"
 end
 
 service "node_exporter" do
-	action :enable
+  action :enable
 end
