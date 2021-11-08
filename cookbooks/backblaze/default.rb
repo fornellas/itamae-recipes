@@ -46,14 +46,14 @@ define(
   restic_cache_path = "#{cache_path}/#{user}-#{bucket}"
   node.validate! do
     {
-          backblaze: {
-            bucket => {
-              account_id: string,
-              account_key: string,
-              password: string,
-            },
-          },
-        }
+      backblaze: {
+        bucket => {
+          account_id: string,
+          account_key: string,
+          password: string,
+        },
+      },
+    }
   end
   password = node[:backblaze][bucket][:password]
   backup_paths = params[:backup_paths]
