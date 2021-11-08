@@ -44,7 +44,7 @@ end
 # iptables
 
 iptables_rule_drop_not_user "Drop not www-data user to CherryMusic" do
-  user "www-data"
+  users ["www-data"]
   port cherrymusic_port
 end
 

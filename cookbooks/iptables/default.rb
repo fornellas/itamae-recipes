@@ -21,13 +21,13 @@ end
 
 define(
   :iptables_rule_drop_not_user,
-  user: nil,
+  users: [],
   port: nil,
 ) do
-  user = params[:user]
+  users = params[:users]
   port = params[:port]
-  iptables_rule "Drop not #{user} to 127.0.0.1:#{port}" do
+  iptables_rule "Drop not #{users.join("|")} to 127.0.0.1:#{port}" do
     table "filter"
-    rule "OUTPUT -d 127.0.0.1 -p tcp -m tcp --dport #{port} -m owner ! --uid-owner #{user} -j DROP"
+    rule "OUTPUT -d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map{|user| "-m owner ! --uid-owner #{user}"}.join(" ")} -j DROP"
   end
 end

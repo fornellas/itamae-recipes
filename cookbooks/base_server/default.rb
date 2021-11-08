@@ -3,7 +3,6 @@
 package "ifupdown"
 package "openntpd"
 
-include_recipe "../../cookbooks/node_exporter"
 include_recipe "../../cookbooks/bind"
 include_recipe "../../cookbooks/postfix"
 

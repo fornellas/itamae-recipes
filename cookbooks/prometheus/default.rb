@@ -6,7 +6,7 @@ version = "2.31.0"
 arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
-include_recipe "../../cookbooks/blackbox_exporter"
+include_recipe "../backblaze"
 include_recipe "../iptables"
 
 ##
@@ -50,8 +50,6 @@ end
 
 # Backup
 
-include_recipe "../backblaze"
-
 backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
   command_before "/usr/bin/curl -s -XPOST http://localhost:#{prometheus_port}/api/v1/admin/tsdb/snapshot > /dev/null"
   backup_paths ["#{home_path}/tsdb/snapshots"]
@@ -64,8 +62,8 @@ end
 
 # iptables
 
-iptables_rule_drop_not_user "Drop not www-data user to Prometheus" do
-  user "www-data"
+iptables_rule_drop_not_user "Drop not www-data|grafana user to Prometheus" do
+  users ["www-data", "grafana"]
   port prometheus_port
 end
 

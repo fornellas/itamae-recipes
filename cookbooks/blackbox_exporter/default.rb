@@ -41,6 +41,13 @@ remote_file "/etc/blackbox_exporter/blackbox.yml" do
   notifies :restart, "service[blackbox_exporter]"
 end
 
+# iptables
+
+iptables_rule_drop_not_user "Drop not www-data user to BlackboxExporter" do
+  users ["prometheus"]
+  port blackbox_exporter_port
+end
+
 # Service
 
 template "/etc/systemd/system/blackbox_exporter.service" do

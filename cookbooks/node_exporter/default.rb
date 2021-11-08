@@ -1,4 +1,5 @@
 home_path = "/var/lib/node_exporter"
+port = "9100"
 version = "1.2.2"
 arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/node_exporter/releases/download/v#{version}/node_exporter-#{version}.linux-#{arch}.tar.gz"
@@ -25,6 +26,13 @@ execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar
   user "root"
   cwd "/tmp"
   not_if "test -d /opt/node_exporter-#{version}"
+end
+
+# iptables
+
+iptables_rule_drop_not_user "Drop not www-data user to NodeExporter" do
+  users ["prometheus"]
+  port port
 end
 
 # Service
