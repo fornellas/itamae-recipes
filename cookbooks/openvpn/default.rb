@@ -82,24 +82,15 @@ end
 ##
 
 include_recipe "../bind"
+include_recipe "../iptables"
 
 ##
 ## iptables
 ##
 
-table = "nat"
-rule_specification = "POSTROUTING -o #{default_gateway_dev} ! -s #{default_gateway_dev_addr} -j MASQUERADE"
-
-execute "/sbin/iptables -t #{table} -A #{rule_specification}" do
-  user "root"
-  not_if "/sbin/iptables -t #{table} -C #{rule_specification}"
-  notifies :run, "execute[iptables-save]", :immediately
-end
-
-execute "iptables-save" do
-  action :nothing
-  user "root"
-  command = "/sbin/iptables-save > /etc/iptables/rules.v4"
+iptables_rule "Masquerade outgoing traffic" do
+  table "nat"
+  rule "POSTROUTING -o #{default_gateway_dev} ! -s #{default_gateway_dev_addr} -j MASQUERADE"
 end
 
 ##
