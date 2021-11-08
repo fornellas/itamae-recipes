@@ -1,5 +1,6 @@
 include_recipe "../group_add"
 include_recipe "../backblaze"
+include_recipe "../iptables"
 
 ##
 ## Configuration
@@ -103,6 +104,13 @@ template configfile_path do
   variables(
     serverRestartCommand: "/usr/bin/sudo #{restart_service_cmd}",
   )
+end
+
+# iptables
+
+iptables_rule_drop_not_user "Drop not www-data user to OctoPrint" do
+  user "www-data"
+  port port
 end
 
 ##

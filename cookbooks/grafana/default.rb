@@ -4,6 +4,8 @@ domain = "grafana.sigstop.co.uk"
 nginx_port = "443"
 grafana_port = "3000"
 
+include_recipe "../iptables"
+
 ##
 ## Grafana
 ##
@@ -22,6 +24,13 @@ remote_file "/etc/grafana/grafana.ini" do
   owner "root"
   group "grafana"
   notifies :restart, "service[grafana-server]"
+end
+
+# iptables
+
+iptables_rule_drop_not_user "Drop not www-data user to Grafana" do
+  user "www-data"
+  port grafana_port
 end
 
 # Service

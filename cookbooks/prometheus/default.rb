@@ -7,6 +7,7 @@ arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
 include_recipe "../../cookbooks/blackbox_exporter"
+include_recipe "../iptables"
 
 ##
 ## Prometheus
@@ -59,6 +60,13 @@ backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
   cron_minute 0
   user "prometheus"
   bin_path home_path
+end
+
+# iptables
+
+iptables_rule_drop_not_user "Drop not www-data user to Prometheus" do
+  user "www-data"
+  port prometheus_port
 end
 
 # Service

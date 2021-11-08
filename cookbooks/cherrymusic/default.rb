@@ -6,6 +6,8 @@ media_path = "/srv/media"
 install_path = "#{home_path}/CherryMusic"
 config_path = "#{home_path}/.config/cherrymusic/cherrymusic.conf"
 
+include_recipe "../iptables"
+
 ##
 ## Deps
 ##
@@ -38,6 +40,13 @@ end
 ##
 ## CherryMusic
 ##
+
+# iptables
+
+iptables_rule_drop_not_user "Drop not www-data user to CherryMusic" do
+  user "www-data"
+  port cherrymusic_port
+end
 
 # Install
 
