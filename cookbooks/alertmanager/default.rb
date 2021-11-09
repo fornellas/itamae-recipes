@@ -42,10 +42,23 @@ directory "/etc/alertmanager" do
   mode "755"
 end
 
-remote_file "/etc/alertmanager/alertmanager.yml" do
+node.validate! do
+  {
+    discord: {
+      webhook: string,
+    },
+  }
+end
+
+discord_webhook = node[:discord][:webhook]
+
+template "/etc/alertmanager/alertmanager.yml" do
   mode "644"
   owner "root"
   group "root"
+  variables(
+    slack_webhook_url: "#{discord_webhook}/slack"
+  )
   notifies :restart, "service[alertmanager]"
 end
 
@@ -82,6 +95,7 @@ template "/etc/systemd/system/alertmanager.service" do
     config_file: "/etc/alertmanager/alertmanager.yml",
     storage_path: home_path,
     web_listen_address: "127.0.0.1:#{web_listen_port}",
+    web_external_url: "https://#{domain}/",
     cluster_listen_address: "127.0.0.1:#{cluster_listen_port}",
   )
   notifies :run, "execute[systemctl daemon-reload]"

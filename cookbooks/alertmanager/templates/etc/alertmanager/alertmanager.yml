@@ -1,0 +1,7 @@
+route:
+  receiver: notify
+receivers:
+- name: notify
+  slack_configs:
+  - send_resolved: true
+    api_url: <%= @slack_webhook_url %>

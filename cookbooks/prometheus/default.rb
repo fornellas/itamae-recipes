@@ -41,6 +41,12 @@ directory "/etc/prometheus" do
   mode "755"
 end
 
+directory "/etc/prometheus/rules.d" do
+  owner "root"
+  group "root"
+  mode "755"
+end
+
 remote_file "/etc/prometheus/prometheus.yml" do
   mode "644"
   owner "root"
@@ -62,8 +68,8 @@ end
 
 # iptables
 
-iptables_rule_drop_not_user "Drop not www-data|grafana user to Prometheus" do
-  users ["www-data", "grafana"]
+iptables_rule_drop_not_user "Drop not www-data|grafana|prometheus user to Prometheus" do
+  users ["www-data", "grafana", "prometheus"]
   port web_listen_port
 end
 
@@ -78,6 +84,7 @@ template "/etc/systemd/system/prometheus.service" do
     config_file: "/etc/prometheus/prometheus.yml",
     storage_tsdb_path: "#{home_path}/tsdb",
     web_listen_address: "127.0.0.1:#{web_listen_port}",
+    web_external_url: "http://#{domain}/",
   )
   notifies :run, "execute[systemctl daemon-reload]"
 end

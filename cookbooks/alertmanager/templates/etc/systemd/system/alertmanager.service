@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=alertmanager
 Type=simple
-ExecStart=<%= "#{@install_path}/alertmanager" %> --config.file=<%= @config_file %> --storage.path=<%= @storage_path %> --cluster.listen-address=<%= @cluster_listen_address %> --web.listen-address=<%= @web_listen_address %>
+ExecStart=<%= "#{@install_path}/alertmanager" %> --config.file=<%= @config_file %> --storage.path=<%= @storage_path %> --cluster.listen-address=<%= @cluster_listen_address %> --web.listen-address=<%= @web_listen_address %> --web.external-url=<%= @web_external_url %>
 PrivateTmp=true
 Restart=always
 
