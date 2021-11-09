@@ -1,0 +1,15 @@
+[Unit]
+Description=AlertManager Discord
+Requires=network.target
+After=network.target
+
+[Service]
+User=alertmanager-discord
+Type=simple
+Environment=DISCORD_WEBHOOK=<%= @discord_webhook %>
+ExecStart=<%= "#{@gohome}/bin/alertmanager-discord" %> -listen.address=<%= @listen_address %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
