@@ -69,6 +69,7 @@ backblaze "#{node["fqdn"].tr(".", "-")}-alertmanager" do
   cron_hour 6
   cron_minute 15
   user "alertmanager"
+  group "alertmanager"
   bin_path home_path
 end
 

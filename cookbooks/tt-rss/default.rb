@@ -136,6 +136,7 @@ backblaze "#{node["fqdn"].tr(".", "-")}-tt-rss" do
   backup_cmd_stdout "/usr/bin/mysqldump ttrss"
   backup_cmd_stdout_filename "ttrss.sql"
   user "tt-rss"
+  group "tt-rss"
   cron_hour 3
   cron_minute 40
 end

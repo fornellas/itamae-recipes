@@ -55,6 +55,7 @@ backblaze "#{node["fqdn"].tr(".", "-")}-grafana" do
   cron_hour 5
   cron_minute 30
   user "grafana"
+  group "grafana"
 end
 
 ##

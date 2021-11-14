@@ -27,6 +27,7 @@ define(
   keep_monthly: 12,
   keep_yearly: 5,
   user: "root",
+  group: "root",
   bin_path: nil,
 ) do
   command_before = params[:command_before]
@@ -36,6 +37,7 @@ define(
       params[:name]
     end
   user = params[:user]
+  group = params[:group]
   bin_path = params[:bin_path]
   if not bin_path
     bin_path = run_command("getent passwd #{user}").stdout.split(":")[5]
@@ -79,6 +81,7 @@ define(
   file restic_script_path do
     mode "700"
     owner user
+    group group
     content <<~EOF
               #!/bin/sh
               /usr/bin/sudo -u #{user} #{env.to_a.map { |key, value| "#{key}=#{Shellwords.shellescape(value)}" }.join(" ")} /usr/bin/restic --quiet --cache-dir #{Shellwords.shellescape(restic_cache_path)} \"$@\"
@@ -88,11 +91,13 @@ define(
   file password_file_path do
     mode "600"
     owner user
+    group group
     content password
   end
 
   directory restic_cache_path do
     owner user
+    group group
     mode "700"
   end
 
@@ -120,6 +125,7 @@ define(
   file restic_cron_script_path do
     mode "700"
     owner user
+    group group
     content <<~EOF
               #!/bin/bash
               EXIT=0

@@ -63,6 +63,7 @@ backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
   cron_hour 6
   cron_minute 0
   user "prometheus"
+  group "prometheus"
   bin_path home_path
 end
 

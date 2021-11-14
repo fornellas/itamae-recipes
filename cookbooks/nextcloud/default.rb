@@ -202,6 +202,7 @@ backblaze "#{node["fqdn"].tr(".", "-")}-nextcloud" do
   backup_cmd_stdout_filename "nextcloud.sql"
   command_after "#{occ} maintenance:mode --off &> /dev/null"
   user "nextcloud"
+  group "nextcloud"
   cron_hour 6
   cron_minute 30
 end
