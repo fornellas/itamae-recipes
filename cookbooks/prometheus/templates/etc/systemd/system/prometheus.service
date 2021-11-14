@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=prometheus
 Type=simple
-ExecStart=<%= "#{@install_path}/prometheus" %> --config.file=<%= @config_file %> --storage.tsdb.path=<%= @storage_tsdb_path %> --web.listen-address=<%= @web_listen_address %> --web.external-url=<%= @web_external_url %> --web.enable-admin-api
+ExecStart=<%= "#{@install_path}/prometheus" %> --config.file=<%= @config_file %> --storage.tsdb.path=<%= @storage_tsdb_path %> --web.listen-address=<%= @web_listen_address %> --web.external-url=<%= @web_external_url %> --web.enable-admin-api --storage.tsdb.retention.time=<%= @storage_tsdb_retention_time %> --storage.tsdb.retention.size=<%= @storage_tsdb_retention_size %>
 PrivateTmp=true
 Restart=always
 

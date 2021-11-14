@@ -3,6 +3,8 @@ domain = "prometheus.sigstop.co.uk"
 web_listen_port = "9090"
 nginx_port = "443"
 version = "2.31.0"
+retention_time = "10y"
+retention_size = "15GB"
 arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
@@ -86,6 +88,8 @@ template "/etc/systemd/system/prometheus.service" do
     storage_tsdb_path: "#{home_path}/tsdb",
     web_listen_address: "127.0.0.1:#{web_listen_port}",
     web_external_url: "http://#{domain}/",
+    storage_tsdb_retention_time: retention_time,
+    storage_tsdb_retention_size: retention_size,
   )
   notifies :run, "execute[systemctl daemon-reload]"
 end
