@@ -57,7 +57,7 @@ end
 # Backup
 
 backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
-  command_before "/usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
+  command_before "sudo -u prometheus /usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
   backup_paths ["#{home_path}/tsdb/snapshots"]
   command_after "/bin/rm -rf #{home_path}/tsdb/snapshots/*"
   cron_hour 6
