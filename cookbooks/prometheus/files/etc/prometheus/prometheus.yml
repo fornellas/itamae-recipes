@@ -15,6 +15,7 @@ scrape_configs:
       - targets:
         - '192.168.0.221:9100' # brown Linux
         - '192.168.0.221:9182' # brown Windows
+        - '192.168.0.138:9090' # office esp8266
   - job_name: 'blackbox_http_2xx'
     metrics_path: /probe
     params:
