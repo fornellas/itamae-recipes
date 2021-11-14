@@ -12,9 +12,9 @@ scrape_configs:
       - targets: ['localhost:9100']
   - job_name: matrix
     static_configs:
-      - targets: [
-        '192.168.0.221:9100' # brown
-      ]
+      - targets:
+        - '192.168.0.221:9100' # brown Linux
+        - '192.168.0.221:9182' # brown Windows
   - job_name: 'blackbox_http_2xx'
     metrics_path: /probe
     params:
