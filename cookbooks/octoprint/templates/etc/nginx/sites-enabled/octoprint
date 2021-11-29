@@ -54,7 +54,20 @@ server {
   }
 
   location /webcam {
-    proxy_pass http://<%= @webcam_server %>$request_uri;
+    proxy_pass http://192.168.0.171/;
+    more_clear_input_headers 'cookie' 'user-agent' 'accept';
+    proxy_http_version 1.1;
+  }
+
+  location /webcam/stream {
+    proxy_pass http://192.168.0.171:81/stream;
+    more_clear_input_headers 'cookie' 'user-agent' 'accept';
+    proxy_http_version 1.1;
+  }
+
+  location /webcam/still {
+    proxy_pass http://192.168.0.171/capture;
+    more_clear_input_headers 'cookie' 'user-agent' 'accept';
     proxy_http_version 1.1;
   }
 }
