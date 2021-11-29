@@ -6,16 +6,17 @@ define(
   table = params[:table]
   rule = params[:rule]
 
+  package "netfilter-persistent"
+
   execute "/sbin/iptables -t #{table} -A #{rule}" do
     user "root"
     not_if "/sbin/iptables -t #{table} -C #{rule}"
-    notifies :run, "execute[iptables-save]", :immediately
+    notifies :run, "execute[netfilter-persistent save]", :immediately
   end
 
-  execute "iptables-save" do
+  execute "netfilter-persistent save" do
     action :nothing
     user "root"
-    command = "/sbin/iptables-save > /etc/iptables/rules.v4"
   end
 end
 
