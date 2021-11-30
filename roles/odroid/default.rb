@@ -37,20 +37,45 @@ include_recipe "../../cookbooks/base_system"
 include_recipe "../../cookbooks/base_server"
 include_recipe "../../cookbooks/prometheus"
 
-prometheus_file_sd "matrix" do
+prometheus_file_sd "brown_windows_exporter" do
   targets [
-    {
-      hosts: [
-        # windows_exporter
-        "192.168.0.221:9182", # brown Windows
-        # node_exporter
-        "127.0.0.1:9100", # odroid
-        "192.168.0.221:9100", # brown Linux
-        # sensors
-        "192.168.0.138:9090", # office esp8266
-        "192.168.0.124:9090", # living room esp8266
-      ],
-    },
+    { hosts: ["192.168.0.221:9182"] },
+    labels: { instance: "brown.local:9182" },
+  ]
+end
+
+prometheus_file_sd "brown_node_exporter" do
+  targets [
+    { hosts: ["192.168.0.221:9100"] },
+    labels: { instance: "brown.local:9100" },
+  ]
+end
+
+prometheus_file_sd "odroid_node_exporter" do
+  targets [
+    { hosts: ["127.0.0.1:9100"] },
+    labels: { instance: "odroid.local:9100" },
+  ]
+end
+
+prometheus_file_sd "odroid_node_exporter" do
+  targets [
+    { hosts: ["127.0.0.1:9100"] },
+    labels: { instance: "odroid.local:9100" },
+  ]
+end
+
+prometheus_file_sd "office_sensors" do
+  targets [
+    { hosts: ["192.168.0.138:9090"] },
+    labels: { instance: "office_sensors.local:9090" },
+  ]
+end
+
+prometheus_file_sd "living_room_sensors" do
+  targets [
+    { hosts: ["192.168.0.124:9090"] },
+    labels: { instance: "living_room_sensors:9090" },
   ]
 end
 
