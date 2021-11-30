@@ -1,0 +1,66 @@
+groups:
+  # The name of the group. Must be unique within a file.
+  name: <%= @group_name %>
+
+<% if @interval -%>
+  # How often rules in the group are evaluated.
+  interval: <%= @interval %>
+
+<% end -%>
+<% if @limit -%>
+  # Limit the number of alerts an alerting rule and series a recording
+  # rule can produce. 0 is no limit.
+  limit: <%= @limit %>
+
+<% end -%>
+  rules:
+<% @alerting_rules.each do |rule| -%>
+    # The name of the alert. Must be a valid label value.
+    - alert: <%= rule[:alert] %>
+
+      # The PromQL expression to evaluate. Every evaluation cycle this is
+      # evaluated at the current time, and all resultant time series become
+      # pending/firing alerts.
+      expr: <%= rule[:expr] %>
+
+<% if rule.key?(:for) -%>
+      # Alerts are considered firing once they have been returned for this long.
+      # Alerts which have not yet fired for long enough are considered pending.
+      for: <%= rule[:for] %>
+
+<% end -%>
+<% if rule.key?(:labels) -%>
+      # Labels to add or overwrite for each alert.
+      labels:
+<% rule[:labels].each do |name, value| -%>
+        <%= name -%>: <%= value %>
+<% end -%>
+
+<% end -%>
+<% if rule.key?(:annotations) -%>
+      # Annotations to add to each alert.
+      annotations:
+<% rule[:labels].each do |name, value| -%>
+        <%= name -%>: <%= value %>
+<% end -%>
+
+<% end -%>
+<% end -%>
+<% @recording_rules.each do |rule| -%>
+    # The name of the time series to output to. Must be a valid metric name.
+    - record: <%= rule[:record] %>
+
+      # The PromQL expression to evaluate. Every evaluation cycle this is
+      # evaluated at the current time, and the result recorded as a new set of
+      # time series with the metric name as given by 'record'.
+      expr: <%= rule[:expr] %>
+
+<% if rule.key?(:labels) -%>
+      # Labels to add or overwrite before storing the result.
+      labels:
+<% rule[:labels].each do |name, value| -%>
+        <%= name -%>: <%= value %>
+<% end -%>
+
+<% end -%>
+<% end -%>

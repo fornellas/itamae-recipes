@@ -49,6 +49,97 @@ directory "/etc/prometheus/rules.d" do
   mode "755"
 end
 
+# Usage:
+#
+# prometheus_rules "test" do
+#   # How often rules in the group are evaluated.
+#   # Optional.
+#   interval "1m"
+#   # Limit the number of alerts an alerting rule and series a recording
+#   # rule can produce. 0 is no limit.
+#   # Optional.
+#   limit 0
+#   # Alerting Rules
+#   alerting_rules [
+#     {
+#       # The name of the alert. Must be a valid label value.
+#       # Required.
+#       alert: "alert name",
+#       # The PromQL expression to evaluate. Every evaluation cycle this is
+#       # evaluated at the current time, and all resultant time series become
+#       # pending/firing alerts.
+#       # Required.
+#       expr: "up < 1",
+#       # Alerts are considered firing once they have been returned for this long.
+#       # Alerts which have not yet fired for long enough are considered pending.
+#       # Optional.
+#       for: "3m",
+#       # Labels to add or overwrite for each alert.
+#       # Optional.
+#       labels: {
+#         a: "b",
+#         c: "d",
+#       },
+#       # Annotations to add to each alert.
+#       # Optional.
+#       annotations: {
+#         e: "f",
+#         g: "h",
+#       },
+#     },
+#   ]
+#   # Recording Rules
+#   recording_rules [
+#     {
+#       # The name of the time series to output to. Must be a valid metric name.
+#       # Required.
+#       record: "record name",
+#       # The PromQL expression to evaluate. Every evaluation cycle this is
+#       # evaluated at the current time, and the result recorded as a new set of
+#       # time series with the metric name as given by 'record'.
+#       # Required.
+#       expr: "up < 1",
+#       # Labels to add or overwrite before storing the result.
+#       # Optional.
+#       labels: {
+#         a: "b",
+#         c: "d",
+#       },
+#     },
+#   ]
+# end
+define(
+  :prometheus_rules,
+  interval: nil,
+  limit: nil,
+  alerting_rules: [],
+  recording_rules: [],
+) do
+  name = params[:name]
+  interval = params[:interval]
+  limit = params[:limit]
+  alerting_rules = params[:alerting_rules]
+  recording_rules = params[:recording_rules]
+
+  rule_path = "/etc/prometheus/rules.d/#{name}.yml"
+
+  template rule_path do
+    mode "644"
+    owner "root"
+    group "root"
+    source "templates/etc/prometheus/rules.d/template.yml"
+    variables(
+      group_name: name,
+      interval: interval,
+      limit: limit,
+      alerting_rules: alerting_rules,
+      recording_rules: recording_rules,
+    )
+
+    notifies :restart, "service[prometheus]"
+  end
+end
+
 remote_file "/etc/prometheus/prometheus.yml" do
   mode "644"
   owner "root"
