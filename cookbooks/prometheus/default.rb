@@ -185,6 +185,16 @@ define(
   end
 end
 
+prometheus_file_sd "prometheus" do
+  targets [
+    {
+      hosts: [
+        "localhost:#{web_listen_port}",
+      ],
+    }
+  ]
+end
+
 remote_file "/etc/prometheus/prometheus.yml" do
   mode "644"
   owner "root"

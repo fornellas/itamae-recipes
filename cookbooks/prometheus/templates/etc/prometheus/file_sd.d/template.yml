@@ -1,0 +1,14 @@
+<% @targets.each do |target| -%>
+# The targets specified by the static config.
+- targets:
+<% target[:hosts].each do |host| -%>
+  - <%= host %>
+<% end -%>
+<% if target.key?(:labels) -%>
+  # Labels assigned to all metrics scraped from the targets.
+  labels:
+<% target[:labels].each do |name, value| -%>
+    <%= name -%>: <%= value %>
+<% end -%>
+<% end -%>
+<% end -%>

@@ -35,14 +35,33 @@ end
 
 include_recipe "../../cookbooks/base_system"
 include_recipe "../../cookbooks/base_server"
+include_recipe "../../cookbooks/prometheus"
+
+prometheus_file_sd "matrix" do
+  targets [
+    {
+      hosts: [
+        # windows_exporter
+        '192.168.0.221:9182', # brown Windows
+        # node_exporter
+        '127.0.0.1:9100', # odroid
+        '192.168.0.221:9100', # brown Linux
+        # sensors
+				'192.168.0.138:9090', # office esp8266
+				'192.168.0.124:9090', # living room esp8266
+      ],
+    }
+  ]
+end
+
+include_recipe "../../cookbooks/node_exporter"
+include_recipe "../../cookbooks/blackbox_exporter"
+include_recipe "../../cookbooks/iptables_exporter"
+include_recipe "../../cookbooks/alertmanager"
+include_recipe "../../cookbooks/grafana"
 include_recipe "../../cookbooks/no_auth_from_securetty"
 include_recipe "../../cookbooks/cherrymusic"
 include_recipe "../../cookbooks/nextcloud"
 include_recipe "../../cookbooks/octoprint"
 include_recipe "../../cookbooks/openvpn"
 include_recipe "../../cookbooks/tt-rss"
-include_recipe "../../cookbooks/prometheus"
-include_recipe "../../cookbooks/node_exporter"
-include_recipe "../../cookbooks/blackbox_exporter"
-include_recipe "../../cookbooks/alertmanager"
-include_recipe "../../cookbooks/grafana"

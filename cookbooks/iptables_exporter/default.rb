@@ -52,3 +52,15 @@ end
 service "iptables_exporter" do
   action :enable
 end
+
+# Prometheus
+
+prometheus_file_sd "iptables_exporter" do
+  targets [
+    {
+      hosts: [
+        "127.0.0.1:#{listen_port}",
+      ],
+    }
+  ]
+end
