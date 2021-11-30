@@ -4,76 +4,81 @@ global:
 rule_files:
   - '/etc/prometheus/rules.d/*.yml'
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['127.0.0.1:9090']
-  - job_name: windows_exporter
-    static_configs:
-      - targets:
-        - '192.168.0.221:9182' # brown Windows
-  - job_name: node_exporter
-    static_configs:
-      - targets:
-        - '127.0.0.1:9100' # odroid
-        - '192.168.0.221:9100' # brown Linux
-  - job_name: iptables_exporter
-    static_configs:
-      - targets:
-        - '127.0.0.1:9455'
-  - job_name: sensors
-    static_configs:
-      - targets:
-        - '192.168.0.138:9090' # office esp8266
-        - '192.168.0.124:9090' # living room esp8266
-  - job_name: 'blackbox_http_2xx'
-    metrics_path: /probe
-    params:
-      module: [http_2xx]
-    static_configs:
-      - targets:
-        - http://google.com/
-        - http://facebook.com/
-        - http://nextcloud.sigstop.co.uk/
-        - http://tt-rss.sigstop.co.uk/
-        - 192.168.0.1:80 # Virgin
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: 127.0.0.1:9115
-  - job_name: 'blackbox_http_401'
-    metrics_path: /probe
-    params:
-      module: [http_401]
-    static_configs:
-      - targets:
-        - http://cherrymusic.sigstop.co.uk/
-        - http://grafana.sigstop.co.uk/
-        - http://octoprint.sigstop.co.uk/
-        - http://prometheus.sigstop.co.uk/
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: 127.0.0.1:9115
-  - job_name: 'blackbox_ssh_banner'
-    metrics_path: /probe
-    params:
-      module: [ssh_banner]
-    static_configs:
-      - targets:
-        - odroid.sigstop.co.uk:22
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __param_target
-      - source_labels: [__param_target]
-        target_label: instance
-      - target_label: __address__
-        replacement: 127.0.0.1:9115
+  - job_name: file_sd
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/file_sd.d/*.yml'
+        refresh_interval: 1m
+  # - job_name: 'prometheus'
+  #   static_configs:
+  #     - targets: ['127.0.0.1:9090']
+  # - job_name: windows_exporter
+  #   static_configs:
+  #     - targets:
+  #       - '192.168.0.221:9182' # brown Windows
+  # - job_name: node_exporter
+  #   static_configs:
+  #     - targets:
+  #       - '127.0.0.1:9100' # odroid
+  #       - '192.168.0.221:9100' # brown Linux
+  # - job_name: iptables_exporter
+  #   static_configs:
+  #     - targets:
+  #       - '127.0.0.1:9455'
+  # - job_name: sensors
+  #   static_configs:
+  #     - targets:
+  #       - '192.168.0.138:9090' # office esp8266
+  #       - '192.168.0.124:9090' # living room esp8266
+  # - job_name: 'blackbox_http_2xx'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_2xx]
+  #   static_configs:
+  #     - targets:
+  #       - http://google.com/
+  #       - http://facebook.com/
+  #       - http://nextcloud.sigstop.co.uk/
+  #       - http://tt-rss.sigstop.co.uk/
+  #       - 192.168.0.1:80 # Virgin
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: 127.0.0.1:9115
+  # - job_name: 'blackbox_http_401'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_401]
+  #   static_configs:
+  #     - targets:
+  #       - http://cherrymusic.sigstop.co.uk/
+  #       - http://grafana.sigstop.co.uk/
+  #       - http://octoprint.sigstop.co.uk/
+  #       - http://prometheus.sigstop.co.uk/
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: 127.0.0.1:9115
+  # - job_name: 'blackbox_ssh_banner'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [ssh_banner]
+  #   static_configs:
+  #     - targets:
+  #       - odroid.sigstop.co.uk:22
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: 127.0.0.1:9115
 alerting:
   alertmanagers:
     - static_configs:

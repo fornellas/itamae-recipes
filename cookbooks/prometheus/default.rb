@@ -140,6 +140,51 @@ define(
   end
 end
 
+directory "/etc/prometheus/file_sd.d" do
+  owner "root"
+  group "root"
+  mode "755"
+end
+
+# Usage
+#
+# prometheus_file_sd "test" do
+#   targets [
+#     {
+#       # The targets specified by the static config.
+#       hosts: [
+#         "host1:123",
+#         "host2:456",
+#       ],
+#       # Labels assigned to all metrics scraped from the targets.
+#       # Optional
+#       labels: {
+#         a: "b",
+#         c: "d",
+#       },
+#     }
+#   ]
+# end
+define(
+  :prometheus_file_sd,
+  targets: [],
+) do
+  name = params[:name]
+  targets = params[:targets]
+
+  rule_path = "/etc/prometheus/file_sd.d/#{name}.yml"
+
+  template rule_path do
+    mode "644"
+    owner "root"
+    group "root"
+    source "templates/etc/prometheus/file_sd.d/template.yml"
+    variables(
+      targets: targets,
+    )
+  end
+end
+
 remote_file "/etc/prometheus/prometheus.yml" do
   mode "644"
   owner "root"
