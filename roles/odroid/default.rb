@@ -144,6 +144,17 @@ prometheus_rules "living_room_sensors" do
   ]
 end
 
+# Stogare
+
+prometheus_rules "storage_camera" do
+  alerting_rules [
+    {
+      alert: "StorageCameraDown",
+      expr: 'up{instance="http://192.168.0.171/"} < 1',
+    },
+  ]
+end
+
 include_recipe "../../cookbooks/node_exporter"
 include_recipe "../../cookbooks/blackbox_exporter"
 include_recipe "../../cookbooks/iptables_exporter"
