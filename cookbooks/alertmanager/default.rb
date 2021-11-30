@@ -112,6 +112,20 @@ service "alertmanager" do
   action :enable
 end
 
+# Scraping
+
+prometheus_file_sd "alertmanager" do
+  targets [
+    {
+      hosts: ["127.0.0.1:#{web_listen_port}"],
+      labels: {
+        instance: "odroid.local:#{web_listen_port}",
+        job: "alertmanager",
+      },
+    },
+  ]
+end
+
 ##
 ## Let's Encrypt
 ##
