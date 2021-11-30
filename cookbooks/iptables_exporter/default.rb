@@ -58,9 +58,11 @@ end
 prometheus_file_sd "iptables_exporter" do
   targets [
     {
-      hosts: [
-        "127.0.0.1:#{listen_port}",
-      ],
+      hosts: ["127.0.0.1:#{listen_port}"],
+      labels: {
+        instance: "odroid.local:#{listen_port}",
+        job: "iptables_exporter",
+      },
     },
   ]
 end

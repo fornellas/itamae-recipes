@@ -188,9 +188,11 @@ end
 prometheus_file_sd "prometheus" do
   targets [
     {
-      hosts: [
-        "localhost:#{web_listen_port}",
-      ],
+      hosts: ["localhost:#{web_listen_port}"],
+      labels: {
+        instance: "odroid.local:#{web_listen_port}",
+        job: "prometheus",
+      },
     },
   ]
 end
