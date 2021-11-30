@@ -61,6 +61,6 @@ prometheus_file_sd "iptables_exporter" do
       hosts: [
         "127.0.0.1:#{listen_port}",
       ],
-    }
+    },
   ]
 end

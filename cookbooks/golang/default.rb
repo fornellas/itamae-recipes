@@ -1,7 +1,7 @@
 gopath = "/var/cache/go"
 gobin = "/opt/bin"
 
-package 'golang-go'
+package "golang-go"
 
 define(
   :golang_install_bin,

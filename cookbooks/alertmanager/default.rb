@@ -57,7 +57,7 @@ template "/etc/alertmanager/alertmanager.yml" do
   owner "root"
   group "root"
   variables(
-    slack_webhook_url: "#{discord_webhook}/slack"
+    slack_webhook_url: "#{discord_webhook}/slack",
   )
   notifies :restart, "service[alertmanager]"
 end

@@ -42,15 +42,15 @@ prometheus_file_sd "matrix" do
     {
       hosts: [
         # windows_exporter
-        '192.168.0.221:9182', # brown Windows
+        "192.168.0.221:9182", # brown Windows
         # node_exporter
-        '127.0.0.1:9100', # odroid
-        '192.168.0.221:9100', # brown Linux
+        "127.0.0.1:9100", # odroid
+        "192.168.0.221:9100", # brown Linux
         # sensors
-				'192.168.0.138:9090', # office esp8266
-				'192.168.0.124:9090', # living room esp8266
+        "192.168.0.138:9090", # office esp8266
+        "192.168.0.124:9090", # living room esp8266
       ],
-    }
+    },
   ]
 end
 

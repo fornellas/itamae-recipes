@@ -191,7 +191,7 @@ prometheus_file_sd "prometheus" do
       hosts: [
         "localhost:#{web_listen_port}",
       ],
-    }
+    },
   ]
 end
 

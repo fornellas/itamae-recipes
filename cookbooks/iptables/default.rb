@@ -35,6 +35,6 @@ define(
 
   iptables_rule "Drop not #{users.join("|")} to 127.0.0.1:#{port}" do
     table "filter"
-    rule "OUTPUT -d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map{|user| "-m owner ! --uid-owner #{user}"}.join(" ")} -j DROP"
+    rule "OUTPUT -d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map { |user| "-m owner ! --uid-owner #{user}" }.join(" ")} -j DROP"
   end
 end
