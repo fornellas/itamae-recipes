@@ -37,6 +37,8 @@ include_recipe "../../cookbooks/base_system"
 include_recipe "../../cookbooks/base_server"
 include_recipe "../../cookbooks/prometheus"
 
+# Brown
+
 prometheus_file_sd "brown_windows_exporter" do
   targets [
     {
@@ -61,6 +63,8 @@ prometheus_file_sd "brown_node_exporter" do
   ]
 end
 
+# Odroid
+
 prometheus_file_sd "odroid_node_exporter" do
   targets [
     {
@@ -72,6 +76,17 @@ prometheus_file_sd "odroid_node_exporter" do
     },
   ]
 end
+
+prometheus_rules "odroid" do
+  alerting_rules [
+    {
+      alert: "OdroidDown",
+      expr: 'up{instance="odroid.local:9100"} < 1',
+    },
+  ]
+end
+
+# Office
 
 prometheus_file_sd "office_sensors" do
   targets [
@@ -85,6 +100,17 @@ prometheus_file_sd "office_sensors" do
   ]
 end
 
+prometheus_rules "office_sensors" do
+  alerting_rules [
+    {
+      alert: "OfficeSensorDown",
+      expr: 'up{instance="office_sensors.local:9090"} < 1',
+    },
+  ]
+end
+
+# Living Room
+
 prometheus_file_sd "living_room_sensors" do
   targets [
     {
@@ -93,6 +119,15 @@ prometheus_file_sd "living_room_sensors" do
         instance: "living_room_sensors:9090",
         job: "sensor",
       },
+    },
+  ]
+end
+
+prometheus_rules "living_room_sensors" do
+  alerting_rules [
+    {
+      alert: "LivingRoomSensorDown",
+      expr: 'up{instance="living_room_sensors.local:9090"} < 1',
     },
   ]
 end
