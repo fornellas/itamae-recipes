@@ -66,3 +66,12 @@ prometheus_file_sd "iptables_exporter" do
     },
   ]
 end
+
+prometheus_rules "odroid-iptables_exporter" do
+  alerting_rules [
+    {
+      alert: "OdroidIPTablesDrop",
+      expr: 'rate(iptables_rule_bytes_total{job="iptables_exporter",instance="odroid.local:'"#{listen_port}"'",rule=~".* -j DROP$"}[1m]) > 0',
+    },
+  ]
+end
