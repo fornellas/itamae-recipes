@@ -106,6 +106,14 @@ prometheus_rules "office_sensors" do
       alert: "OfficeSensorDown",
       expr: 'up{instance="office_sensors.local:9090"} < 1',
     },
+    {
+      alert: "OfficeLowTemp",
+      expr: 'temperature_celsius{room="office"} < 20',
+    },
+    {
+      alert: "OfficeHighCO2",
+      expr: 'co2_concentration_ppm{room="office"} > 1600',
+    },
   ]
 end
 
@@ -128,6 +136,10 @@ prometheus_rules "living_room_sensors" do
     {
       alert: "LivingRoomSensorDown",
       expr: 'up{instance="living_room_sensors.local:9090"} < 1',
+    },
+    {
+      alert: "LivingRoomLowTemp",
+      expr: 'temperature_celsius{room="living room"} < 20',
     },
   ]
 end
