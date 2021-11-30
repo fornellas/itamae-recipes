@@ -43,7 +43,7 @@ end
 
 # iptables
 
-iptables_rule_drop_not_user "Drop not www-data user to BlackboxExporter" do
+iptables_rule_drop_not_user "Drop not prometheus user to BlackboxExporter" do
   users ["prometheus"]
   port blackbox_exporter_port
 end
