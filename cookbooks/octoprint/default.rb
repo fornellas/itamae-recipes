@@ -109,7 +109,7 @@ end
 # iptables
 
 iptables_rule_drop_not_user "Drop not www-data user to OctoPrint" do
-  users ["www-data"]
+  users ["www-data", "octoprint"]
   port port
 end
 
