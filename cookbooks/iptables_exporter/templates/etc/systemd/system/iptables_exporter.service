@@ -1,0 +1,16 @@
+[Unit]
+Description=iptables_exporter
+Requires=network.target
+After=network.target
+
+[Service]
+User=iptables_exporter
+Type=simple
+ExecStart=/opt/bin/iptables_exporter --web.listen-address=<%= @listen_address %>
+PrivateTmp=true
+Restart=always
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH CAP_NET_ADMIN CAP_NET_RAW
+AmbientCapabilities=CAP_DAC_READ_SEARCH CAP_NET_ADMIN CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target
