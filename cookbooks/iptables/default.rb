@@ -27,6 +27,12 @@ define(
 ) do
   users = params[:users]
   port = params[:port]
+
+  iptables_rule "Accept output established and related" do
+    table "filter"
+    rule "OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
+  end
+
   iptables_rule "Drop not #{users.join("|")} to 127.0.0.1:#{port}" do
     table "filter"
     rule "OUTPUT -d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map{|user| "-m owner ! --uid-owner #{user}"}.join(" ")} -j DROP"
