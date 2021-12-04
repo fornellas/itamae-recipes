@@ -148,7 +148,7 @@ end
 
 # Usage
 #
-# prometheus_file_sd "test" do
+# prometheus_scrape_targets "test" do
 #   targets [
 #     {
 #       # The targets specified by the static config.
@@ -166,7 +166,7 @@ end
 #   ]
 # end
 define(
-  :prometheus_file_sd,
+  :prometheus_scrape_targets,
   targets: [],
 ) do
   name = params[:name]
@@ -185,7 +185,7 @@ define(
   end
 end
 
-prometheus_file_sd "prometheus" do
+prometheus_scrape_targets "prometheus" do
   targets [
     {
       hosts: ["localhost:#{web_listen_port}"],

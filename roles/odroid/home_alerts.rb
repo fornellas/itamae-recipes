@@ -1,6 +1,6 @@
 # Brown
 
-prometheus_file_sd "brown_windows_exporter" do
+prometheus_scrape_targets "brown_windows_exporter" do
   targets [
     {
       hosts: ["192.168.0.221:9182"],
@@ -12,7 +12,7 @@ prometheus_file_sd "brown_windows_exporter" do
   ]
 end
 
-prometheus_file_sd "brown_node_exporter" do
+prometheus_scrape_targets "brown_node_exporter" do
   targets [
     {
       hosts: ["192.168.0.221:9100"],
@@ -26,7 +26,7 @@ end
 
 # Odroid
 
-prometheus_file_sd "odroid_node_exporter" do
+prometheus_scrape_targets "odroid_node_exporter" do
   targets [
     {
       hosts: ["127.0.0.1:9100"],
@@ -49,7 +49,7 @@ end
 
 # Office
 
-prometheus_file_sd "office_sensors" do
+prometheus_scrape_targets "office_sensors" do
   targets [
     {
       hosts: ["192.168.0.138:9090"],
@@ -80,7 +80,7 @@ end
 
 # Living Room
 
-prometheus_file_sd "living_room_sensors" do
+prometheus_scrape_targets "living_room_sensors" do
   targets [
     {
       hosts: ["192.168.0.124:9090"],

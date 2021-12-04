@@ -114,7 +114,7 @@ end
 
 # Scraping
 
-prometheus_file_sd "alertmanager" do
+prometheus_scrape_targets "alertmanager" do
   targets [
     {
       hosts: ["127.0.0.1:#{web_listen_port}"],

@@ -55,7 +55,7 @@ end
 
 # Prometheus
 
-prometheus_file_sd "iptables_exporter" do
+prometheus_scrape_targets "iptables_exporter" do
   targets [
     {
       hosts: ["127.0.0.1:#{listen_port}"],
