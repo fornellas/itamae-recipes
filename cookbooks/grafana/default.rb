@@ -99,3 +99,12 @@ end
 prometheus_scrape_targets_blackbox_http_401 "grafana" do
   targets [{ hosts: ["http://grafana.sigstop.co.uk/"] }]
 end
+
+prometheus_rules "grafana" do
+  alerting_rules [
+    {
+      alert: "GrafanaDown",
+      expr: 'up{instance="http://grafana.sigstop.co.uk/"} < 1',
+    },
+  ]
+end
