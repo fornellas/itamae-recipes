@@ -455,3 +455,12 @@ end
 prometheus_scrape_targets_blackbox_http_401 "prometheus" do
   targets [{ hosts: ["http://prometheus.sigstop.co.uk/"] }]
 end
+
+prometheus_rules "prometheus" do
+  alerting_rules [
+    {
+      alert: "PrometheusDown",
+      expr: 'up{instance="http://prometheus.sigstop.co.uk/"} < 1',
+    },
+  ]
+end
