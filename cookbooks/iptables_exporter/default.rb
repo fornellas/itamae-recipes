@@ -61,7 +61,7 @@ prometheus_scrape_targets "iptables_exporter" do
       hosts: ["127.0.0.1:#{listen_port}"],
       labels: {
         instance: "odroid.local:#{listen_port}",
-        job: "iptables_exporter",
+        exporter: "iptables_exporter",
       },
     },
   ]
