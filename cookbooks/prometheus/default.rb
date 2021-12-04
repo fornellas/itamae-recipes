@@ -338,6 +338,27 @@ prometheus_scrape_targets "prometheus" do
   ]
 end
 
+prometheus_scrape_targets "blackbox_exporter" do
+  targets [
+    {
+      hosts: ["localhost:9115"],
+      labels: {
+        instance: "odroid.local:9115",
+        exporter: "blackbox_exporter",
+      },
+    },
+  ]
+end
+
+prometheus_rules "blackbox_exporter" do
+  alerting_rules [
+    {
+      alert: "BlackboxExporterDown",
+      expr: 'up{instance="odroid.local:9115"} < 1',
+    },
+  ]
+end
+
 remote_file "/etc/prometheus/prometheus.yml" do
   mode "644"
   owner "root"
