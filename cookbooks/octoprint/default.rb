@@ -178,6 +178,14 @@ template "/etc/nginx/sites-enabled/octoprint" do
 end
 
 ##
+## Prometheus
+##
+
+prometheus_scrape_targets_blackbox_http_401 "octoprint" do
+  targets [{ hosts: ["http://octoprint.sigstop.co.uk/"] }]
+end
+
+##
 ## Backup
 ##
 

@@ -62,6 +62,51 @@ define(
   end
 end
 
+directory "/etc/prometheus/scrape_targets_blackbox_http_401.d" do
+  owner "root"
+  group "root"
+  mode "755"
+end
+
+# Usage
+#
+# prometheus_scrape_targets_blackbox_http_401 "test" do
+#   targets [
+#     {
+#       # The targets specified by the static config.
+#       hosts: [
+#         "host1:123",
+#         "host2:456",
+#       ],
+#       # Labels assigned to all metrics scraped from the targets.
+#       # Optional
+#       labels: {
+#         a: "b",
+#         c: "d",
+#       },
+#     }
+#   ]
+# end
+define(
+  :prometheus_scrape_targets_blackbox_http_401,
+  targets: [],
+) do
+  name = params[:name]
+  targets = params[:targets]
+
+  rule_path = "/etc/prometheus/scrape_targets_blackbox_http_401.d/#{name}.yml"
+
+  template rule_path do
+    mode "644"
+    owner "root"
+    group "root"
+    source "templates/etc/prometheus/file_sd.d/template.yml"
+    variables(
+      targets: targets,
+    )
+  end
+end
+
 ##
 ## Prometheus
 ##
@@ -242,7 +287,7 @@ prometheus_scrape_targets "prometheus" do
       hosts: ["localhost:#{web_listen_port}"],
       labels: {
         instance: "odroid.local:#{web_listen_port}",
-        job: "prometheus",
+        exporter: "prometheus",
       },
     },
   ]
@@ -335,4 +380,12 @@ template "/etc/nginx/sites-enabled/prometheus" do
     prometheus_port: web_listen_port,
   )
   notifies :restart, "service[nginx]", :immediately
+end
+
+##
+## Prometheus
+##
+
+prometheus_scrape_targets_blackbox_http_401 "prometheus" do
+  targets [{ hosts: ["http://prometheus.sigstop.co.uk/"] }]
 end

@@ -9,7 +9,6 @@ scrape_configs:
       - files:
         - '/etc/prometheus/scrape_targets.d/*.yml'
         refresh_interval: 1m
-  # FIXME move to defines with file_sd
   - job_name: 'scrape_targets_blackbox_http_2xx'
     metrics_path: /probe
     params:
@@ -25,16 +24,14 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:9115
-  - job_name: 'blackbox_http_401'
+  - job_name: 'scrape_targets_blackbox_http_401'
     metrics_path: /probe
     params:
-      module: [http_401]
-    static_configs:
-      - targets:
-        - http://cherrymusic.sigstop.co.uk/
-        - http://grafana.sigstop.co.uk/
-        - http://octoprint.sigstop.co.uk/
-        - http://prometheus.sigstop.co.uk/
+      module: [http_2xx]
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/scrape_targets_blackbox_http_401.d/*.yml'
+        refresh_interval: 1m
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -42,6 +39,7 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:9115
+  # FIXME move to defines with file_sd
   - job_name: 'blackbox_ssh_banner'
     metrics_path: /probe
     params:

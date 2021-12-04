@@ -35,7 +35,6 @@ prometheus_scrape_targets_blackbox_http_2xx "virgin_router" do
   ]
 end
 
-
 ##
 ## Brown
 ##
@@ -160,9 +159,9 @@ prometheus_scrape_targets_blackbox_http_2xx "storage" do
     {
       hosts: ["http://192.168.0.171/"],
       labels: [
-        instance: "storage_camera.local"
+        instance: "storage_camera.local",
       ],
-    }
+    },
   ]
 end
 

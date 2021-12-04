@@ -133,3 +133,11 @@ template "/etc/nginx/sites-enabled/cherrymusic" do
   )
   notifies :restart, "service[nginx]", :immediately
 end
+
+##
+## Prometheus
+##
+
+prometheus_scrape_targets_blackbox_http_401 "cherrymusic" do
+  targets [{ hosts: ["http://cherrymusic.sigstop.co.uk/"] }]
+end

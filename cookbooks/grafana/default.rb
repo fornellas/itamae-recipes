@@ -91,3 +91,11 @@ template "/etc/nginx/sites-enabled/grafana" do
   )
   notifies :restart, "service[nginx]", :immediately
 end
+
+##
+## Prometheus
+##
+
+prometheus_scrape_targets_blackbox_http_401 "grafana" do
+  targets [{ hosts: ["http://grafana.sigstop.co.uk/"] }]
+end
