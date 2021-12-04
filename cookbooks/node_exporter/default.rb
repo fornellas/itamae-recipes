@@ -30,7 +30,7 @@ end
 
 # iptables
 
-iptables_rule_drop_not_user "Drop not www-data user to NodeExporter" do
+iptables_rule_drop_not_user "Drop not prometheus user to NodeExporter" do
   users ["prometheus"]
   port port
 end
@@ -53,4 +53,29 @@ end
 
 service "node_exporter" do
   action :enable
+end
+
+##
+## Prometheus
+##
+
+prometheus_scrape_targets "odroid_node_exporter" do
+  targets [
+    {
+      hosts: ["127.0.0.1:9100"],
+      labels: {
+        instance: "odroid.local:9100",
+        exporter: "node_exporter",
+      },
+    },
+  ]
+end
+
+prometheus_rules "node_exporter" do
+  alerting_rules [
+    {
+      alert: "NodeExporterDown",
+      expr: 'up{instance="odroid.local:9100"} < 1',
+    },
+  ]
 end
