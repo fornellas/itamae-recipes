@@ -1,4 +1,37 @@
 ##
+## Odroid
+##
+
+prometheus_scrape_targets "odroid_node_exporter" do
+  targets [
+    {
+      hosts: ["127.0.0.1:9100"],
+      labels: {
+        instance: "odroid.local:9100",
+        exporter: "node_exporter",
+      },
+    },
+  ]
+end
+
+prometheus_scrape_targets_blackbox_ssh_banner "odroid" do
+  targets [{ hosts: ["odroid.sigstop.co.uk:22"] }]
+end
+
+prometheus_rules "odroid" do
+  alerting_rules [
+    {
+      alert: "OdroidNodeExporterDown",
+      expr: 'up{instance="odroid.local:9100"} < 1',
+    },
+    {
+      alert: "OdroidSshDown",
+      expr: 'up{instance="odroid.sigstop.co.uk:22"} < 1',
+    },
+  ]
+end
+
+##
 ## Internet
 ##
 
@@ -59,35 +92,6 @@ prometheus_scrape_targets "brown_node_exporter" do
         instance: "brown.local:9100",
         exporter: "node_exporter",
       },
-    },
-  ]
-end
-
-##
-## Odroid
-##
-
-prometheus_scrape_targets "odroid_node_exporter" do
-  targets [
-    {
-      hosts: ["127.0.0.1:9100"],
-      labels: {
-        instance: "odroid.local:9100",
-        exporter: "node_exporter",
-      },
-    },
-  ]
-end
-
-prometheus_scrape_targets_blackbox_ssh_banner "odroid" do
-  targets [{ hosts: ["odroid.sigstop.co.uk:22"] }]
-end
-
-prometheus_rules "odroid" do
-  alerting_rules [
-    {
-      alert: "OdroidDown",
-      expr: 'up{instance="odroid.local:9100"} < 1',
     },
   ]
 end
