@@ -4,7 +4,7 @@ include_recipe "../golang"
 include_recipe "../iptables"
 
 ##
-## iptables_exporter
+## Install
 ##
 
 # User / Group
