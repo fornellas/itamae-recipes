@@ -462,5 +462,21 @@ prometheus_rules "prometheus" do
       alert: "PrometheusDown",
       expr: 'up{instance="http://prometheus.sigstop.co.uk/"} < 1',
     },
+    {
+      alert: "PrometheusNotificationsDropped",
+      expr: 'prometheus_notifications_dropped_total{instance="odroid.local:9090"} > 0',
+    },
+    {
+      alert: "PrometheusNotificationsErrors",
+      expr: 'prometheus_notifications_errors_total{instance="odroid.local:9090"} > 0',
+    },
+    {
+      alert: "PrometheusSdFailedConfigs",
+      expr: 'prometheus_sd_failed_configs{instance="odroid.local:9090"} > 0',
+    },
+    {
+      alert: "PrometheusSdFileReadErrors",
+      expr: 'prometheus_sd_file_read_errors_total{instance="odroid.local:9090"} > 0',
+    },
   ]
 end
