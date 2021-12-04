@@ -186,6 +186,14 @@ template "/etc/nginx/sites-enabled/nextcloud" do
 end
 
 ##
+## Prometheus
+##
+
+prometheus_scrape_targets_blackbox_http_2xx "nextcloud" do
+  targets [{ hosts: ["http://nextcloud.sigstop.co.uk/"] }]
+end
+
+##
 ## Backup
 ##
 

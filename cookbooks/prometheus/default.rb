@@ -12,6 +12,57 @@ include_recipe "../backblaze"
 include_recipe "../iptables"
 
 ##
+## blackbox_exporter
+##
+
+include_recipe "../../cookbooks/blackbox_exporter"
+
+directory "/etc/prometheus/scrape_targets_blackbox_http_2xx.d" do
+  owner "root"
+  group "root"
+  mode "755"
+end
+
+# Usage
+#
+# prometheus_scrape_targets_blackbox_http_2xx "test" do
+#   targets [
+#     {
+#       # The targets specified by the static config.
+#       hosts: [
+#         "host1:123",
+#         "host2:456",
+#       ],
+#       # Labels assigned to all metrics scraped from the targets.
+#       # Optional
+#       labels: {
+#         a: "b",
+#         c: "d",
+#       },
+#     }
+#   ]
+# end
+define(
+  :prometheus_scrape_targets_blackbox_http_2xx,
+  targets: [],
+) do
+  name = params[:name]
+  targets = params[:targets]
+
+  rule_path = "/etc/prometheus/scrape_targets_blackbox_http_2xx.d/#{name}.yml"
+
+  template rule_path do
+    mode "644"
+    owner "root"
+    group "root"
+    source "templates/etc/prometheus/file_sd.d/template.yml"
+    variables(
+      targets: targets,
+    )
+  end
+end
+
+##
 ## Prometheus
 ##
 
@@ -140,7 +191,7 @@ define(
   end
 end
 
-directory "/etc/prometheus/file_sd.d" do
+directory "/etc/prometheus/scrape_targets.d" do
   owner "root"
   group "root"
   mode "755"
@@ -172,7 +223,7 @@ define(
   name = params[:name]
   targets = params[:targets]
 
-  rule_path = "/etc/prometheus/file_sd.d/#{name}.yml"
+  rule_path = "/etc/prometheus/scrape_targets.d/#{name}.yml"
 
   template rule_path do
     mode "644"

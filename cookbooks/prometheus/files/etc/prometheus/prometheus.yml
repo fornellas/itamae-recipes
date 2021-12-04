@@ -4,24 +4,20 @@ global:
 rule_files:
   - '/etc/prometheus/rules.d/*.yml'
 scrape_configs:
-  - job_name: file_sd
+  - job_name: scrape_targets
     file_sd_configs:
       - files:
-        - '/etc/prometheus/file_sd.d/*.yml'
+        - '/etc/prometheus/scrape_targets.d/*.yml'
         refresh_interval: 1m
   # FIXME move to defines with file_sd
-  - job_name: 'blackbox_http_2xx'
+  - job_name: 'scrape_targets_blackbox_http_2xx'
     metrics_path: /probe
     params:
       module: [http_2xx]
-    static_configs:
-      - targets:
-        - http://google.com/
-        - http://facebook.com/
-        - http://nextcloud.sigstop.co.uk/
-        - http://tt-rss.sigstop.co.uk/
-        - 192.168.0.1:80 # Virgin
-        - http://192.168.0.171/ # ESP32-CAM
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/scrape_targets_blackbox_http_2xx.d/*.yml'
+        refresh_interval: 1m
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

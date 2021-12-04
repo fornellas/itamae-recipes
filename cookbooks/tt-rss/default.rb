@@ -128,6 +128,14 @@ template "/etc/nginx/sites-enabled/tt-rss" do
 end
 
 ##
+## Prometheus
+##
+
+prometheus_scrape_targets_blackbox_http_2xx "tt-rss" do
+  targets [{ hosts: ["http://tt-rss.sigstop.co.uk/"] }]
+end
+
+##
 ## Backup
 ##
 
