@@ -4,18 +4,18 @@ global:
 rule_files:
   - '/etc/prometheus/rules.d/*.yml'
 scrape_configs:
-  - job_name: scrape_targets
+  - job_name: node
     file_sd_configs:
       - files:
-        - '/etc/prometheus/scrape_targets.d/*.yml'
+        - '/etc/prometheus/node.d/*.yml'
         refresh_interval: 1m
-  - job_name: 'scrape_targets_blackbox_http_2xx'
+  - job_name: 'blackbox_http_2xx'
     metrics_path: /probe
     params:
       module: [http_2xx]
     file_sd_configs:
       - files:
-        - '/etc/prometheus/scrape_targets_blackbox_http_2xx.d/*.yml'
+        - '/etc/prometheus/blackbox_http_2xx.d/*.yml'
         refresh_interval: 1m
     relabel_configs:
       - source_labels: [__address__]
@@ -24,13 +24,13 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:9115
-  - job_name: 'scrape_targets_blackbox_http_401'
+  - job_name: 'blackbox_http_401'
     metrics_path: /probe
     params:
       module: [http_2xx]
     file_sd_configs:
       - files:
-        - '/etc/prometheus/scrape_targets_blackbox_http_401.d/*.yml'
+        - '/etc/prometheus/blackbox_http_401.d/*.yml'
         refresh_interval: 1m
     relabel_configs:
       - source_labels: [__address__]
@@ -39,14 +39,14 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:9115
-  # FIXME move to defines with file_sd
   - job_name: 'blackbox_ssh_banner'
     metrics_path: /probe
     params:
       module: [ssh_banner]
-    static_configs:
-      - targets:
-        - odroid.sigstop.co.uk:22
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/blackbox_ssh_banner.d/*.yml'
+        refresh_interval: 1m
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

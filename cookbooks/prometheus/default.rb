@@ -17,7 +17,7 @@ include_recipe "../iptables"
 
 include_recipe "../../cookbooks/blackbox_exporter"
 
-directory "/etc/prometheus/scrape_targets_blackbox_http_2xx.d" do
+directory "/etc/prometheus/blackbox_http_2xx.d" do
   owner "root"
   group "root"
   mode "755"
@@ -49,7 +49,7 @@ define(
   name = params[:name]
   targets = params[:targets]
 
-  rule_path = "/etc/prometheus/scrape_targets_blackbox_http_2xx.d/#{name}.yml"
+  rule_path = "/etc/prometheus/blackbox_http_2xx.d/#{name}.yml"
 
   template rule_path do
     mode "644"
@@ -62,7 +62,7 @@ define(
   end
 end
 
-directory "/etc/prometheus/scrape_targets_blackbox_http_401.d" do
+directory "/etc/prometheus/blackbox_http_401.d" do
   owner "root"
   group "root"
   mode "755"
@@ -94,7 +94,52 @@ define(
   name = params[:name]
   targets = params[:targets]
 
-  rule_path = "/etc/prometheus/scrape_targets_blackbox_http_401.d/#{name}.yml"
+  rule_path = "/etc/prometheus/blackbox_http_401.d/#{name}.yml"
+
+  template rule_path do
+    mode "644"
+    owner "root"
+    group "root"
+    source "templates/etc/prometheus/file_sd.d/template.yml"
+    variables(
+      targets: targets,
+    )
+  end
+end
+
+directory "/etc/prometheus/blackbox_ssh_banner.d" do
+  owner "root"
+  group "root"
+  mode "755"
+end
+
+# Usage
+#
+# prometheus_scrape_targets_blackbox_ssh_banner "test" do
+#   targets [
+#     {
+#       # The targets specified by the static config.
+#       hosts: [
+#         "host1:123",
+#         "host2:456",
+#       ],
+#       # Labels assigned to all metrics scraped from the targets.
+#       # Optional
+#       labels: {
+#         a: "b",
+#         c: "d",
+#       },
+#     }
+#   ]
+# end
+define(
+  :prometheus_scrape_targets_blackbox_ssh_banner,
+  targets: [],
+) do
+  name = params[:name]
+  targets = params[:targets]
+
+  rule_path = "/etc/prometheus/blackbox_ssh_banner.d/#{name}.yml"
 
   template rule_path do
     mode "644"
@@ -236,7 +281,7 @@ define(
   end
 end
 
-directory "/etc/prometheus/scrape_targets.d" do
+directory "/etc/prometheus/node.d" do
   owner "root"
   group "root"
   mode "755"
@@ -268,7 +313,7 @@ define(
   name = params[:name]
   targets = params[:targets]
 
-  rule_path = "/etc/prometheus/scrape_targets.d/#{name}.yml"
+  rule_path = "/etc/prometheus/node.d/#{name}.yml"
 
   template rule_path do
     mode "644"

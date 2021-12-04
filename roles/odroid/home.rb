@@ -79,6 +79,10 @@ prometheus_scrape_targets "odroid_node_exporter" do
   ]
 end
 
+prometheus_scrape_targets_blackbox_ssh_banner "odroid" do
+  targets [{ hosts: ["odroid.sigstop.co.uk:22"] }]
+end
+
 prometheus_rules "odroid" do
   alerting_rules [
     {
