@@ -1,6 +1,6 @@
 home_path = "/var/lib/node_exporter"
 port = "9100"
-version = "1.2.2"
+version = "1.3.1"
 arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/node_exporter/releases/download/v#{version}/node_exporter-#{version}.linux-#{arch}.tar.gz"
 
