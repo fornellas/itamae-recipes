@@ -132,19 +132,19 @@ prometheus_rules "alertmanager" do
   alerting_rules [
     {
       alert: "AlertManagerAlertsInvalid",
-      expr: "alertmanager_alerts_invalid_total{instance=\"odroid.local:#{web_listen_port}\"} > 0",
+      expr: "rate(alertmanager_alerts_invalid_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerNotificationRequestsFailed",
-      expr: "alertmanager_notification_requests_failed_total{instance=\"odroid.local:#{web_listen_port}\"} > 0",
+      expr: "rate(alertmanager_notification_requests_failed_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerNotificationFailed",
-      expr: "alertmanager_notifications_failed_total{instance=\"odroid.local:#{web_listen_port}\"} > 0",
+      expr: "rate(alertmanager_notifications_failed_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerSilencesQueryErrors",
-      expr: "alertmanager_silences_query_errors_total{instance=\"odroid.local:#{web_listen_port}\"} > 0",
+      expr: "rate(alertmanager_silences_query_errors_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerDown",

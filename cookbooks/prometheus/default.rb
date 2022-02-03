@@ -464,11 +464,11 @@ prometheus_rules "prometheus" do
     },
     {
       alert: "PrometheusNotificationsDropped",
-      expr: 'prometheus_notifications_dropped_total{instance="odroid.local:9090"} > 0',
+      expr: 'rate(prometheus_notifications_dropped_total{instance="odroid.local:9090"}[5m]) > 0',
     },
     {
       alert: "PrometheusNotificationsErrors",
-      expr: 'prometheus_notifications_errors_total{instance="odroid.local:9090"} > 0',
+      expr: 'rate(prometheus_notifications_errors_total{instance="odroid.local:9090"}[5m]) > 0',
     },
     {
       alert: "PrometheusSdFailedConfigs",
@@ -476,7 +476,7 @@ prometheus_rules "prometheus" do
     },
     {
       alert: "PrometheusSdFileReadErrors",
-      expr: 'prometheus_sd_file_read_errors_total{instance="odroid.local:9090"} > 0',
+      expr: 'rate(prometheus_sd_file_read_errors_total{instance="odroid.local:9090"}[5m]) > 0',
     },
   ]
 end
