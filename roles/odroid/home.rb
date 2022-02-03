@@ -146,6 +146,18 @@ end
 ## Storage
 ##
 
+prometheus_scrape_targets "power_meter" do
+  targets [
+    {
+      hosts: ["192.168.0.121:9090"],
+      labels: {
+        instance: "power_meter:9090",
+        exporter: "sensor",
+      },
+    },
+  ]
+end
+
 prometheus_scrape_targets_blackbox_http_2xx "storage" do
   targets [
     {
