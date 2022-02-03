@@ -5,3 +5,4 @@ receivers:
   slack_configs:
   - send_resolved: true
     api_url: <%= @slack_webhook_url %>
+    title_link: https://grafana.sigstop.co.uk/alerting/list?dataSource=Prometheus&alertState=firing&ruleType=alerting
