@@ -146,34 +146,25 @@ end
 ## Storage
 ##
 
+# Power Meter
+
 prometheus_scrape_targets "power_meter" do
   targets [
     {
       hosts: ["192.168.0.121:9090"],
       labels: {
-        instance: "power_meter:9090",
+        instance: "power_meter.local:9090",
         exporter: "sensor",
       },
     },
   ]
 end
 
-prometheus_scrape_targets_blackbox_http_2xx "storage" do
-  targets [
-    {
-      hosts: ["http://192.168.0.171/"],
-      labels: [
-        instance: "storage_camera.local",
-      ],
-    },
-  ]
-end
-
-prometheus_rules "storage_camera" do
+prometheus_rules "power_meter" do
   alerting_rules [
     {
-      alert: "StorageCameraDown",
-      expr: 'up{instance="storage_camera.local"} < 1',
+      alert: "PowerMeterDown",
+      expr: 'up{instance="power_meter.local:9090"} < 1',
     },
   ]
 end
