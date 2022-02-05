@@ -122,7 +122,7 @@ prometheus_scrape_targets "living_room_sensors" do
     {
       hosts: ["192.168.0.124:9090"],
       labels: {
-        instance: "living_room_sensors:9090",
+        instance: "living_room_sensors.local:9090",
         exporter: "sensor",
       },
     },
