@@ -4,7 +4,11 @@ web_listen_port = "9090"
 nginx_port = "443"
 version = "2.33.3"
 retention_time = "10y"
-retention_size = "15GB"
+# https://discuss.prometheus.io/t/prometheus-crashes-during-compaction-process/141
+# For 32-bit OS there's not enough address space for mmap to work, so we're severely
+# limited
+retention_size = "1500MB"
+# retention_size = "15GB"
 arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
