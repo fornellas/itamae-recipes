@@ -1,4 +1,4 @@
-version = "8.3.6"
+version = "8.4.1"
 arch = "armhf"
 domain = "grafana.sigstop.co.uk"
 nginx_port = "443"
