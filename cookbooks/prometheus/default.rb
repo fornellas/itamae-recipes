@@ -2,7 +2,7 @@ home_path = "/var/lib/prometheus"
 domain = "prometheus.sigstop.co.uk"
 web_listen_port = "9090"
 nginx_port = "443"
-version = "2.33.3"
+version = "2.33.4"
 retention_time = "10y"
 # https://discuss.prometheus.io/t/prometheus-crashes-during-compaction-process/141
 # For 32-bit OS there's not enough address space for mmap to work, so we're severely
