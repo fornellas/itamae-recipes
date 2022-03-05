@@ -101,6 +101,7 @@ prometheus_rules "office_sensors" do
     {
       alert: "OfficeSensorDown",
       expr: 'up{instance="office_sensors.local:9090"} < 1',
+      for: "5m",
     },
     {
       alert: "OfficeLowTemp",
@@ -134,6 +135,7 @@ prometheus_rules "living_room_sensors" do
     {
       alert: "LivingRoomSensorDown",
       expr: 'up{instance="living_room_sensors.local:9090"} < 1',
+      for: "5m",
     },
     {
       alert: "LivingRoomLowTemp",
