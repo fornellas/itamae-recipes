@@ -8,9 +8,9 @@ define(
 
   package "netfilter-persistent"
 
-  execute "/sbin/iptables -t #{table} -A #{rule}" do
+  execute "iptables -t #{table} -A #{rule}" do
     user "root"
-    not_if "/sbin/iptables -t #{table} -C #{rule}"
+    not_if "iptables -t #{table} -C #{rule}"
     notifies :run, "execute[netfilter-persistent save]", :immediately
   end
 
