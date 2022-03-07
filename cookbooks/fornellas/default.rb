@@ -57,7 +57,6 @@ group_add username do
            "netdev",
            "operator",
            "plugdev",
-           "scanner",
            "ssh",
            "staff",
            "sudo",
