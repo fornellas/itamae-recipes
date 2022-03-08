@@ -1,5 +1,6 @@
 include_recipe "blackbox_exporter"
 include_recipe "alertmanager"
+include_recipe "grafana"
 include_recipe "prometheus"
 include_recipe "defines"
 
@@ -35,6 +36,27 @@ include_recipe "defines"
       ]
     end
 
+  # grafana
+
+    prometheus_scrape_targets_blackbox_http_401 "grafana" do
+      targets [
+        {
+          hosts: [
+            "http://#{node[:grafana][:domain]}/"
+          ]
+        }
+      ]
+    end
+
+    prometheus_rules "grafana" do
+      alerting_rules [
+        {
+          alert: "GrafanaDown",
+          expr: 'up{instance="http://'"#{node[:grafana][:domain]}"'/"} < 1',
+        },
+      ]
+    end
+
   # prometheus
 
     prometheus_scrape_targets_blackbox_http_401 "prometheus" do
@@ -58,8 +80,6 @@ include_recipe "defines"
         },
       ]
     end
-
-
 
 ##
 ## Rules & alerts
@@ -153,6 +173,13 @@ include_recipe "defines"
     iptables_rule_drop_not_user "Drop not prometheus user to alertmanager" do
       users ["prometheus"]
       port node[:alertmanager][:cluster_port]
+    end
+
+  # grafana
+
+    iptables_rule_drop_not_user "Drop not www-data user to Grafana" do
+      users ["www-data"]
+      port node[:grafana][:port]
     end
 
   # prometheus
