@@ -1,486 +1,287 @@
-home_path = "/var/lib/prometheus"
-domain = "prometheus.sigstop.co.uk"
-web_listen_port = "9090"
-nginx_port = "443"
-version = "2.33.4"
-retention_time = "10y"
-# https://discuss.prometheus.io/t/prometheus-crashes-during-compaction-process/141
-# For 32-bit OS there's not enough address space for mmap to work, so we're severely
-# limited
-retention_size = "1500MB"
-# retention_size = "15GB"
-arch = "armv7"
+node.validate! do
+  {
+    prometheus: {
+      version: string,
+      arch: string,
+      domain: string,
+      port: string,
+      storage_tsdb_retention_time: string,
+      storage_tsdb_retention_size: string,
+      local_http_users: optional(array_of(string)),
+    },
+  }
+end
+
+version = node[:prometheus][:version]
+arch = node[:prometheus][:arch]
+domain = node[:prometheus][:domain]
+web_listen_port = node[:prometheus][:port]
+retention_time = node[:prometheus][:storage_tsdb_retention_time]
+retention_size = node[:prometheus][:storage_tsdb_retention_size]
+
+var_path = "/var/lib/prometheus"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
 include_recipe "../backblaze"
 include_recipe "../iptables"
 
 ##
-## blackbox_exporter
+## prometheus
 ##
 
-include_recipe "../../cookbooks/blackbox_exporter"
+  # blackbox_exporter
 
-directory "/etc/prometheus/blackbox_http_2xx.d" do
-  owner "root"
-  group "root"
-  mode "755"
-end
+    include_recipe "blackbox_exporter"
 
-# Usage
-#
-# prometheus_scrape_targets_blackbox_http_2xx "test" do
-#   targets [
-#     {
-#       # The targets specified by the static config.
-#       hosts: [
-#         "host1:123",
-#         "host2:456",
-#       ],
-#       # Labels assigned to all metrics scraped from the targets.
-#       # Optional
-#       labels: {
-#         a: "b",
-#         c: "d",
-#       },
-#     }
-#   ]
-# end
-define(
-  :prometheus_scrape_targets_blackbox_http_2xx,
-  targets: [],
-) do
-  name = params[:name]
-  targets = params[:targets]
+  # User / Group
 
-  rule_path = "/etc/prometheus/blackbox_http_2xx.d/#{name}.yml"
+    group "prometheus"
 
-  template rule_path do
-    mode "644"
-    owner "root"
-    group "root"
-    source "templates/etc/prometheus/file_sd.d/template.yml"
-    variables(
-      targets: targets,
-    )
-  end
-end
+    user "prometheus" do
+      gid "prometheus"
+      home var_path
+      system_user true
+      shell "/usr/sbin/nologin"
+      create_home true
+    end
 
-directory "/etc/prometheus/blackbox_http_401.d" do
-  owner "root"
-  group "root"
-  mode "755"
-end
+  # Install
 
-# Usage
-#
-# prometheus_scrape_targets_blackbox_http_401 "test" do
-#   targets [
-#     {
-#       # The targets specified by the static config.
-#       hosts: [
-#         "host1:123",
-#         "host2:456",
-#       ],
-#       # Labels assigned to all metrics scraped from the targets.
-#       # Optional
-#       labels: {
-#         a: "b",
-#         c: "d",
-#       },
-#     }
-#   ]
-# end
-define(
-  :prometheus_scrape_targets_blackbox_http_401,
-  targets: [],
-) do
-  name = params[:name]
-  targets = params[:targets]
+    execute "wget -O prometheus.tar.gz #{tar_gz_url} && tar zxf prometheus.tar.gz && chown root.root -R prometheus-#{version}.linux-#{arch} && rm -rf /opt/prometheus && mv prometheus-#{version}.linux-#{arch} /opt/prometheus && touch /opt/prometheus/.#{version}.ok" do
+      user "root"
+      cwd "/tmp"
+      not_if "test -f /opt/prometheus/.#{version}.ok"
+    end
 
-  rule_path = "/etc/prometheus/blackbox_http_401.d/#{name}.yml"
+  # Configuration
 
-  template rule_path do
-    mode "644"
-    owner "root"
-    group "root"
-    source "templates/etc/prometheus/file_sd.d/template.yml"
-    variables(
-      targets: targets,
-    )
-  end
-end
+    directory "/etc/prometheus" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
 
-directory "/etc/prometheus/blackbox_ssh_banner.d" do
-  owner "root"
-  group "root"
-  mode "755"
-end
+    directory "/etc/prometheus/blackbox_http_2xx.d" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
+    directory "/etc/prometheus/blackbox_http_401.d" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
+    directory "/etc/prometheus/blackbox_ssh_banner.d" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
 
-# Usage
-#
-# prometheus_scrape_targets_blackbox_ssh_banner "test" do
-#   targets [
-#     {
-#       # The targets specified by the static config.
-#       hosts: [
-#         "host1:123",
-#         "host2:456",
-#       ],
-#       # Labels assigned to all metrics scraped from the targets.
-#       # Optional
-#       labels: {
-#         a: "b",
-#         c: "d",
-#       },
-#     }
-#   ]
-# end
-define(
-  :prometheus_scrape_targets_blackbox_ssh_banner,
-  targets: [],
-) do
-  name = params[:name]
-  targets = params[:targets]
+    directory "/etc/prometheus/rules.d" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
 
-  rule_path = "/etc/prometheus/blackbox_ssh_banner.d/#{name}.yml"
+    directory "/etc/prometheus/node.d" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
 
-  template rule_path do
-    mode "644"
-    owner "root"
-    group "root"
-    source "templates/etc/prometheus/file_sd.d/template.yml"
-    variables(
-      targets: targets,
-    )
-  end
-end
+    template "/etc/prometheus/prometheus.yml" do
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        blackbox_exporter_port: node[:blackbox_exporter][:port],
+        alertmanager_port: node[:alertmanager][:port],
+      )
+      notifies :restart, "service[prometheus]"
+    end
 
-##
-## Prometheus
-##
+  # Service
 
-# User / Group
+    template "/etc/systemd/system/prometheus.service" do
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        install_path: "/opt/prometheus",
+        config_file: "/etc/prometheus/prometheus.yml",
+        storage_tsdb_path: "#{var_path}/tsdb",
+        web_listen_address: "127.0.0.1:#{web_listen_port}",
+        web_external_url: "https://#{domain}/",
+        storage_tsdb_retention_time: retention_time,
+        storage_tsdb_retention_size: retention_size,
+      )
+      notifies :run, "execute[systemctl daemon-reload]"
+    end
 
-group "prometheus"
+    execute "systemctl daemon-reload" do
+      action :nothing
+      user "root"
+      notifies :restart, "service[prometheus]"
+    end
 
-user "prometheus" do
-  gid "prometheus"
-  home home_path
-  system_user true
-  shell "/usr/sbin/nologin"
-  create_home true
-end
+    service "prometheus" do
+      action :enable
+    end
 
-# Install
+  # Backup
 
-execute "wget -O prometheus.tar.gz #{tar_gz_url} && tar zxf prometheus.tar.gz && chown root.root -R prometheus-#{version}.linux-#{arch} && rm -rf /opt/prometheus && mv prometheus-#{version}.linux-#{arch} /opt/prometheus && touch /opt/prometheus/.#{version}.ok" do
-  user "root"
-  cwd "/tmp"
-  not_if "test -f /opt/prometheus/.#{version}.ok"
-end
-
-# Configuration
-
-directory "/etc/prometheus" do
-  owner "root"
-  group "root"
-  mode "755"
-end
-
-directory "/etc/prometheus/rules.d" do
-  owner "root"
-  group "root"
-  mode "755"
-end
-
-# Usage:
-#
-# prometheus_rules "test" do
-#   # How often rules in the group are evaluated.
-#   # Optional.
-#   interval "1m"
-#   # Limit the number of alerts an alerting rule and series a recording
-#   # rule can produce. 0 is no limit.
-#   # Optional.
-#   limit 0
-#   # Alerting Rules
-#   alerting_rules [
-#     {
-#       # The name of the alert. Must be a valid label value.
-#       # Required.
-#       alert: "alert name",
-#       # The PromQL expression to evaluate. Every evaluation cycle this is
-#       # evaluated at the current time, and all resultant time series become
-#       # pending/firing alerts.
-#       # Required.
-#       expr: "up < 1",
-#       # Alerts are considered firing once they have been returned for this long.
-#       # Alerts which have not yet fired for long enough are considered pending.
-#       # Optional.
-#       for: "3m",
-#       # Labels to add or overwrite for each alert.
-#       # Optional.
-#       labels: {
-#         a: "b",
-#         c: "d",
-#       },
-#       # Annotations to add to each alert.
-#       # Optional.
-#       annotations: {
-#         e: "f",
-#         g: "h",
-#       },
-#     },
-#   ]
-#   # Recording Rules
-#   recording_rules [
-#     {
-#       # The name of the time series to output to. Must be a valid metric name.
-#       # Required.
-#       record: "record name",
-#       # The PromQL expression to evaluate. Every evaluation cycle this is
-#       # evaluated at the current time, and the result recorded as a new set of
-#       # time series with the metric name as given by 'record'.
-#       # Required.
-#       expr: "up < 1",
-#       # Labels to add or overwrite before storing the result.
-#       # Optional.
-#       labels: {
-#         a: "b",
-#         c: "d",
-#       },
-#     },
-#   ]
-# end
-define(
-  :prometheus_rules,
-  interval: nil,
-  limit: nil,
-  alerting_rules: [],
-  recording_rules: [],
-) do
-  name = params[:name]
-  interval = params[:interval]
-  limit = params[:limit]
-  alerting_rules = params[:alerting_rules]
-  recording_rules = params[:recording_rules]
-
-  rule_path = "/etc/prometheus/rules.d/#{name}.yml"
-
-  template rule_path do
-    mode "644"
-    owner "root"
-    group "root"
-    source "templates/etc/prometheus/rules.d/template.yml"
-    variables(
-      group_name: name,
-      interval: interval,
-      limit: limit,
-      alerting_rules: alerting_rules,
-      recording_rules: recording_rules,
-    )
-
-    notifies :restart, "service[prometheus]"
-  end
-end
-
-directory "/etc/prometheus/node.d" do
-  owner "root"
-  group "root"
-  mode "755"
-end
-
-# Usage
-#
-# prometheus_scrape_targets "test" do
-#   targets [
-#     {
-#       # The targets specified by the static config.
-#       hosts: [
-#         "host1:123",
-#         "host2:456",
-#       ],
-#       # Labels assigned to all metrics scraped from the targets.
-#       # Optional
-#       labels: {
-#         a: "b",
-#         c: "d",
-#       },
-#     }
-#   ]
-# end
-define(
-  :prometheus_scrape_targets,
-  targets: [],
-) do
-  name = params[:name]
-  targets = params[:targets]
-
-  rule_path = "/etc/prometheus/node.d/#{name}.yml"
-
-  template rule_path do
-    mode "644"
-    owner "root"
-    group "root"
-    source "templates/etc/prometheus/file_sd.d/template.yml"
-    variables(
-      targets: targets,
-    )
-  end
-end
-
-prometheus_scrape_targets "prometheus" do
-  targets [
-    {
-      hosts: ["localhost:#{web_listen_port}"],
-      labels: {
-        instance: "#{node["fqdn"]}:#{web_listen_port}",
-        exporter: "prometheus",
-      },
-    },
-  ]
-end
-
-prometheus_scrape_targets "blackbox_exporter" do
-  targets [
-    {
-      hosts: ["localhost:9115"],
-      labels: {
-        instance: "#{node["fqdn"]}:9115",
-        exporter: "blackbox_exporter",
-      },
-    },
-  ]
-end
-
-prometheus_rules "blackbox_exporter" do
-  alerting_rules [
-    {
-      alert: "BlackboxExporterDown",
-      expr: 'up{instance="'"#{node["fqdn"]}"':9115"} < 1',
-    },
-  ]
-end
-
-remote_file "/etc/prometheus/prometheus.yml" do
-  mode "644"
-  owner "root"
-  group "root"
-  notifies :restart, "service[prometheus]"
-end
-
-# Backup
-
-backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
-  command_before "sudo -u prometheus /usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
-  backup_paths ["#{home_path}/tsdb/snapshots"]
-  command_after "/bin/rm -rf #{home_path}/tsdb/snapshots/*"
-  cron_hour 6
-  cron_minute 0
-  user "prometheus"
-  group "prometheus"
-  bin_path home_path
-end
-
-# iptables
-
-iptables_rule_drop_not_user "Drop not www-data|grafana|prometheus user to Prometheus" do
-  users ["www-data", "grafana", "prometheus"]
-  port web_listen_port
-end
-
-# Service
-
-template "/etc/systemd/system/prometheus.service" do
-  mode "644"
-  owner "root"
-  group "root"
-  variables(
-    install_path: "/opt/prometheus",
-    config_file: "/etc/prometheus/prometheus.yml",
-    storage_tsdb_path: "#{home_path}/tsdb",
-    web_listen_address: "127.0.0.1:#{web_listen_port}",
-    web_external_url: "http://#{domain}/",
-    storage_tsdb_retention_time: retention_time,
-    storage_tsdb_retention_size: retention_size,
-  )
-  notifies :run, "execute[systemctl daemon-reload]"
-end
-
-execute "systemctl daemon-reload" do
-  action :nothing
-  user "root"
-  notifies :restart, "service[prometheus]"
-end
-
-service "prometheus" do
-  action :enable
-end
-
-##
-## Let's Encrypt
-##
-
-include_recipe "../letsencrypt"
-
-letsencrypt domain
+    backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
+      command_before "sudo -u prometheus /usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
+      backup_paths ["#{var_path}/tsdb/snapshots"]
+      command_after "/bin/rm -rf #{var_path}/tsdb/snapshots/*"
+      cron_hour 6
+      cron_minute 0
+      user "prometheus"
+      group "prometheus"
+      bin_path var_path
+    end
 
 ##
 ## Nginx
 ##
 
-include_recipe "../nginx"
+  # Install
 
-package "libnginx-mod-http-auth-pam"
+    include_recipe "../nginx"
 
-remote_file "/etc/pam.d/prometheus" do
-  mode "644"
-  owner "root"
-  group "root"
-end
+  # Certificate
 
-template "/etc/nginx/sites-enabled/prometheus" do
-  mode "644"
-  owner "root"
-  group "root"
-  variables(
-    domain: domain,
-    port: nginx_port,
-    prometheus_port: web_listen_port,
-  )
-  notifies :restart, "service[nginx]", :immediately
-end
+    include_recipe "../letsencrypt"
+
+    letsencrypt domain
+
+  # Auth
+
+    package "libnginx-mod-http-auth-pam"
+
+    remote_file "/etc/pam.d/prometheus" do
+      mode "644"
+      owner "root"
+      group "root"
+    end
+
+  # Configuration
+
+    template "/etc/nginx/sites-enabled/prometheus" do
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        domain: domain,
+        prometheus_port: web_listen_port,
+      )
+      notifies :restart, "service[nginx]", :immediately
+    end
 
 ##
-## Prometheus
+## Defines
 ##
 
-prometheus_scrape_targets_blackbox_http_401 "prometheus" do
-  targets [{ hosts: ["http://prometheus.sigstop.co.uk/"] }]
-end
+  include_recipe "defines"
 
-prometheus_rules "prometheus" do
-  alerting_rules [
-    {
-      alert: "PrometheusDown",
-      expr: 'up{instance="http://prometheus.sigstop.co.uk/"} < 1',
-    },
-    {
-      alert: "PrometheusNotificationsDropped",
-      expr: 'rate(prometheus_notifications_dropped_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-    },
-    {
-      alert: "PrometheusNotificationsErrors",
-      expr: 'rate(prometheus_notifications_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-    },
-    {
-      alert: "PrometheusSdFailedConfigs",
-      expr: 'prometheus_sd_failed_configs{instance="'"#{node["fqdn"]}"':9090"} > 0',
-    },
-    {
-      alert: "PrometheusSdFileReadErrors",
-      expr: 'rate(prometheus_sd_file_read_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-    },
-  ]
-end
+##
+## Scrape Targets
+##
+
+  # blackbox_exporter
+
+    prometheus_scrape_targets "blackbox_exporter" do
+      targets [
+        {
+          hosts: ["localhost:9115"],
+          labels: {
+            instance: "#{node["fqdn"]}:9115",
+            exporter: "blackbox_exporter",
+          },
+        },
+      ]
+    end
+
+  # prometheus
+
+    prometheus_scrape_targets_blackbox_http_401 "prometheus" do
+      targets [
+        {
+          hosts: [
+            "http://#{domain}/"
+          ]
+        }
+      ]
+    end
+
+    prometheus_scrape_targets "prometheus" do
+      targets [
+        {
+          hosts: ["localhost:#{web_listen_port}"],
+          labels: {
+            instance: "#{node["fqdn"]}:#{web_listen_port}",
+            exporter: "prometheus",
+          },
+        },
+      ]
+    end
+
+##
+## Rules & alerts
+##
+
+  # blackbox_exporter
+
+    prometheus_rules "blackbox_exporter" do
+      alerting_rules [
+        {
+          alert: "BlackboxExporterDown",
+          expr: 'up{instance="'"#{node["fqdn"]}"':9115"} < 1',
+        },
+      ]
+    end
+
+  # prometheus
+
+    prometheus_rules "prometheus" do
+      alerting_rules [
+        {
+          alert: "PrometheusDown",
+          expr: 'up{instance="http://prometheus.sigstop.co.uk/"} < 1',
+        },
+        {
+          alert: "PrometheusNotificationsDropped",
+          expr: 'rate(prometheus_notifications_dropped_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
+        },
+        {
+          alert: "PrometheusNotificationsErrors",
+          expr: 'rate(prometheus_notifications_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
+        },
+        {
+          alert: "PrometheusSdFailedConfigs",
+          expr: 'prometheus_sd_failed_configs{instance="'"#{node["fqdn"]}"':9090"} > 0',
+        },
+        {
+          alert: "PrometheusSdFileReadErrors",
+          expr: 'rate(prometheus_sd_file_read_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
+        },
+      ]
+    end
+
+##
+## iptables
+##
+
+  # blackbox_exporter
+
+    iptables_rule_drop_not_user "Drop not prometheus user to BlackboxExporter" do
+      users ["prometheus"]
+      port node[:blackbox_exporter][:port]
+    end
+
+  # prometheus
+
+    iptables_rule_drop_not_user "Drop not www-data|grafana|node[:prometheus][:local_http_users] user to Prometheus" do
+      users ["www-data", "prometheus"] + node[:prometheus][:local_http_users]
+      port web_listen_port
+    end

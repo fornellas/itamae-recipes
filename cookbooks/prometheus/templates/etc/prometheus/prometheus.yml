@@ -23,7 +23,7 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: 127.0.0.1:9115
+        replacement: 127.0.0.1:<%= @blackbox_exporter_port %>
   - job_name: 'blackbox_http_401'
     metrics_path: /probe
     params:
@@ -38,7 +38,7 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: 127.0.0.1:9115
+        replacement: 127.0.0.1:<%= @blackbox_exporter_port %>
   - job_name: 'blackbox_ssh_banner'
     metrics_path: /probe
     params:
@@ -53,9 +53,9 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: 127.0.0.1:9115
+        replacement: 127.0.0.1:<%= @blackbox_exporter_port %>
 alerting:
   alertmanagers:
     - static_configs:
       - targets:
-        - 127.0.0.1:9093
+        - 127.0.0.1:<%= @alertmanager_port %>

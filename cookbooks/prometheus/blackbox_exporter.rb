@@ -1,6 +1,17 @@
-blackbox_exporter_port = "9115"
-version = "0.19.0"
-arch = "armv7"
+node.validate! do
+  {
+    blackbox_exporter: {
+      version: string,
+      arch: string,
+      port: string,
+    },
+  }
+end
+
+version = node[:blackbox_exporter][:version]
+arch = node[:blackbox_exporter][:arch]
+blackbox_exporter_port = node[:blackbox_exporter][:port]
+
 tar_gz_url = "https://github.com/prometheus/blackbox_exporter/releases/download/v#{version}/blackbox_exporter-#{version}.linux-#{arch}.tar.gz"
 
 ##
@@ -39,13 +50,6 @@ remote_file "/etc/blackbox_exporter/blackbox.yml" do
   owner "root"
   group "root"
   notifies :restart, "service[blackbox_exporter]"
-end
-
-# iptables
-
-iptables_rule_drop_not_user "Drop not prometheus user to BlackboxExporter" do
-  users ["prometheus"]
-  port blackbox_exporter_port
 end
 
 # Service
