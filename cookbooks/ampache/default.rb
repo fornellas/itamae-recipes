@@ -86,8 +86,6 @@ letsencrypt domain
 
 include_recipe "../nginx"
 
-package "libnginx-mod-http-auth-pam"
-
 template "/etc/nginx/sites-enabled/ampache" do
   mode "644"
   owner "root"

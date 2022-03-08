@@ -150,8 +150,6 @@ include_recipe "../letsencrypt"
 
   # Auth
 
-    package "libnginx-mod-http-auth-pam"
-
     remote_file "/etc/pam.d/prometheus" do
       mode "644"
       owner "root"

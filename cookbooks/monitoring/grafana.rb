@@ -83,8 +83,6 @@ include_recipe "../letsencrypt"
 
   # Auth
 
-    package "libnginx-mod-http-auth-pam"
-
     remote_file "/etc/pam.d/grafana" do
       mode "644"
       owner "root"

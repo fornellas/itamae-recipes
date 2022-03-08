@@ -155,7 +155,6 @@ letsencrypt domain
 
 include_recipe "../nginx"
 
-package "libnginx-mod-http-auth-pam"
 package "libnginx-mod-http-headers-more-filter"
 
 remote_file "/etc/pam.d/octoprint" do

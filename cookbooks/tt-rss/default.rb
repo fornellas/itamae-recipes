@@ -112,8 +112,6 @@ letsencrypt domain
 
 include_recipe "../nginx"
 
-package "libnginx-mod-http-auth-pam"
-
 template "/etc/nginx/sites-enabled/tt-rss" do
   mode "644"
   owner "root"

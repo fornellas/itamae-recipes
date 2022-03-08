@@ -114,8 +114,6 @@ letsencrypt domain
 
 include_recipe "../nginx"
 
-package "libnginx-mod-http-auth-pam"
-
 remote_file "/etc/pam.d/cherrymusic" do
   mode "644"
   owner "root"
