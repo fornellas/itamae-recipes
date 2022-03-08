@@ -1,11 +1,24 @@
+node.validate! do
+  {
+    node_exporter: {
+      version: string,
+      arch: string,
+      port: string,
+    },
+  }
+end
+
+version = node[:node_exporter][:version]
+arch = node[:node_exporter][:arch]
+port = node[:node_exporter][:port]
+
 home_path = "/var/lib/node_exporter"
-port = "9100"
-version = "1.3.1"
-arch = "armv7"
 tar_gz_url = "https://github.com/prometheus/node_exporter/releases/download/v#{version}/node_exporter-#{version}.linux-#{arch}.tar.gz"
 
+include_recipe "../iptables"
+
 ##
-## Install
+## node_exporter
 ##
 
 # User / Group
@@ -28,13 +41,6 @@ execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar
   not_if "test -f /opt/node_exporter/.#{version}.ok"
 end
 
-# iptables
-
-iptables_rule_drop_not_user "Drop not prometheus user to NodeExporter" do
-  users ["prometheus"]
-  port port
-end
-
 # Service
 
 template "/etc/systemd/system/node_exporter.service" do
@@ -55,27 +61,34 @@ service "node_exporter" do
   action :enable
 end
 
-##
-## Prometheus
-##
+# iptables
 
-prometheus_scrape_targets "odroid_node_exporter" do
+iptables_rule_drop_not_user "Drop not prometheus user to NodeExporter" do
+  users ["prometheus"]
+  port port
+end
+
+# Scrape Target
+
+prometheus_scrape_targets "node_exporter" do
   targets [
     {
-      hosts: ["127.0.0.1:9100"],
+      hosts: ["127.0.0.1:#{port}"],
       labels: {
-        instance: "#{node["fqdn"]}:9100",
+        instance: "#{node["fqdn"]}:#{port}",
         exporter: "node_exporter",
       },
     },
   ]
 end
 
+# Rules & Alerts
+
 prometheus_rules "node_exporter" do
   alerting_rules [
     {
       alert: "NodeExporterDown",
-      expr: 'up{instance="'"#{node["fqdn"]}"':9100"} < 1',
+      expr: 'up{instance="'"#{node["fqdn"]}"':'"#{port}"'"} < 1',
     },
   ]
 end
