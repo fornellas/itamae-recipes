@@ -13,7 +13,7 @@ include_recipe "../iptables"
 # Install
 
 execute "Install Grafana" do
-  command "wget -O /tmp/grafana.deb https://dl.grafana.com/oss/release/grafana_#{version}_#{arch}.deb && dpkg -i /tmp/grafana.deb ; rm -f /tmp/grafana.deb"
+  command "wget -O /tmp/grafana.deb https://dl.grafana.com/oss/release/grafana_#{version}_#{arch}.deb && dpkg -i /tmp/grafana.deb && rm -f /tmp/grafana.deb"
   not_if "/usr/bin/test \"$(dpkg -s grafana | gawk '/^Version: /{print $2}')\" = \"#{version}\""
 end
 
