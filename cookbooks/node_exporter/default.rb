@@ -64,7 +64,7 @@ prometheus_scrape_targets "odroid_node_exporter" do
     {
       hosts: ["127.0.0.1:9100"],
       labels: {
-        instance: "odroid.local:9100",
+        instance: "#{node["fqdn"]}:9100",
         exporter: "node_exporter",
       },
     },
@@ -75,7 +75,7 @@ prometheus_rules "node_exporter" do
   alerting_rules [
     {
       alert: "NodeExporterDown",
-      expr: 'up{instance="odroid.local:9100"} < 1',
+      expr: 'up{instance="'"#{node["fqdn"]}"':9100"} < 1',
     },
   ]
 end
