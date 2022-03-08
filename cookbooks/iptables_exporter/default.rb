@@ -60,7 +60,7 @@ prometheus_scrape_targets "iptables_exporter" do
     {
       hosts: ["127.0.0.1:#{listen_port}"],
       labels: {
-        instance: "odroid.local:#{listen_port}",
+        instance: "#{node["fqdn"]}:#{listen_port}",
         exporter: "iptables_exporter",
       },
     },
@@ -70,8 +70,8 @@ end
 prometheus_rules "odroid-iptables_exporter" do
   alerting_rules [
     {
-      alert: "OdroidIPTablesDrop",
-      expr: 'rate(iptables_rule_bytes_total{job="iptables_exporter",instance="odroid.local:' "#{listen_port}" '",rule=~".* -j DROP$"}[1m]) > 0',
+      alert: "IPTablesDrop",
+      expr: 'rate(iptables_rule_bytes_total{job="iptables_exporter",instance="'"#{node["fqdn"]}"':' "#{listen_port}" '",rule=~".* -j DROP$"}[1m]) > 0',
     },
   ]
 end
