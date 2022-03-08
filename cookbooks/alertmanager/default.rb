@@ -121,7 +121,7 @@ prometheus_scrape_targets "alertmanager" do
     {
       hosts: ["127.0.0.1:#{web_listen_port}"],
       labels: {
-        instance: "odroid.local:#{web_listen_port}",
+        instance: "#{node["fqdn"]}:#{web_listen_port}",
         exporter: "alertmanager",
       },
     },
@@ -132,23 +132,23 @@ prometheus_rules "alertmanager" do
   alerting_rules [
     {
       alert: "AlertManagerAlertsInvalid",
-      expr: "rate(alertmanager_alerts_invalid_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
+      expr: "rate(alertmanager_alerts_invalid_total{instance=\"#{node["fqdn"]}:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerNotificationRequestsFailed",
-      expr: "rate(alertmanager_notification_requests_failed_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
+      expr: "rate(alertmanager_notification_requests_failed_total{instance=\"#{node["fqdn"]}:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerNotificationFailed",
-      expr: "rate(alertmanager_notifications_failed_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
+      expr: "rate(alertmanager_notifications_failed_total{instance=\"#{node["fqdn"]}:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerSilencesQueryErrors",
-      expr: "rate(alertmanager_silences_query_errors_total{instance=\"odroid.local:#{web_listen_port}\"}[5m]) > 0",
+      expr: "rate(alertmanager_silences_query_errors_total{instance=\"#{node["fqdn"]}:#{web_listen_port}\"}[5m]) > 0",
     },
     {
       alert: "AlertManagerDown",
-      expr: "up{instance=\"odroid.local:#{web_listen_port}\"} < 1",
+      expr: "up{instance=\"#{node["fqdn"]}:#{web_listen_port}\"} < 1",
     },
   ]
 end
