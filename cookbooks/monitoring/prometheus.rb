@@ -7,8 +7,10 @@ node.validate! do
       port: string,
       storage_tsdb_retention_time: string,
       storage_tsdb_retention_size: string,
-      local_http_users: optional(array_of(string)),
     },
+    alertmanager: {
+      web_port: string,
+    }
   }
 end
 
@@ -23,15 +25,12 @@ var_path = "/var/lib/prometheus"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
 include_recipe "../backblaze"
-include_recipe "../iptables"
+include_recipe "../nginx"
+include_recipe "../letsencrypt"
 
 ##
 ## prometheus
 ##
-
-  # blackbox_exporter
-
-    include_recipe "blackbox_exporter"
 
   # User / Group
 
@@ -95,7 +94,7 @@ include_recipe "../iptables"
       group "root"
       variables(
         blackbox_exporter_port: node[:blackbox_exporter][:port],
-        alertmanager_port: node[:alertmanager][:port],
+        alertmanager_port: node[:alertmanager][:web_port],
       )
       notifies :restart, "service[prometheus]"
     end
@@ -145,13 +144,7 @@ include_recipe "../iptables"
 ## Nginx
 ##
 
-  # Install
-
-    include_recipe "../nginx"
-
   # Certificate
-
-    include_recipe "../letsencrypt"
 
     letsencrypt domain
 
@@ -176,112 +169,4 @@ include_recipe "../iptables"
         prometheus_port: web_listen_port,
       )
       notifies :restart, "service[nginx]", :immediately
-    end
-
-##
-## Defines
-##
-
-  include_recipe "defines"
-
-##
-## Scrape Targets
-##
-
-  # blackbox_exporter
-
-    prometheus_scrape_targets "blackbox_exporter" do
-      targets [
-        {
-          hosts: ["localhost:9115"],
-          labels: {
-            instance: "#{node["fqdn"]}:9115",
-            exporter: "blackbox_exporter",
-          },
-        },
-      ]
-    end
-
-  # prometheus
-
-    prometheus_scrape_targets_blackbox_http_401 "prometheus" do
-      targets [
-        {
-          hosts: [
-            "http://#{domain}/"
-          ]
-        }
-      ]
-    end
-
-    prometheus_scrape_targets "prometheus" do
-      targets [
-        {
-          hosts: ["localhost:#{web_listen_port}"],
-          labels: {
-            instance: "#{node["fqdn"]}:#{web_listen_port}",
-            exporter: "prometheus",
-          },
-        },
-      ]
-    end
-
-##
-## Rules & alerts
-##
-
-  # blackbox_exporter
-
-    prometheus_rules "blackbox_exporter" do
-      alerting_rules [
-        {
-          alert: "BlackboxExporterDown",
-          expr: 'up{instance="'"#{node["fqdn"]}"':9115"} < 1',
-        },
-      ]
-    end
-
-  # prometheus
-
-    prometheus_rules "prometheus" do
-      alerting_rules [
-        {
-          alert: "PrometheusDown",
-          expr: 'up{instance="http://prometheus.sigstop.co.uk/"} < 1',
-        },
-        {
-          alert: "PrometheusNotificationsDropped",
-          expr: 'rate(prometheus_notifications_dropped_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-        },
-        {
-          alert: "PrometheusNotificationsErrors",
-          expr: 'rate(prometheus_notifications_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-        },
-        {
-          alert: "PrometheusSdFailedConfigs",
-          expr: 'prometheus_sd_failed_configs{instance="'"#{node["fqdn"]}"':9090"} > 0',
-        },
-        {
-          alert: "PrometheusSdFileReadErrors",
-          expr: 'rate(prometheus_sd_file_read_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-        },
-      ]
-    end
-
-##
-## iptables
-##
-
-  # blackbox_exporter
-
-    iptables_rule_drop_not_user "Drop not prometheus user to BlackboxExporter" do
-      users ["prometheus"]
-      port node[:blackbox_exporter][:port]
-    end
-
-  # prometheus
-
-    iptables_rule_drop_not_user "Drop not www-data|grafana|node[:prometheus][:local_http_users] user to Prometheus" do
-      users ["www-data", "prometheus"] + node[:prometheus][:local_http_users]
-      port web_listen_port
     end
