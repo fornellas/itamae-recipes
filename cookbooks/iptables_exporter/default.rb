@@ -1,4 +1,12 @@
-listen_port = "9455"
+node.validate! do
+  {
+    iptables_exporter: {
+      port: string,
+    },
+  }
+end
+
+listen_port = node[:iptables_exporter][:port]
 
 include_recipe "../golang"
 include_recipe "../iptables"
@@ -67,7 +75,7 @@ prometheus_scrape_targets "iptables_exporter" do
   ]
 end
 
-prometheus_rules "odroid-iptables_exporter" do
+prometheus_rules "iptables_exporter" do
   alerting_rules [
     {
       alert: "IPTablesDrop",
