@@ -335,7 +335,7 @@ prometheus_scrape_targets "prometheus" do
     {
       hosts: ["localhost:#{web_listen_port}"],
       labels: {
-        instance: "odroid.local:#{web_listen_port}",
+        instance: "#{node["fqdn"]}:#{web_listen_port}",
         exporter: "prometheus",
       },
     },
@@ -347,7 +347,7 @@ prometheus_scrape_targets "blackbox_exporter" do
     {
       hosts: ["localhost:9115"],
       labels: {
-        instance: "odroid.local:9115",
+        instance: "#{node["fqdn"]}:9115",
         exporter: "blackbox_exporter",
       },
     },
@@ -358,7 +358,7 @@ prometheus_rules "blackbox_exporter" do
   alerting_rules [
     {
       alert: "BlackboxExporterDown",
-      expr: 'up{instance="odroid.local:9115"} < 1',
+      expr: 'up{instance="'"#{node["fqdn"]}"':9115"} < 1',
     },
   ]
 end
@@ -468,19 +468,19 @@ prometheus_rules "prometheus" do
     },
     {
       alert: "PrometheusNotificationsDropped",
-      expr: 'rate(prometheus_notifications_dropped_total{instance="odroid.local:9090"}[5m]) > 0',
+      expr: 'rate(prometheus_notifications_dropped_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
     },
     {
       alert: "PrometheusNotificationsErrors",
-      expr: 'rate(prometheus_notifications_errors_total{instance="odroid.local:9090"}[5m]) > 0',
+      expr: 'rate(prometheus_notifications_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
     },
     {
       alert: "PrometheusSdFailedConfigs",
-      expr: 'prometheus_sd_failed_configs{instance="odroid.local:9090"} > 0',
+      expr: 'prometheus_sd_failed_configs{instance="'"#{node["fqdn"]}"':9090"} > 0',
     },
     {
       alert: "PrometheusSdFileReadErrors",
-      expr: 'rate(prometheus_sd_file_read_errors_total{instance="odroid.local:9090"}[5m]) > 0',
+      expr: 'rate(prometheus_sd_file_read_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
     },
   ]
 end
