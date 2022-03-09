@@ -38,22 +38,20 @@ include_recipe "../nginx"
   package "vorbis-tools"
 
 ##
-## User / Group
-##
-
-  group "cherrymusic"
-
-  user "cherrymusic" do
-    gid "cherrymusic"
-    home var_path
-    system_user true
-    shell "/usr/sbin/nologin"
-    create_home true
-  end
-
-##
 ## CherryMusic
 ##
+
+  # User / Group
+
+    group "cherrymusic"
+
+    user "cherrymusic" do
+      gid "cherrymusic"
+      home var_path
+      system_user true
+      shell "/usr/sbin/nologin"
+      create_home true
+    end
 
   # iptables
 
