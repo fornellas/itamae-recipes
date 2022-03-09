@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=cherrymusic
 Type=simple
-ExecStart=<%= "#{@install_path}/cherrymusic" %>
+ExecStart=<%= @cherrymusic_bin %>
 PrivateTmp=true
 Restart=always
 
