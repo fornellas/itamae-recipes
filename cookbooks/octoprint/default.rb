@@ -187,7 +187,7 @@ include_recipe "../nginx"
 ## Rules & Alerts
 ##
 
-  prometheus_rules "cherrymusic" do
+  prometheus_rules "octoprint" do
     alerting_rules [
       {
         alert: "OctoPrintDown",
