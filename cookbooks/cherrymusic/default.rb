@@ -1,10 +1,20 @@
-domain = "cherrymusic.sigstop.co.uk"
-nginx_port = "443"
-cherrymusic_port = "8080"
-home_path = "/var/lib/cherrymusic"
-media_path = "/srv/media"
-install_path = "#{home_path}/CherryMusic"
-config_path = "#{home_path}/.config/cherrymusic/cherrymusic.conf"
+node.validate! do
+  {
+    cherrymusic: {
+      domain: string,
+      port: string,
+      media_path: string,
+    },
+  }
+end
+
+domain = node[:cherrymusic][:domain]
+cherrymusic_port = node[:cherrymusic][:port]
+media_path = node[:cherrymusic][:media_path]
+
+var_path = "/var/lib/cherrymusic"
+install_path = "#{var_path}/CherryMusic"
+config_path = "#{var_path}/.config/cherrymusic/cherrymusic.conf"
 
 include_recipe "../iptables"
 
@@ -31,7 +41,7 @@ group "cherrymusic"
 
 user "cherrymusic" do
   gid "cherrymusic"
-  home home_path
+  home var_path
   system_user true
   shell "/usr/sbin/nologin"
   create_home true
@@ -52,7 +62,7 @@ end
 
 git install_path do
   user "cherrymusic"
-  revision "origin/devel"
+  revision "origin/fornellas"
   repository "git://github.com/fornellas/cherrymusic.git"
 end
 
@@ -126,7 +136,6 @@ template "/etc/nginx/sites-enabled/cherrymusic" do
   group "root"
   variables(
     domain: domain,
-    port: nginx_port,
     cherrymusic_port: cherrymusic_port,
   )
   notifies :restart, "service[nginx]", :immediately
