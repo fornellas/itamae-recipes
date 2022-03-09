@@ -1,8 +1,10 @@
+include_recipe "../group_add"
+
 package "nginx"
 package "libnginx-mod-http-auth-pam"
 
-execute "gpasswd -a www-data shadow" do
-  not_if "getent group shadow | cut -d: -f4 | tr , \\\\n | grep -E '^www-data$'"
+group_add "www-data" do
+  groups ["shadow"]
   notifies :restart, "service[nginx]", :immediately
 end
 
