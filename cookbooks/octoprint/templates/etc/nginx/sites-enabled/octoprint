@@ -38,7 +38,7 @@ server {
 
   location /api {
     satisfy  any;
-<% @local_networks.each do |address| -%>
+<% @api_allow_networks.each do |address| -%>
 <%= "    allow #{address};" %>
 <% end -%>
     deny all;
@@ -54,19 +54,19 @@ server {
   }
 
   location /webcam {
-    proxy_pass http://192.168.0.171/;
+    proxy_pass <%= @webcam_url %>;
     more_clear_input_headers 'cookie' 'user-agent' 'accept';
     proxy_http_version 1.1;
   }
 
   location /webcam/stream {
-    proxy_pass http://192.168.0.171:81/stream;
+    proxy_pass <%= @webcam_stream_url %>;
     more_clear_input_headers 'cookie' 'user-agent' 'accept';
     proxy_http_version 1.1;
   }
 
   location /webcam/still {
-    proxy_pass http://192.168.0.171/capture;
+    proxy_pass <%= @webcam_still_url %>;
     more_clear_input_headers 'cookie' 'user-agent' 'accept';
     proxy_http_version 1.1;
   }

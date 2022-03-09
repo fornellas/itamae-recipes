@@ -1,4 +1,0 @@
-Cmnd_Alias UNIX_CHKPWD_WRAPPER = <%= @unix_chkpwd_wrapper_path %>
-Defaults!UNIX_CHKPWD_WRAPPER env_keep=PAM_USER
-www-data ALL=(root) NOPASSWD: UNIX_CHKPWD_WRAPPER
-octoprint ALL=(root) NOPASSWD: /usr/sbin/service octoprint restart
