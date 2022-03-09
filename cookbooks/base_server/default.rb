@@ -62,7 +62,10 @@ template "/etc/ssh/sshd_config" do
   variables(trusted_network_addresses: local_networks)
   notifies :restart, "service[sshd]", :immediately
 end
-service "sshd"
+
+service "sshd" do
+  action [:enable, :start]
+end
 
 ##
 ## Unattended Upgrades
@@ -79,5 +82,5 @@ remote_file "/etc/apt/apt.conf.d/50unattended-upgrades" do
 end
 
 service "unattended-upgrades" do
-  action :enable
+  action [:enable, :start]
 end

@@ -10,7 +10,9 @@ template "/etc/postfix/main.cf" do
   notifies :restart, "service[postfix]", :immediately
 end
 
-service "postfix"
+service "postfix" do
+  action [:enable, :start]
+end
 
 file "/etc/aliases" do
   action :edit

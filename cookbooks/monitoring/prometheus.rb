@@ -124,7 +124,7 @@ include_recipe "../letsencrypt"
     end
 
     service "prometheus" do
-      action :enable
+      action [:enable, :start]
     end
 
   # Backup

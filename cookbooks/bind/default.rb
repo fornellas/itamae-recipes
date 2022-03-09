@@ -7,6 +7,8 @@ file "/etc/bind/named.conf.options" do
   notifies :restart, "service[bind9]", :immediately
 end
 
-service "bind9"
+service "bind9" do
+  action [:enable, :start]
+end
 
 package "bind9utils"

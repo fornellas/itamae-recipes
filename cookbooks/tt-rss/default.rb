@@ -96,7 +96,7 @@ execute "systemctl daemon-reload" do
 end
 
 service "tt-rss-update_daemon" do
-  action :enable
+  action [:enable, :start]
 end
 
 ##

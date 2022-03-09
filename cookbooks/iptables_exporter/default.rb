@@ -58,7 +58,7 @@ execute "systemctl daemon-reload" do
 end
 
 service "iptables_exporter" do
-  action :enable
+  action [:enable, :start]
 end
 
 # Prometheus

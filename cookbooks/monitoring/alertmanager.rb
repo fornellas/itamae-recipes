@@ -93,7 +93,7 @@ include_recipe "../letsencrypt"
     end
 
     service "alertmanager" do
-      action :enable
+      action [:enable, :start]
     end
 
   # Backup

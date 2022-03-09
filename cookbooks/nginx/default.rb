@@ -16,5 +16,5 @@ remote_file "/etc/nginx/nginx.conf" do
 end
 
 service "nginx" do
-  action :enable
+  action [:enable, :start]
 end

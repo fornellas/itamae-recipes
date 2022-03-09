@@ -125,7 +125,7 @@ include_recipe "../nginx"
     end
 
     service "octoprint" do
-      action :enable
+      action [:enable, :start]
     end
 
   # Backup

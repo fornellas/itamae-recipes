@@ -16,4 +16,6 @@ remote_file "/etc/php/#{php_version}/fpm/conf.d/11-custom-opcache.ini" do
   notifies :restart, "service[php#{php_version}-fpm]", :immediately
 end
 
-service "php#{php_version}-fpm"
+service "php#{php_version}-fpm" do
+  action [:enable, :start]
+end

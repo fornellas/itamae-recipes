@@ -58,7 +58,7 @@ execute "systemctl daemon-reload" do
 end
 
 service "node_exporter" do
-  action :enable
+  action [:enable, :start]
 end
 
 # iptables

@@ -72,5 +72,5 @@ execute "systemctl daemon-reload" do
 end
 
 service "blackbox_exporter" do
-  action :enable
+  action [:enable, :start]
 end

@@ -54,7 +54,7 @@ include_recipe "../letsencrypt"
   # Service
 
     service "grafana-server" do
-      action :enable
+      action [:enable, :start]
     end
 
   # Backup

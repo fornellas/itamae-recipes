@@ -62,5 +62,5 @@ execute "systemctl daemon-reload" do
 end
 
 service "alertmanager-discord" do
-  action :enable
+  action [:enable, :start]
 end

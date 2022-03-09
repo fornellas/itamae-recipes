@@ -110,7 +110,7 @@ include_recipe "../nginx"
     end
 
     service "cherrymusic" do
-      action :enable
+      action [:enable, :start]
     end
 
 ##
