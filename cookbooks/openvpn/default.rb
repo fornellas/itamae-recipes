@@ -15,11 +15,11 @@ port = node[:openvpn][:port]
 
 letsencrypt_ca = run_command("cat /usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt").stdout.chomp
 default_gateway_dev = run_command(
-  "/sbin/ip route | /usr/bin/gawk '/^default via/{print $5}'",
+  "/sbin/ip route | awk '/^default via/{print $5}'",
 ).stdout.chomp
 
 default_gateway_dev_addr = run_command(
-  "/sbin/ip route list table 0 | gawk '/^local /{if($4==\"#{default_gateway_dev}\"){print $2;exit}}'",
+  "/sbin/ip route list table 0 | awk '/^local /{if($4==\"#{default_gateway_dev}\"){print $2;exit}}'",
 ).stdout.chomp
 
 include_recipe "../nginx"

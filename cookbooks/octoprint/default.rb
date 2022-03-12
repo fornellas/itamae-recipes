@@ -19,7 +19,7 @@ basedir_path = "#{var_path}/.octoprint"
 config_path = "#{basedir_path}/config.yaml"
 restart_service_cmd = "/bin/systemctl restart octoprint.service"
 local_networks = run_command(
-  "/sbin/ip addr | /bin/grep -E ' inet ' | /usr/bin/gawk '{print $2}'",
+  "/sbin/ip addr | /bin/grep -E ' inet ' | awk '{print $2}'",
 ).stdout.split("\n").map do |line|
   address, mask = line.split("/")
   mask = "32" unless mask

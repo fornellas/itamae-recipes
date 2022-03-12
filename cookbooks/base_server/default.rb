@@ -14,7 +14,7 @@ include_recipe "../../cookbooks/postfix"
 ##
 
 local_networks = run_command(
-  "/sbin/ip addr | /bin/grep -E ' inet ' | /usr/bin/gawk '{print $2}'",
+  "/sbin/ip addr | /bin/grep -E ' inet ' | awk '{print $2}'",
 ).stdout.split("\n").map do |line|
   address, mask = line.split("/")
   mask = "32" if not mask
@@ -63,7 +63,7 @@ template "/etc/ssh/sshd_config" do
   notifies :restart, "service[sshd]", :immediately
 end
 
-service "sshd" do
+service "ssh" do
   action [:enable, :start]
 end
 
