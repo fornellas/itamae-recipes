@@ -60,7 +60,7 @@ template "/etc/ssh/sshd_config" do
   group "root"
   mode "644"
   variables(trusted_network_addresses: local_networks)
-  notifies :restart, "service[sshd]", :immediately
+  notifies :restart, "service[ssh]", :immediately
 end
 
 service "ssh" do
