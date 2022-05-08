@@ -87,7 +87,7 @@ end
 prometheus_scrape_targets "office_sensors" do
   targets [
     {
-      hosts: ["192.168.0.138:9090"],
+      hosts: ["192.168.0.178:9090"],
       labels: {
         instance: "office_sensors.local:9090",
         exporter: "sensor",
@@ -121,7 +121,7 @@ end
 prometheus_scrape_targets "living_room_sensors" do
   targets [
     {
-      hosts: ["192.168.0.124:9090"],
+      hosts: ["192.168.0.164:9090"],
       labels: {
         instance: "living_room_sensors.local:9090",
         exporter: "sensor",
