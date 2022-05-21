@@ -21,7 +21,6 @@ local_networks = run_command(
   network_address = IPAddr.new(line).to_s
   "#{network_address}/#{mask}"
 end
-local_networks += ["127.0.0.0/8"]
 
 package "libpam-google-authenticator"
 
