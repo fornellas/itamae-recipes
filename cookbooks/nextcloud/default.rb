@@ -4,6 +4,7 @@ node.validate! do
       domain: string,
       version: string,
       php_version: string,
+      admin_users: optional(array_of(string)),
     },
   }
 end
@@ -11,6 +12,8 @@ end
 domain = node[:nextcloud][:domain]
 nextcloud_version = node[:nextcloud][:version]
 php_version = node[:nextcloud][:php_version]
+admin_users = node[:nextcloud][:admin_users]
+admin_users = [] if admin_users.nil?
 php = "/usr/bin/php#{php_version}"
 home_path = "/var/lib/nextcloud"
 install_path = "#{home_path}/nextcloud"
@@ -215,6 +218,18 @@ occ = "#{php} #{install_path}/occ"
     EOF
     user "root"
     not_if "test -e #{upgrade_ok_path}"
+  end
+
+##
+## Admin Users
+##
+
+  admin_users.each do |user|
+    execute "NextCloud: Add #{user} to group admin" do
+      user "nextcloud"
+      command "#{occ} group:adduser #{user} admin"
+      only_if "#{occ} user:info #{user} && ! #{}{occ} user:info --output=json_pretty #{user} | jq -e '.groups[] | select(.==\"admin\")'"
+    end
   end
 
 ##
