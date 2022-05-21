@@ -229,7 +229,7 @@ occ = "#{php} #{install_path}/occ"
     execute "NextCloud: Add #{user} to group admin" do
       user "nextcloud"
       command "#{occ} group:adduser #{user} admin"
-      only_if "#{occ} user:info #{user} && ! #{}{occ} user:info --output=json_pretty #{user} | jq -e '.groups[] | select(.==\"admin\")'"
+      only_if "#{occ} user:info #{user} && ! #{occ} user:info --output=json_pretty #{user} | jq -e '.groups[] | select(.==\"admin\")'"
     end
   end
 
