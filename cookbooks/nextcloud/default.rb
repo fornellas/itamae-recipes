@@ -211,7 +211,7 @@ occ = "#{php} #{install_path}/occ"
       cd -
 
       sudo -u nextcloud #{occ} maintenance:mode --off
-      touch #{upgrade_ok_path}
+      sudo -u nextcloud touch #{upgrade_ok_path}
     EOF
     user "root"
     not_if "test -e #{upgrade_ok_path}"
