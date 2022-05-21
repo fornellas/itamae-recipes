@@ -140,6 +140,7 @@ occ = "#{php} #{install_path}/occ"
           --database-table-space=oc_ \
           --admin-pass=FIXME \
           --no-interaction
+        #{occ} user:delete admin
         #{occ} config:system:set \
           trusted_domains 1 --value=#{domain}
         rm #{first_config_pending_path}
