@@ -5,9 +5,12 @@ define(:php_fpm) do
 
   package "php#{php_version}-fpm"
 
-  file "/etc/php/#{php_version}/fpm/pool.d/www.conf" do
-    action :delete
-  end
+  # FIXME
+  # WARNING: Nothing matches the include pattern '/etc/php/8.0/fpm/pool.d/*.conf' from /etc/php/8.0/fpm/php-fpm.conf at line 145.
+  # ERROR: No pool defined. at least one pool section must be specified in config fil
+  # file "/etc/php/#{php_version}/fpm/pool.d/www.conf" do
+  #   action :delete
+  # end
 
   file "/etc/php/#{php_version}/fpm/php.ini" do
     action :edit
