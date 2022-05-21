@@ -231,7 +231,15 @@ occ = "#{php} #{install_path}/occ"
   end
 
   nextcloud_app "user_external"
-
+  execute "Configure NextCloud App: user_external" do
+    user "nextcloud"
+    command <<~EOF
+      #{occ} config:system:set user_external 0 class --value="\\\\OCA\\\\UserExternal\\\\SSH"
+      #{occ} config:system:set user_external 0 arguments 0 --value localhost
+      #{occ} config:system:set user_external 0 arguments 1 --value 22
+    EOF
+    not_if "#{occ} config:system:get user_external"
+  end
 
 ##
 ## Cron
