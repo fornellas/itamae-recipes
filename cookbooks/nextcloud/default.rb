@@ -128,7 +128,7 @@ occ = "#{php} #{install_path}/occ"
 
   # First Config
 
-    execute "Configure NextCloud" do
+    execute "First Configuration NextCloud" do
       command <<~EOF
         set -e
         #{occ} maintenance:install \
