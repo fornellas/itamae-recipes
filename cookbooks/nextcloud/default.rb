@@ -93,7 +93,8 @@ occ = "#{php} #{install_path}/occ"
 ## Check Partial Upgrade
 ##
 
-  execute 'echo "Upgrade interrupted, please fix it manually!" ; exit 1' do
+  execute "Check partial upgrade" do
+    command 'echo "Upgrade interrupted, please fix it manually!" ; exit 1'
     user "nextcloud"
     only_if "test -e $(dirname #{install_path})/nextcloud-old"
   end
@@ -104,7 +105,7 @@ occ = "#{php} #{install_path}/occ"
 
   # Unpack
 
-    execute "Install" do
+    execute "Install NextCloud" do
       command <<~EOF
         set -e
         # rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
@@ -119,12 +120,12 @@ occ = "#{php} #{install_path}/occ"
         touch #{first_install_ok_path}
       EOF
       user "nextcloud"
-      not_if "test -e #{first_install_ok_path}"
+      not_if "test -e #{first_install_ok_path} || test -e #{upgrade_ok_path}"
     end
 
   # First Config
 
-    execute "Configure" do
+    execute "Configure NextCloud" do
       command <<~EOF
         set -e
         #{occ} maintenance:install \
@@ -150,7 +151,7 @@ occ = "#{php} #{install_path}/occ"
   
   # https://docs.nextcloud.com/server/latest/admin_manual/maintenance/upgrade.html
 
-  execute "Upgrade" do
+  execute "Upgrade NextCloud" do
     command <<~EOF
       set -e
 
