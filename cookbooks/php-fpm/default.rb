@@ -1,3 +1,5 @@
+include_recipe "../../cookbooks/php-ppa"
+
 define(:php_fpm) do
   php_version = params[:name]
 
