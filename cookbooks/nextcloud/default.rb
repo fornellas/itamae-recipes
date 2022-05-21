@@ -246,15 +246,16 @@ occ = "#{php} #{install_path}/occ"
     end
   end
 
+  package "php#{php_version}-ssh2"
   nextcloud_app "user_external"
   execute "Configure NextCloud App: user_external" do
     user "nextcloud"
     command <<~EOF
-      #{occ} config:system:set user_external 0 class --value="\\\\OCA\\\\UserExternal\\\\SSH"
-      #{occ} config:system:set user_external 0 arguments 0 --value 127.0.0.1
-      #{occ} config:system:set user_external 0 arguments 1 --value 22
+      #{occ} config:system:set user_backends 0 arguments 0 --value 127.0.0.1
+      #{occ} config:system:set user_backends 0 arguments 1 --value 22
+      #{occ} config:system:set user_backends 0 class --value="\\OCA\\UserExternal\\SSH"
     EOF
-    not_if "#{occ} config:system:get user_external"
+    not_if "#{occ} config:system:get user_backends"
   end
 
 ##
