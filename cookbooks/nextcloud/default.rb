@@ -218,6 +218,22 @@ occ = "#{php} #{install_path}/occ"
   end
 
 ##
+## Apps
+##
+
+  define :nextcloud_app do
+    app = params[:name]
+    execute "Install NextCloud App: #{app}" do
+      user "nextcloud"
+      command "#{occ} app:install #{app}"
+      not_if "#{occ} app:list --output=json_pretty | jq -e .enabled.#{app}"
+    end
+  end
+
+  nextcloud_app "user_external"
+
+
+##
 ## Cron
 ##
 
