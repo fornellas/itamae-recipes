@@ -4,7 +4,7 @@ After=network.target mysql.service mysql.service
 
 [Service]
 User=tt-rss
-ExecStart=<%= @install_path %>/update_daemon2.php
+ExecStart=<%= @php %> <%= @install_path %>/update_daemon2.php
 
 [Install]
 WantedBy=multi-user.target
