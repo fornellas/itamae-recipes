@@ -18,6 +18,24 @@ plugins_local_path = "#{install_path}/plugins.local"
 ttrss_nginx_xaccel_repo = "https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git"
 videoframes_repo = "https://github.com/tribut/ttrss-videoframes.git"
 socket_path = "/run/php/php#{php_version}-fpm-ttrss.sock"
+# https://tt-rss.org/wiki/GlobalConfig
+env_config = {
+  "TTRSS_DB_TYPE": "pgsql",
+  "TTRSS_DB_HOST": "/var/run/postgresql",
+  "TTRSS_DB_USER": "ttrss",
+  "TTRSS_DB_NAME": "ttrss",
+  "TTRSS_SELF_URL_PATH": "https://tt-rss.sigstop.co.uk/",
+  "TTRSS_PHP_EXECUTABLE": php,
+  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes",
+  # https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git/tree/README.md
+  "TTRSS_NGINX_XACCEL_PREFIX": "/",
+}
+
+shell_env_lines = []
+env_config.each_pair do |key, value|
+  shell_env_lines << "#{key}=#{Shellwords.escape value}"
+end
+shell_env = shell_env_lines.join(" ")
 
 ##
 ## Deps
@@ -107,33 +125,44 @@ socket_path = "/run/php/php#{php_version}-fpm-ttrss.sock"
 ## Update Schema
 ##
 
-# php8 ./update.php --update-schema=force-yes
-# only_if ./.git/logs/HEAD is newer than update ok
+  schema_update_ok_path = "#{home_path}/.schema_update_ok"
+
+
+  execute "Update schema" do
+    command <<~EOF
+      set -e
+      #{shell_env} #{php} #{install_path}/update.php --update-schema=force-yes
+      touch #{schema_update_ok_path}
+    EOF
+    user "ttrss"
+    not_if "test #{schema_update_ok_path} -nt #{install_path}/.git/logs/HEAD"
+  end
 
 ##
 ## Updater Daemon
 ##
 
-  # template "/etc/systemd/system/ttrss-update_daemon.service" do
-  #   mode "644"
-  #   owner "root"
-  #   group "root"
-  #   variables(
-  #     php: php,
-  #     install_path: install_path,
-  #   )
-  #   notifies :run, "execute[systemctl daemon-reload]"
-  # end
+  template "/etc/systemd/system/ttrss-update_daemon.service" do
+    mode "644"
+    owner "root"
+    group "root"
+    variables(
+      env: shell_env,
+      php: php,
+      install_path: install_path,
+    )
+    notifies :run, "execute[systemctl daemon-reload]"
+  end
 
-  # execute "systemctl daemon-reload" do
-  #   action :nothing
-  #   user "root"
-  #   notifies :restart, "service[ttrss-update_daemon]"
-  # end
+  execute "systemctl daemon-reload" do
+    action :nothing
+    user "root"
+    notifies :restart, "service[ttrss-update_daemon]"
+  end
 
-  # service "tt-rss-update_daemon" do
-  #   action [:enable, :start]
-  # end
+  service "ttrss-update_daemon" do
+    action [:enable, :start]
+  end
 
 ##
 ## PHP FPM
@@ -147,18 +176,7 @@ socket_path = "/run/php/php#{php_version}-fpm-ttrss.sock"
     variables(
       prefix: install_path,
       socket_path: socket_path,
-      # https://tt-rss.org/wiki/GlobalConfig
-      env: {
-        "TTRSS_DB_TYPE": "pgsql",
-        "TTRSS_DB_HOST": "/var/run/postgresql",
-        "TTRSS_DB_USER": "ttrss",
-        "TTRSS_DB_NAME": "ttrss",
-        "TTRSS_SELF_URL_PATH": "https://tt-rss.sigstop.co.uk/",
-        "TTRSS_PHP_EXECUTABLE": php,
-        "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes",
-        # https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git/tree/README.md
-        "TTRSS_NGINX_XACCEL_PREFIX": "/",
-      },
+      env: env_config
     )
     notifies :restart, "service[php#{php_version}-fpm]"
   end
