@@ -9,6 +9,7 @@ node.validate! do
   }
 end
 
+domain = node[:ttrss][:domain]
 php_version = node[:ttrss][:php_version]
 php = "/usr/bin/php#{php_version}"
 ttrss_git_repo = "https://git.tt-rss.org/fox/tt-rss.git"
@@ -185,34 +186,34 @@ shell_env = shell_env_lines.join(" ")
 ## Nginx
 ##
 
-  # # Let's Encrypt
+  # Let's Encrypt
 
-  #   include_recipe "../letsencrypt"
-  #   letsencrypt domain
+    include_recipe "../letsencrypt"
+    letsencrypt domain
 
-  # # Nginx
+  # Nginx
 
-  #   include_recipe "../nginx"
+    include_recipe "../nginx"
 
-  # # Auth
+  # Auth
 
-  #   remote_file "/etc/pam.d/ttrss" do
-  #     mode "644"
-  #     owner "root"
-  #     group "root"
-  #   end
+    remote_file "/etc/pam.d/ttrss" do
+      mode "644"
+      owner "root"
+      group "root"
+    end
 
-  #   template "/etc/nginx/sites-enabled/ttrss" do
-  #     mode "644"
-  #     owner "root"
-  #     group "root"
-  #     variables(
-  #       domain: domain,
-  #       fpm_pool_prefix: install_path,
-  #       socket_path: socket_path,
-  #     )
-  #     notifies :restart, "service[nginx]", :immediately
-  #   end
+    template "/etc/nginx/sites-enabled/ttrss" do
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        domain: domain,
+        fpm_pool_prefix: install_path,
+        socket_path: socket_path,
+      )
+      notifies :restart, "service[nginx]", :immediately
+    end
 
 ##
 ## Prometheus
