@@ -227,12 +227,12 @@ shell_env = shell_env_lines.join(" ")
 ## Backup
 ##
 
-  # backblaze "#{node["fqdn"].tr(".", "-")}-ttrss" do
-  #   backup_paths [home_path]
-  #   backup_cmd_stdout "/usr/bin/mysqldump ttrss"
-  #   backup_cmd_stdout_filename "ttrss.sql"
-  #   user "tt-rss"
-  #   group "tt-rss"
-  #   cron_hour 3
-  #   cron_minute 40
-  # end
+  backblaze "#{node["fqdn"].tr(".", "-")}-ttrss" do
+    backup_paths [home_path]
+    backup_cmd_stdout "pg_dump ttrss"
+    backup_cmd_stdout_filename "ttrss.sql"
+    user "ttrss"
+    group "ttrss"
+    cron_hour 3
+    cron_minute 40
+  end
