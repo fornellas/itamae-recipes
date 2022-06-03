@@ -314,9 +314,11 @@ occ = "#{php} #{install_path}/occ"
 ## Prometheus
 ##
 
-  # prometheus_scrape_targets_blackbox_http_2xx "nextcloud" do
-  #   targets [{ hosts: ["http://nextcloud.sigstop.co.uk/"] }]
-  # end
+  include_recipe "../../cookbooks/monitoring"
+
+  prometheus_scrape_targets_blackbox_http_2xx "nextcloud" do
+    targets [{ hosts: ["http://nextcloud.sigstop.co.uk/"] }]
+  end
 
 ##
 ## Backup

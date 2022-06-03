@@ -219,9 +219,11 @@ shell_env = shell_env_lines.join(" ")
 ## Prometheus
 ##
 
-  # prometheus_scrape_targets_blackbox_http_2xx "ttrss" do
-  #   targets [{ hosts: ["http://tt-rss.sigstop.co.uk/"] }]
-  # end
+  include_recipe "../../cookbooks/monitoring"
+
+  prometheus_scrape_targets_blackbox_http_2xx "ttrss" do
+    targets [{ hosts: ["http://tt-rss.sigstop.co.uk/"] }]
+  end
 
 ##
 ## Backup
