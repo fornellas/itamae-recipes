@@ -107,14 +107,16 @@
 {{- define "custom.text.alerts" -}}
     {{- $alerts := . -}}
     {{- with .Firing -}}
-        {{- "🔥 FIRING:\n\n" -}}
+        {{- with $alerts.Resolved -}}
+            {{- "🔥 FIRING:\n\n" -}}
+        {{- end -}}
         {{- template "custom.alerts.list" . -}}
     {{- end -}}
     {{- with .Resolved -}}
         {{- with $alerts.Firing -}}
             {{- "\n\n" -}}
+            {{- "👌 RESOLVED:\n\n" -}}
         {{- end -}}
-        {{- "👌 RESOLVED:\n\n" -}}
         {{- template "custom.alerts.list" . -}}
     {{- end -}}
 {{- end -}}
@@ -123,7 +125,7 @@
 {{- /* An emoji as a function of firing alerts and the severity. */ -}}
 {{- define "custom.emoji" -}}
     {{- if eq .Status "firing" -}}
-        {{- "💥" -}}
+        {{- "🔥" -}}
     {{- else -}}
         {{ "👌" }}
     {{- end -}}
