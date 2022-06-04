@@ -49,6 +49,7 @@ include_recipe "../iptables"
     group "root"
     variables(install_path: "/opt/node_exporter")
     notifies :run, "execute[systemctl daemon-reload]"
+    notifies :restart, "service[node_exporter]"
   end
 
   execute "systemctl daemon-reload" do
@@ -96,6 +97,17 @@ include_recipe "../iptables"
               instance="#{node_exporter_instance}",
               exporter="node_exporter",
             } < 1
+          )
+        EOF
+      },
+      {
+        alert: "Failed systemd unit",
+        expr: <<~EOF
+          group by (instance,type,name) (
+            node_systemd_unit_state{
+              exporter="node_exporter",
+              state="failed",
+            } == 1
           )
         EOF
       },
