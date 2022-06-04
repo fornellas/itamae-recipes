@@ -311,13 +311,31 @@ occ = "#{php} #{install_path}/occ"
     end
 
 ##
-## Prometheus
+## Monitoring
 ##
 
   include_recipe "../../cookbooks/monitoring"
 
-  prometheus_scrape_targets_blackbox_http_2xx "nextcloud" do
-    targets [{ hosts: ["http://nextcloud.sigstop.co.uk/"] }]
+  nextcloud_instance = "http://nextcloud.sigstop.co.uk/"
+
+  prometheus_scrape_targets_blackbox_http_401 "nextcloud" do
+    targets [{hosts: [nextcloud_instance]}]
+  end
+
+  prometheus_rules "nextcloud" do
+    alerting_rules [
+      {
+        alert: "Nextcloud Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{nextcloud_instance}",
+              job="blackbox_http_401",
+            } < 1,
+          )
+        EOF
+      },
+    ]
   end
 
 ##

@@ -221,8 +221,26 @@ shell_env = shell_env_lines.join(" ")
 
   include_recipe "../../cookbooks/monitoring"
 
+  ttrss_instance = "http://#{domain}/"
+
   prometheus_scrape_targets_blackbox_http_2xx "ttrss" do
-    targets [{ hosts: ["http://tt-rss.sigstop.co.uk/"] }]
+    targets [{ hosts: [ttrss_instance] }]
+  end
+
+  prometheus_rules "ttrss" do
+    alerting_rules [
+      {
+        alert: "TT-RSS Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{ttrss_instance}",
+              job="blackbox_http_2xx",
+            } < 1,
+          )
+        EOF
+      },
+    ]
   end
 
 ##

@@ -176,22 +176,27 @@ include_recipe "../nginx"
     end
 
 ##
-## Scrape Targets
+## Monitoring
 ##
+
+  octoprint_instance = "http://#{domain}/"
 
   prometheus_scrape_targets_blackbox_http_401 "octoprint" do
-    targets [{ hosts: ["http://#{domain}/"] }]
+    targets [{ hosts: [octoprint_instance] }]
   end
-
-##
-## Rules & Alerts
-##
 
   prometheus_rules "octoprint" do
     alerting_rules [
       {
-        alert: "OctoPrintDown",
-        expr: 'up{instance="'"http://#{domain}/"'"} < 1',
+        alert: "OctoPrint Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{octoprint_instance}",
+              job="blackbox_http_401",
+            } < 1,
+          )
+        EOF
       },
     ]
   end

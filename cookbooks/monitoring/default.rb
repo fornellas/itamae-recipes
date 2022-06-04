@@ -3,193 +3,288 @@ include_recipe "alertmanager"
 include_recipe "grafana"
 include_recipe "prometheus"
 include_recipe "defines"
+include_recipe "../iptables"
 
 ##
-## Scrape Targets
+## blackbox_exporter
 ##
 
-  # blackbox_exporter
+  iptables_rule_drop_not_user "Drop unauthorized users to BlackboxExporter" do
+    users ["prometheus"]
+    port node[:blackbox_exporter][:port]
+  end
 
-    prometheus_scrape_targets "blackbox_exporter" do
-      targets [
-        {
-          hosts: ["localhost:9115"],
-          labels: {
-            instance: "#{node["fqdn"]}:9115",
-            exporter: "blackbox_exporter",
-          },
+  blackbox_exporter_instance = "#{node["fqdn"]}:#{node[:blackbox_exporter][:port]}"
+
+  prometheus_scrape_targets "blackbox_exporter" do
+    targets [
+      {
+        hosts: ["localhost:#{node[:blackbox_exporter][:port]}"],
+        labels: {
+          instance: blackbox_exporter_instance,
+          exporter: "blackbox_exporter",
         },
-      ]
-    end
+      },
+    ]
+  end
 
-  # alertmanager
-
-    prometheus_scrape_targets "alertmanager" do
-      targets [
-        {
-          hosts: ["127.0.0.1:#{node[:alertmanager][:web_port]}"],
-          labels: {
-            instance: "#{node["fqdn"]}:#{node[:alertmanager][:web_port]}",
-            exporter: "alertmanager",
-          },
-        },
-      ]
-    end
-
-  # grafana
-
-    prometheus_scrape_targets_blackbox_http_401 "grafana" do
-      targets [
-        {
-          hosts: [
-            "http://#{node[:grafana][:domain]}/"
-          ]
-        }
-      ]
-    end
-
-    prometheus_rules "grafana" do
-      alerting_rules [
-        {
-          alert: "GrafanaDown",
-          expr: 'up{instance="http://'"#{node[:grafana][:domain]}"'/"} < 1',
-        },
-      ]
-    end
-
-  # prometheus
-
-    prometheus_scrape_targets_blackbox_http_401 "prometheus" do
-      targets [
-        {
-          hosts: [
-            "http://#{node[:prometheus][:domain]}/"
-          ]
-        }
-      ]
-    end
-
-    prometheus_scrape_targets "prometheus" do
-      targets [
-        {
-          hosts: ["localhost:#{node[:prometheus][:port]}"],
-          labels: {
-            instance: "#{node["fqdn"]}:#{node[:prometheus][:port]}",
-            exporter: "prometheus",
-          },
-        },
-      ]
-    end
+  prometheus_rules "blackbox_exporter" do
+    alerting_rules [
+      {
+        alert: "Blackbox Exporter Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{blackbox_exporter_instance}",
+              exporter="blackbox_exporter",
+            } < 1
+          )
+        EOF
+      },
+    ]
+  end
 
 ##
-## Rules & alerts
+## alertmanager
 ##
 
-  # blackbox_exporter
+  iptables_rule_drop_not_user "Drop unauthorized users to alertmanager" do
+    users ["prometheus"]
+    port node[:alertmanager][:cluster_port]
+  end
 
-    prometheus_rules "blackbox_exporter" do
-      alerting_rules [
-        {
-          alert: "BlackboxExporterDown",
-          expr: 'up{instance="'"#{node["fqdn"]}"':9115"} < 1',
-        },
-      ]
-    end
+  iptables_rule_drop_not_user "Drop unauthorized users to alertmanager" do
+    users ["www-data", "prometheus", "grafana"]
+    port node[:alertmanager][:web_port]
+  end
 
-  # alertmanager
+  alertmanager_instance = "#{node["fqdn"]}:#{node[:alertmanager][:web_port]}"
 
-    prometheus_rules "alertmanager" do
-      alerting_rules [
-        {
-          alert: "AlertManagerAlertsInvalid",
-          expr: "rate(alertmanager_alerts_invalid_total{instance=\"#{node["fqdn"]}:#{node[:alertmanager][:web_port]}\"}[5m]) > 0",
+  prometheus_scrape_targets "alertmanager" do
+    targets [
+      {
+        hosts: ["localhost:#{node[:alertmanager][:web_port]}"],
+        labels: {
+          instance: alertmanager_instance,
+          exporter: "alertmanager",
         },
-        {
-          alert: "AlertManagerNotificationRequestsFailed",
-          expr: "rate(alertmanager_notification_requests_failed_total{instance=\"#{node["fqdn"]}:#{node[:alertmanager][:web_port]}\"}[5m]) > 0",
-        },
-        {
-          alert: "AlertManagerNotificationFailed",
-          expr: "rate(alertmanager_notifications_failed_total{instance=\"#{node["fqdn"]}:#{node[:alertmanager][:web_port]}\"}[5m]) > 0",
-        },
-        {
-          alert: "AlertManagerSilencesQueryErrors",
-          expr: "rate(alertmanager_silences_query_errors_total{instance=\"#{node["fqdn"]}:#{node[:alertmanager][:web_port]}\"}[5m]) > 0",
-        },
-        {
-          alert: "AlertManagerDown",
-          expr: "up{instance=\"#{node["fqdn"]}:#{node[:alertmanager][:web_port]}\"} < 1",
-        },
-      ]
-    end
+      },
+    ]
+  end
 
-  # prometheus
-
-    prometheus_rules "prometheus" do
-      alerting_rules [
-        {
-          alert: "PrometheusDown",
-          expr: 'up{instance="http://prometheus.sigstop.co.uk/"} < 1',
-        },
-        {
-          alert: "PrometheusNotificationsDropped",
-          expr: 'rate(prometheus_notifications_dropped_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-        },
-        {
-          alert: "PrometheusNotificationsErrors",
-          expr: 'rate(prometheus_notifications_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-        },
-        {
-          alert: "PrometheusSdFailedConfigs",
-          expr: 'prometheus_sd_failed_configs{instance="'"#{node["fqdn"]}"':9090"} > 0',
-        },
-        {
-          alert: "PrometheusSdFileReadErrors",
-          expr: 'rate(prometheus_sd_file_read_errors_total{instance="'"#{node["fqdn"]}"':9090"}[5m]) > 0',
-        },
-      ]
-    end
+  prometheus_rules "alertmanager" do
+    alerting_rules [
+      {
+        alert: "AlertManager Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{alertmanager_instance}",
+              exporter="alertmanager",
+            } < 1
+          )
+        EOF
+      },
+      {
+        alert: "AlertManager Alerts Invalid",
+        expr: <<~EOF,
+          group by (version) (
+            rate(
+              alertmanager_alerts_invalid_total{
+                instance="#{alertmanager_instance}",
+                exporter="alertmanager",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+      {
+        alert: "AlertManager Notification Requests Failed",
+        expr: <<~EOF,
+          group by (integration) (
+            rate(
+              alertmanager_notification_requests_failed_total{
+                instance="#{alertmanager_instance}",
+                exporter="alertmanager",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+      {
+        alert: "AlertManager Notifications Failed",
+        expr: <<~EOF,
+          group by (integration) (
+            rate(
+              alertmanager_notifications_failed_total{
+                instance="#{alertmanager_instance}",
+                exporter="alertmanager",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+      {
+        alert: "AlertManager Silences Query Errors",
+        expr: <<~EOF,
+          group(
+            rate(
+              alertmanager_silences_query_errors_total{
+                instance="#{alertmanager_instance}",
+                exporter="alertmanager",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+    ]
+  end
 
 ##
-## iptables
+## grafana
 ##
 
-  include_recipe "../iptables"
 
-  # blackbox_exporter
+  iptables_rule_drop_not_user "Drop unauthorized users to Grafana" do
+    users ["www-data"]
+    port node[:grafana][:port]
+  end
 
-    iptables_rule_drop_not_user "Drop not prometheus user to BlackboxExporter" do
-      users ["prometheus"]
-      port node[:blackbox_exporter][:port]
-    end
+  grafana_instance = "http://#{node[:grafana][:domain]}/"
 
-  # alertmanager
+  prometheus_scrape_targets_blackbox_http_401 "grafana" do
+    targets [{hosts: [grafana_instance]}]
+  end
 
-    iptables_rule_drop_not_user "Drop not www-data|prometheus user to alertmanager" do
-      users ["www-data", "prometheus"]
-      port node[:alertmanager][:web_port]
-    end
+  prometheus_rules "grafana" do
+    alerting_rules [
+      {
+        alert: "Grafana Down",
+        expr: <<~EOF,
+          group by (instance) (
+            up{
+              instance="#{grafana_instance}",
+              job="blackbox_http_401",
+            } < 1
+          )
+        EOF
+      },
+    ]
+  end
 
-    iptables_rule_drop_not_user "Drop not prometheus user to alertmanager" do
-      users ["prometheus"]
-      port node[:alertmanager][:cluster_port]
-    end
+##
+## prometheus
+##
 
-  # grafana
+  iptables_rule_drop_not_user "Drop unauthorized users to Prometheus" do
+    users ["www-data", "prometheus", "grafana"]
+    port node[:prometheus][:port]
+  end
 
-    iptables_rule_drop_not_user "Drop not www-data user to Grafana" do
-      users ["www-data"]
-      port node[:grafana][:port]
-    end
+  prometheus_blackbox_http_401_instance = "http://#{node[:prometheus][:domain]}/"
 
-  # prometheus
+  prometheus_scrape_targets_blackbox_http_401 "prometheus" do
+    targets [{hosts: [prometheus_blackbox_http_401_instance]}]
+  end
 
-    iptables_rule_drop_not_user "Drop not www-data|prometheus|grafana user to Prometheus" do
-      users [
-        "www-data",
-        "prometheus",
-        # FIXME
-        # "grafana"
-      ]
-      port node[:prometheus][:port]
-    end
+  prometheus_instance = "#{node["fqdn"]}:#{node[:prometheus][:port]}"
+
+  prometheus_scrape_targets "prometheus" do
+    targets [
+      {
+        hosts: ["localhost:#{node[:prometheus][:port]}"],
+        labels: {
+          instance: prometheus_instance,
+          exporter: "prometheus",
+        },
+      },
+    ]
+  end
+
+  prometheus_rules "prometheus" do
+    alerting_rules [
+      {
+        alert: "Prometheus Down",
+        expr: <<~EOF,
+          group by (instance) (
+            up{
+              instance="#{prometheus_blackbox_http_401_instance}",
+              job="blackbox_http_401",
+            } < 1
+          )
+        EOF
+      },
+      {
+        alert: "Prometheus Scraping Down",
+        expr: <<~EOF,
+          group by (instance) (
+            up{
+              instance="#{prometheus_instance}",
+              exporter="prometheus",
+            } < 1
+          )
+        EOF
+      },
+      {
+        alert: "Prometheus Notifications Dropped",
+        expr: <<~EOF
+          group(
+            rate(
+              prometheus_notifications_dropped_total{
+                instance="#{prometheus_instance}",
+                exporter="prometheus",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+      {
+        alert: "Prometheus Notifications Errors",
+        expr: <<~EOF
+          group by (alertmanager) (
+            rate(
+              prometheus_notifications_errors_total{
+                instance="#{prometheus_instance}",
+                exporter="prometheus",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+      {
+        alert: "Prometheus Sd Failed Configs",
+        expr: <<~EOF
+          group by (name) (
+            prometheus_sd_failed_configs{
+              instance="#{prometheus_instance}",
+              exporter="prometheus",
+            } > 0
+          )
+        EOF
+      },
+      {
+        alert: "Prometheus Sd File Read Errors",
+        expr: <<~EOF
+          group(
+            rate(
+              prometheus_sd_file_read_errors_total{
+                instance="#{prometheus_instance}",
+                exporter="prometheus",
+              }[5m]
+            ) > 0
+          )
+        EOF
+      },
+      {
+        alert: "Prometheus Rule Evaluation Failures",
+        expr: <<~EOF,
+          group by (rule_group) (
+              prometheus_rule_evaluation_failures_total{
+                instance="#{prometheus_instance}",
+                exporter="prometheus",
+              } > 0
+          )
+        EOF
+      },
+    ]
+  end

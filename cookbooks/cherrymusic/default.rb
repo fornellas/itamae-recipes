@@ -143,28 +143,27 @@ include_recipe "../nginx"
     end
 
 ##
-## Scrape Targets
+## Monitoring
 ##
+
+  cherrymusic_instance = "http://#{domain}/"
 
   prometheus_scrape_targets_blackbox_http_401 "cherrymusic" do
-    targets [
-      {
-        hosts: [
-          "http://#{domain}/"
-        ]
-      }
-    ]
+    targets [{hosts: [cherrymusic_instance]}]
   end
-
-##
-## Rules & alerts
-##
 
   prometheus_rules "cherrymusic" do
     alerting_rules [
       {
-        alert: "CherryMusicDown",
-        expr: 'up{instance="'"http://#{domain}/"'"} < 1',
+        alert: "CherryMusic Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{cherrymusic_instance}",
+              job="blackbox_http_401",
+            } < 1,
+          )
+        EOF
       },
     ]
   end
