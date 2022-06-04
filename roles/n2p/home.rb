@@ -95,7 +95,7 @@
 ## Office Sensor
 ##
 
-  office_sensor_instance_ip = "192.168.0.138:9090"
+  office_sensor_instance_ip = "192.168.0.178:9090"
   office_sensor_instance = "office_sensors.local:9090"
 
   prometheus_scrape_targets "office_sensors" do
@@ -150,7 +150,7 @@
 ## Living Room
 ##
 
-  living_room_instance_ip = "192.168.0.124:9090"
+  living_room_instance_ip = "192.168.0.164:9090"
   living_room_instance = "living_room_sensors.local:9090"
 
   prometheus_scrape_targets "living_room_sensors" do
@@ -221,6 +221,7 @@
               } < 1
           )
         EOF
+        for: "5m",
       },
       {
         alert: "High Power Usage",
