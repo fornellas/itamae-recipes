@@ -57,15 +57,26 @@ include_recipe "../letsencrypt"
       mode "755"
     end
 
-    discord_webhook = node[:alertmanager][:discord_webhook]
+    directory "/etc/alertmanager/templates" do
+      owner "root"
+      group "root"
+      mode "755"
+    end
 
     template "/etc/alertmanager/alertmanager.yml" do
       mode "644"
       owner "root"
       group "root"
       variables(
-        slack_webhook_url: "#{discord_webhook}/slack",
+        slack_webhook_url: "#{node[:alertmanager][:discord_webhook]}/slack",
       )
+      notifies :restart, "service[alertmanager]"
+    end
+
+    template "/etc/alertmanager/templates/custom.tmpl" do
+      mode "644"
+      owner "root"
+      group "root"
       notifies :restart, "service[alertmanager]"
     end
 
