@@ -83,16 +83,17 @@
     {{- end -}}
 {{- end -}}
 
-{{- /* custom.alerts.title_list(Alerts) */ -}}
+{{- /* custom.alerts.list(Alerts) */ -}}
 {{- /* List of alert titles. */ -}}
-{{- define "custom.alerts.title_list" -}}
+{{- define "custom.alerts.list" -}}
     {{- with . -}}
         {{- with index . 0 -}}
-            {{- "- " }}{{- template "custom.alert.title" . -}}
+            {{- template "custom.alert.title" . -}}
         {{- end -}}
         {{- with slice . 1 -}}
             {{- range . -}}
-                {{- "\n- " }}{{- template "custom.alert.title" . -}}
+                {{- "\n" }}
+                {{- template "custom.alert.title" . -}}
             {{- end -}}
         {{- end -}}
     {{- end -}}
@@ -107,14 +108,14 @@
     {{- $alerts := . -}}
     {{- with .Firing -}}
         {{- "🔥 FIRING:\n\n" -}}
-        {{- template "custom.alerts.title_list" . -}}
+        {{- template "custom.alerts.list" . -}}
     {{- end -}}
     {{- with .Resolved -}}
         {{- with $alerts.Firing -}}
             {{- "\n\n" -}}
         {{- end -}}
         {{- "👌 RESOLVED:\n\n" -}}
-        {{- template "custom.alerts.title_list" . -}}
+        {{- template "custom.alerts.list" . -}}
     {{- end -}}
 {{- end -}}
 
