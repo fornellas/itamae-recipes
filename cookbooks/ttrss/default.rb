@@ -236,7 +236,7 @@ shell_env = shell_env_lines.join(" ")
             up{
               instance="#{ttrss_instance}",
               job="blackbox_http_2xx",
-            } < 1,
+            } < 1
           )
         EOF
       },

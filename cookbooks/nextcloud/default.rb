@@ -331,7 +331,7 @@ occ = "#{php} #{install_path}/occ"
             up{
               instance="#{nextcloud_instance}",
               job="blackbox_http_401",
-            } < 1,
+            } < 1
           )
         EOF
       },

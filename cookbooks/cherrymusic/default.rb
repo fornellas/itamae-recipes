@@ -161,7 +161,7 @@ include_recipe "../nginx"
             up{
               instance="#{cherrymusic_instance}",
               job="blackbox_http_401",
-            } < 1,
+            } < 1
           )
         EOF
       },

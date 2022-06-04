@@ -194,7 +194,7 @@ include_recipe "../nginx"
             up{
               instance="#{octoprint_instance}",
               job="blackbox_http_401",
-            } < 1,
+            } < 1
           )
         EOF
       },

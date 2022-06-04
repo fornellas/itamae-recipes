@@ -95,7 +95,7 @@ include_recipe "../iptables"
             up{
               instance="#{node_exporter_instance}",
               exporter="node_exporter",
-            } < 1,
+            } < 1
           )
         EOF
       },
