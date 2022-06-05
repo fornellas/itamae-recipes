@@ -69,35 +69,84 @@
 {{- end -}}
 
 {{- /* custom.alert.title(Alert) */ -}}
-{{- /* Alert title text */ -}}
-{{- /* - "[$alertname_value] ($label=$value)" when "alertname" label exists. */ -}}
-{{- /* - "($label=$value)" when "alertname" is missing. */ -}}
 {{- define "custom.alert.title" -}}
     {{- $alert := . -}}
     {{- with index .Labels.alertname -}}
-        {{- "[" -}}{{ . }}{{- "]" -}}
+        {{ . }}
         {{- with ($alert.Labels.Remove (stringSlice "alertname")).SortedPairs -}}
-            {{- " (" }}
+            {{- ": " }}
             {{- with index . 0 -}}
                 {{- .Name }}={{ .Value -}}
             {{- end -}}
             {{- range slice . 1 -}}
-                {{- " " }}{{ .Name }}={{ .Value -}}
+                {{- " " }}
+                {{ .Name }}={{ .Value -}}
             {{- end -}}
-            {{- ")" }}
         {{- end -}}
     {{- else -}}
-        {{- "(" -}}
-            {{- with index $alert.Labels.SortedPairs 0 -}}
-                {{- .Name }}={{ .Value -}}
+        {{- with index $alert.Labels.SortedPairs 0 -}}
+            {{- .Name }}={{ .Value -}}
+        {{- end -}}
+        {{- with slice $alert.Labels.SortedPairs 1 -}}
+            {{- range . -}}
+                {{- " " }}
+                {{ .Name }}={{ .Value -}}
             {{- end -}}
-            {{- with slice $alert.Labels.SortedPairs 1 -}}
-                {{- range . -}}
-                    {{- " " }}{{ .Name }}={{ .Value -}}
-                {{- end -}}
-            {{- end -}}
-        {{- ")" -}}
+        {{- end -}}
     {{- end -}}
+{{- end -}}
+
+{{- /* custom.alert.title.grafana(Alert) */ -}}
+{{- define "custom.alert.title.grafana" -}}
+    {{- $alert := . -}}
+    {{- with index .Labels.alertname -}}
+        {{ . | urlquery | reReplaceAll "%5C" "%5C%22" }}
+        {{- with ($alert.Labels.Remove (stringSlice "alertname")).SortedPairs -}}
+            {{- ": " | urlquery }}
+            {{- with index . 0 -}}
+                {{- .Name | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+                {{- "=" | urlquery -}}
+                {{ .Value | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+            {{- end -}}
+            {{- range slice . 1 -}}
+                {{- " " | urlquery -}}
+                {{ .Name | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+                {{- "=" | urlquery -}}
+                {{ .Value | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+            {{- end -}}
+        {{- end -}}
+    {{- else -}}
+        {{- with index $alert.Labels.SortedPairs 0 -}}
+            {{- .Name | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+            {{- "=" | urlquery -}}
+            {{ .Value | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+        {{- end -}}
+        {{- with slice $alert.Labels.SortedPairs 1 -}}
+            {{- range . -}}
+                {{- " " | urlquery -}}
+                {{- .Name | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+                {{- "=" | urlquery -}}
+                {{ .Value | urlquery | reReplaceAll "%5C" "%5C%22" -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* custom.alert.grafana.explore(Alert) */ -}}
+{{- define "custom.alert.grafana.explore" -}}
+    {{- "<%= @grafana_url %>explore?left=" }}
+    {{- "{\"datasource\":\"" | urlquery -}}
+    {{- "<%= @grafana_alerting_datasource %>" | urlquery | reReplaceAll "%22" "%5C%22" -}}
+    {{- "\",\"queries\":[{\"refId\":\"" | urlquery -}}
+    {{- template "custom.alert.title.grafana" . -}}
+    {{- "\",\"expr\":\"" | urlquery -}}
+    {{-
+        reReplaceAll "^.*/graph\\?g0\\.expr=" "" .GeneratorURL
+            | reReplaceAll "&g0\\.tab=1$" ""
+            | reReplaceAll "%22" "%5C%22"
+    -}}
+    {{- "\"}],\"range\":{\"from\":\"now-1h\",\"to\":\"now\"}}" | urlquery -}}
+    {{- "&orgId=<%= @grafana_org_id %>" -}}
 {{- end -}}
 
 {{- /* custom.slack.alert.title(Alert) */ -}}
@@ -105,7 +154,7 @@
 {{- define "custom.slack.alert.title" -}}
     {{- template "custom.emoji" . -}}
     {{- " <" -}}
-    {{- .GeneratorURL -}}
+    {{- template "custom.alert.grafana.explore" . -}}
     {{- "|" -}}
     {{- template "custom.alert.title" . -}}
     {{- ">\n" -}}
