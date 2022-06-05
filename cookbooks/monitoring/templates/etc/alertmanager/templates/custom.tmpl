@@ -13,9 +13,9 @@
 {{- /* "[$alertname_value] ($group_label_key=$group_label_value)" */ -}}
 {{- /* "($group_label_key=$group_label_value)" */ -}}
 {{- define "custom.subject" -}}
-    {{- $status := . -}}
+    {{- $data := . -}}
     {{- with .GroupLabels -}}
-        {{- if eq $status "firing" -}}
+        {{- if eq $data.Status "firing" -}}
             {{- "Firing: " -}}
         {{- else -}}
             {{- "Resolved: " -}}
