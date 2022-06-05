@@ -66,27 +66,53 @@
 ##
 
   brow_ip = "192.168.0.221"
+  brown_instance_node_exporter = "brown.local:9100"
+  brown_instance_windows_exporter = "brown.local:9182"
 
-  prometheus_scrape_targets "brown_windows_exporter" do
+  prometheus_scrape_targets "brown" do
     targets [
+      {
+        hosts: ["#{brow_ip}:9100"],
+        labels: {
+          instance: brown_instance_node_exporter,
+          exporter: "node_exporter",
+        },
+      },
       {
         hosts: ["#{brow_ip}:9182"],
         labels: {
-          instance: "brown.local:9182",
+          instance: brown_instance_windows_exporter,
           exporter: "windows_exporter",
         },
       },
     ]
   end
 
-  prometheus_scrape_targets "brown_node_exporter" do
-    targets [
+  prometheus_rules "brown" do
+    alerting_rules [
       {
-        hosts: ["#{brow_ip}:9100"],
-        labels: {
-          instance: "brown.local:9100",
-          exporter: "node_exporter",
-        },
+        alert: "Brown Linux Offline for Too long",
+        expr: <<~EOF,
+          group(
+            avg_over_time(
+              up{
+                instance="#{brown_instance_node_exporter}"
+              }[4d]
+            ) == 0
+          )
+        EOF
+      },
+      {
+        alert: "Brown Windows Offline for Too long",
+        expr: <<~EOF,
+          group(
+            avg_over_time(
+              up{
+                instance="#{brown_instance_windows_exporter}"
+              }[15d]
+            ) == 0
+          )
+        EOF
       },
     ]
   end
