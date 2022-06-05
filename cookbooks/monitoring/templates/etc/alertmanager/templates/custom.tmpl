@@ -119,26 +119,6 @@
     {{- end -}}
 {{- end -}}
 
-{{- /* custom.slack.text(Data) */ -}}
-{{- define "custom.slack.text" -}}
-    {{- with .Alerts.Firing -}}
-        {{- template "custom.slack.alerts.title" . -}}
-    {{- end -}}
-    {{- with .Alerts.Resolved -}}
-        {{- template "custom.slack.alerts.title" . -}}
-    {{- end -}}
-    {{- "\n" -}}
-    {{- "<" -}}
-        {{- template "common.grafana.dashboard.alerts_history.url" . -}}
-        {{- "|📜 History" -}}
-    {{- ">" -}}
-    {{- " | " -}}
-    {{- "<" -}}
-        {{- template "common.grafana.alerting.silence.url" . -}}
-        {{- "|🔕 Silence" -}}
-    {{- ">" -}}
-{{- end -}}
-
 {{- /* common.grafana.alerting.alert_rules.url(Data) */ -}}
 {{- /* URL that points to Grafana Labs list of firing alerts. */ -}}
 {{- define "common.grafana.alerting.alert_rules.url" -}}
@@ -191,4 +171,29 @@
                     {{- "&" -}}
             {{- end -}}
         {{- end -}}
+{{- end -}}
+
+{{- /* custom.slack.text(Data) */ -}}
+{{- define "custom.slack.text" -}}
+    {{- with .Alerts.Firing -}}
+        {{- template "custom.slack.alerts.title" . -}}
+    {{- end -}}
+    {{- with .Alerts.Resolved -}}
+        {{- template "custom.slack.alerts.title" . -}}
+    {{- end -}}
+    {{- "\n" -}}
+       {{- "<" -}}
+        {{- template "common.grafana.alerting.alert_rules.url" . -}}
+        {{- "|📜 Rules" -}}
+    {{- ">" -}}
+    {{- " | " -}} 
+    {{- "<" -}}
+        {{- template "common.grafana.dashboard.alerts_history.url" . -}}
+        {{- "|⌚ History" -}}
+    {{- ">" -}}
+    {{- " | " -}}
+    {{- "<" -}}
+        {{- template "common.grafana.alerting.silence.url" . -}}
+        {{- "|🔕 Silence" -}}
+    {{- ">" -}}
 {{- end -}}
