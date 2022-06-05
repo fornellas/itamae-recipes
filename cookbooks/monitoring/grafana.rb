@@ -5,6 +5,8 @@ node.validate! do
       arch: string,
       domain: string,
       port: string,
+      dashboard_alerts_history_id: string,
+      org_id: string,
     },
   }
 end

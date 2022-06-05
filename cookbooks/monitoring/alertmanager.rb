@@ -77,6 +77,13 @@ include_recipe "../letsencrypt"
       mode "644"
       owner "root"
       group "root"
+      variables(
+        grafana_url: "https://#{node[:grafana][:domain]}/",
+        grafana_alerting_datasource: "Prometheus",
+        grafana_alertmanager: "Alertmanager",
+        grafana_dashboard_alerts_history_id: node[:grafana][:dashboard_alerts_history_id],
+        grafana_org_id: node[:grafana][:org_id],
+      )
       notifies :restart, "service[alertmanager]"
     end
 

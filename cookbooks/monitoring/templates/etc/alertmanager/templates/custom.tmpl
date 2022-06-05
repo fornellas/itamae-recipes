@@ -13,10 +13,12 @@
 {{- /* "[$alertname_value] ($group_label_key=$group_label_value)" */ -}}
 {{- /* "($group_label_key=$group_label_value)" */ -}}
 {{- define "custom.subject" -}}
-    {{- if eq .Status "resolved" -}}
-        {{- "Resolved: " -}}
-    {{- end -}}
     {{- with .GroupLabels -}}
+        {{- if eq .Status "firing" -}}
+            {{- "Firing: " -}}
+        {{- else -}}
+            {{- "Resolved: " -}}
+        {{- end -}}
         {{- $groupLabels := . -}}
         {{- with index . "alertname" -}}
             {{- "[" }}{{ . }}{{ "]" -}}
@@ -37,7 +39,11 @@
             {{ ")" }}
         {{- end -}}
     {{- else -}}
-        {{- "Alerts firing" -}}
+        {{- if eq .Status "firing" -}}
+            {{- "Firing" -}}
+        {{- else -}}
+            {{- "Resolved" -}}
+        {{- end -}}
     {{- end -}}
 {{- end -}}
 
@@ -51,8 +57,18 @@
     {{- end -}}
 {{- end -}}
 
+{{- /* custom.emoji(Data|Alert) */ -}}
+{{- /* An emoji as a function of firing alerts and the severity. */ -}}
+{{- define "custom.emoji" -}}
+    {{- if eq .Status "firing" -}}
+        {{- "🚨" -}}
+    {{- else -}}
+        {{ "👌" }}
+    {{- end -}}
+{{- end -}}
+
 {{- /* custom.alert.title(Alert) */ -}}
-{{- /* Alert title: */ -}}
+{{- /* Alert title text */ -}}
 {{- /* - "[$alertname_value] ($label=$value)" when "alertname" label exists. */ -}}
 {{- /* - "($label=$value)" when "alertname" is missing. */ -}}
 {{- define "custom.alert.title" -}}
@@ -83,52 +99,95 @@
     {{- end -}}
 {{- end -}}
 
-{{- /* custom.alerts.list(Alerts) */ -}}
-{{- /* List of alert titles. */ -}}
-{{- define "custom.alerts.list" -}}
-    {{- with . -}}
-        {{- with index . 0 -}}
-            {{- template "custom.alert.title" . -}}{{- "\n" }}
-            {{- .GeneratorURL -}}
-        {{- end -}}
-        {{- with slice . 1 -}}
-            {{- range . -}}
-                {{- "\n" }}
-                {{- template "custom.alert.title" . -}}{{- "\n" }}
-                {{- .GeneratorURL -}}
+{{- /* custom.slack.alert.title(Alert) */ -}}
+{{- /* Emoji + link to alert */ -}}
+{{- define "custom.slack.alert.title" -}}
+    {{- template "custom.emoji" . -}}
+    {{- " <" -}}
+    {{- .GeneratorURL -}}
+    {{- "|" -}}
+    {{- template "custom.alert.title" . -}}
+    {{- ">\n" -}}
+{{- end -}}
+
+{{- /* custom.slack.alerts.title(Alerts) */ -}}
+{{- /* Emoji + link to alerts */ -}}
+{{- define "custom.slack.alerts.title" -}}
+    {{- range . -}}
+        {{- template "custom.slack.alert.title" . -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* custom.slack.text(Data) */ -}}
+{{- define "custom.slack.text" -}}
+    {{- with .Alerts.Firing -}}
+        {{- template "custom.slack.alerts.title" . -}}
+    {{- end -}}
+    {{- with .Alerts.Resolved -}}
+        {{- template "custom.slack.alerts.title" . -}}
+    {{- end -}}
+    {{- "\n" -}}
+    {{- "<" -}}
+        {{- template "common.grafana.dashboard.alerts_history.url" . -}}
+        {{- "|📜 History" -}}
+    {{- ">" -}}
+    {{- " | " -}}
+    {{- "<" -}}
+        {{- template "common.grafana.alerting.silence.url" . -}}
+        {{- "|🔕 Silence" -}}
+    {{- ">" -}}
+{{- end -}}
+
+{{- /* common.grafana.alerting.alert_rules.url(Data) */ -}}
+{{- /* URL that points to Grafana Labs list of firing alerts. */ -}}
+{{- define "common.grafana.alerting.alert_rules.url" -}}
+    {{- "<%= @grafana_url %>alerting/list?" }}
+        {{- "dataSource=<%= @grafana_alerting_datasource %>" -}}
+        {{- "&queryString=" -}}
+            {{- with .GroupLabels -}}
+                {{- range .SortedPairs -}}
+                    {{- .Name | urlquery -}}{{- "%3D" -}}{{- .Value | urlquery -}}{{- "," -}}
+                {{- end -}}
+            {{- end -}}
+        {{- "&ruleType=alerting" -}}
+        {{- "&alertState=firing" -}}
+{{- end -}}
+
+{{- /* common.grafana.alerting.silence.url(Data) */ -}}
+{{- /* URL that points to a Grafana Labs page where a silence to all matching */ -}}
+{{- /* alerts can be added */ -}}
+{{- define "common.grafana.alerting.silence.url" -}}
+    {{- "<%= @grafana_url %>alerting/silence/new?" -}}
+        {{- "alertmanager=<%= @grafana_alertmanager %>&" -}}
+        {{- with .GroupLabels -}}
+            {{- range .SortedPairs -}}
+                {{- "matcher=" -}}
+                    {{- .Name | urlquery -}}
+                    {{- "%3D" -}}
+                    {{- .Value | urlquery -}}
+                    {{- "&" -}}
             {{- end -}}
         {{- end -}}
-    {{- end -}}
 {{- end -}}
 
-{{- /* custom.text.alerts(Alerts) */ -}}
-{{- /* Textual representation of a list of Alerts with status */ -}}
-{{- /* (firing / resolved) grouping. */ -}}
-{{- /* See also: custom.alert.details */ -}}
-{{- /* See also: custom.alerts.details */ -}}
-{{- define "custom.text.alerts" -}}
-    {{- $alerts := . -}}
-    {{- with .Firing -}}
-        {{- with $alerts.Resolved -}}
-            {{- "🔥 FIRING:\n\n" -}}
+{{- /* common.grafana.dashboard.alerts_history.url(Data) */ -}}
+{{- /* URL that points to a Grafana Labs Dashboard with the history of alerts */ -}}
+{{- define "common.grafana.dashboard.alerts_history.url" -}}
+    {{- "<%= @grafana_url %>d/<%= @grafana_dashboard_alerts_history_id %>/?" -}}
+        {{- "orgId=<%= @grafana_org_id %>&" -}}
+        {{- "var-data_source=" -}}<%= @grafana_alerting_datasource %>{{- "&" -}}
+        {{- /* alertname MAY be part of grouped labels */ -}}
+        {{- with .GroupLabels.alertname -}}
+            {{- "var-alertname=" -}}{{- . | urlquery -}}{{- "&" -}}
         {{- end -}}
-        {{- template "custom.alerts.list" . -}}
-    {{- end -}}
-    {{- with .Resolved -}}
-        {{- with $alerts.Firing -}}
-            {{- "\n\n" -}}
-            {{- "👌 RESOLVED:\n\n" -}}
+        {{- /* Add any other group labels other than the ones already set */ -}}
+        {{- with .GroupLabels.Remove (stringSlice "alertname") -}}
+            {{- range .SortedPairs -}}
+                {{- "var-label=" -}}
+                    {{- .Name | urlquery -}}
+                    {{- "%7C%3D%7C" -}}
+                    {{- .Value | urlquery -}}
+                    {{- "&" -}}
+            {{- end -}}
         {{- end -}}
-        {{- template "custom.alerts.list" . -}}
-    {{- end -}}
-{{- end -}}
-
-{{- /* custom.emoji(Data) */ -}}
-{{- /* An emoji as a function of firing alerts and the severity. */ -}}
-{{- define "custom.emoji" -}}
-    {{- if eq .Status "firing" -}}
-        {{- "🔥" -}}
-    {{- else -}}
-        {{ "👌" }}
-    {{- end -}}
 {{- end -}}

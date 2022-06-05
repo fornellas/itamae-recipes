@@ -11,29 +11,8 @@ receivers:
   slack_configs:
   - send_resolved: true
     api_url: <%= @slack_webhook_url %>
-    # actions:
-      # - text: 🚨 Prometheus Alerts
-      #   type: button
-      #   url: <%= @prometheus_url %>/alerts
-      # - text: 🚨 AlertManager Alerts
-      #   type: button
-      #   url: <%= @alertmanager_url %>/#/alerts
-      # - text: 🚨 Grafana Alert Rules
-      #   type: button
-      #   url: <%= @grafana_url %>/alerting/list?dataSource=<%= @grafana_alerting_datasource %>
-      # - text: 📜 Grafana Alerts History Dashboard
-      #   type: button
-      #   url: <%= @grafana_url %>/d/<%= @grafana_alerts_history_dashboard_id %>?orgId=<%= @grafana_org_id %>
-      # - text: 🔕 Grafana Alerting Silence
-      #   type: button
-      #   style: danger
-      #   url: <%= @grafana_url %>/alerting/silence/new
-      # - text: 🔕 AlertManager Silence
-      #   type: button
-      #   style: danger
-      #   url: <%= @alertmanager_url %>/#/silences/new
     color: '{{ template "custom.slack.color" . }}'
     fallback: '{{ template "custom.subject" . }}'
-    text: '{{- template "custom.text.alerts" .Alerts -}}'
-    title: '{{ template "custom.emoji" . }} {{ template "custom.subject" . }}'
-    # title_link: '{{ template "custom.alerts.url.firing" . }}'
+    text: '{{ template "custom.slack.text" . }}'
+    title: '{{ template "custom.subject" . }}'
+    title_link: '{{ template "common.grafana.alerting.alert_rules.url" . }}'
