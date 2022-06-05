@@ -115,6 +115,7 @@ include_recipe "../letsencrypt"
         storage_tsdb_retention_size: retention_size,
       )
       notifies :run, "execute[systemctl daemon-reload]"
+      notifies :restart, "service[prometheus]"
     end
 
     execute "systemctl daemon-reload" do
