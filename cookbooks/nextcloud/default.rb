@@ -262,7 +262,14 @@ occ = "#{php} #{install_path}/occ"
 ## Cron
 ##
 
-  crontab = "*/5  *  *  *  * #{php} -f #{install_path}cron.php"
+  cron_cmd = "#{php} -f #{install_path}cron.php"
+  cron_metric = "nextcloud_cron_time"
+  collector_textfile = "/var/lib/node_exporter/collector_textfile/nextcloud"
+  cron_minutes = 5
+
+  crontab = <<~EOF
+    */#{cron_minutes}  *  *  *  * #{cron_cmd} && echo #{cron_metric} $(date +%s)
+  EOF
   escaped_crontab = Shellwords.shellescape(crontab)
   execute "crontab" do
     command "echo #{escaped_crontab} | crontab -u nextcloud -"
@@ -325,13 +332,27 @@ occ = "#{php} #{install_path}/occ"
   prometheus_rules "nextcloud" do
     alerting_rules [
       {
-        alert: "Nextcloud Down",
+        alert: "NextCloud Down",
         expr: <<~EOF,
           group(
             up{
               instance="#{nextcloud_instance}",
               job="blackbox_http_401",
             } < 1
+          )
+        EOF
+      },
+      {
+        alert: "NextCloud Stale Cron",
+        expr: <<~EOF,
+          group by (instance)(
+            (
+              time()
+              -
+              #{cron_metric}{
+                instance="#{nextcloud_instance}",
+              }
+            ) > #{cron_minutes * 2}
           )
         EOF
       },
