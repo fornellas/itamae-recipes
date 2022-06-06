@@ -36,10 +36,6 @@ user_shadow username do
   encrypted_password shadow_encrypted_password
 end
 
-user_shadow "root" do
-  encrypted_password shadow_encrypted_password
-end
-
 group_add username do
   groups [
            "adm",
