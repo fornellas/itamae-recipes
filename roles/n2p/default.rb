@@ -15,14 +15,6 @@ execute update_hostname_command do
   action :nothing
 end
 
-file "/etc/cron.d/kernel_reboot" do
-  mode "644"
-  owner "root"
-  group "root"
-  content "30 7 * * * root if [ \"$(/bin/ls -1tr /boot/initrd.img-* | /usr/bin/tail -n 1 | /usr/bin/cut -d- -f2-)\" != \"$(uname -r)\" ] ; then /sbin/reboot ; fi
-\n"
-end
-
 include_recipe "../../cookbooks/base_system"
 include_recipe "../../cookbooks/fornellas"
 include_recipe "../../cookbooks/base_server"
