@@ -18,6 +18,7 @@ install_path = "#{home_path}/ttrss"
 plugins_local_path = "#{install_path}/plugins.local"
 ttrss_nginx_xaccel_repo = "https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git"
 videoframes_repo = "https://github.com/tribut/ttrss-videoframes.git"
+data_migration_repo = "https://git.tt-rss.org/fox/ttrss-data-migration.git"
 socket_path = "/run/php/php#{php_version}-fpm-ttrss.sock"
 # https://tt-rss.org/wiki/GlobalConfig
 env_config = {
@@ -27,7 +28,7 @@ env_config = {
   "TTRSS_DB_NAME": "ttrss",
   "TTRSS_SELF_URL_PATH": "https://tt-rss.sigstop.co.uk/",
   "TTRSS_PHP_EXECUTABLE": php,
-  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes",
+  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes, data_migration",
   # https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git/tree/README.md
   "TTRSS_NGINX_XACCEL_PREFIX": "/",
 }
@@ -120,6 +121,19 @@ shell_env = shell_env_lines.join(" ")
     link "#{plugins_local_path}/ttrss-videoframes" do
       user "ttrss"
       to "#{home_path}/ttrss-videoframes"
+    end
+
+  # ttrss-data-migration
+
+    git "#{home_path}/data_migration" do
+      user "ttrss"
+      revision "master"
+      repository data_migration_repo
+    end
+
+    link "#{plugins_local_path}/data_migration" do
+      user "ttrss"
+      to "#{home_path}/data_migration"
     end
 
 ##
