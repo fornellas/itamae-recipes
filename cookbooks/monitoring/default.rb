@@ -144,27 +144,51 @@ include_recipe "../iptables"
 ## grafana
 ##
 
-
   iptables_rule_drop_not_user "Drop unauthorized users to Grafana" do
-    users ["www-data"]
+    users ["www-data", "prometheus"]
     port node[:grafana][:port]
   end
 
-  grafana_instance = "http://#{node[:grafana][:domain]}/"
+  grafana_url = "http://#{node[:grafana][:domain]}/"
 
   prometheus_scrape_targets_blackbox_http_401 "grafana" do
-    targets [{hosts: [grafana_instance]}]
+    targets [{hosts: [grafana_url]}]
+  end
+
+  grafana_instance = "#{node["fqdn"]}:#{node[:grafana][:port]}"
+
+  prometheus_scrape_targets "grafana" do
+    targets [
+      {
+        hosts: ["localhost:#{node[:grafana][:port]}"],
+        labels: {
+          instance: grafana_instance,
+          job: "grafana",
+        },
+      },
+    ]
   end
 
   prometheus_rules "grafana" do
     alerting_rules [
       {
-        alert: "Grafana Down",
+        alert: "Grafana URL Down",
         expr: <<~EOF,
           group by (instance) (
             up{
-              instance="#{grafana_instance}",
+              instance="#{grafana_url}",
               job="blackbox_http_401",
+            } < 1
+          )
+        EOF
+      },
+      {
+        alert: "Grafana Metrics Down",
+        expr: <<~EOF,
+          group(
+            up{
+              instance="#{grafana_instance}",
+              job="grafana",
             } < 1
           )
         EOF
