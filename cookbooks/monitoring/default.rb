@@ -1,8 +1,7 @@
-include_recipe "defines"
+include_recipe "prometheus"
 include_recipe "blackbox_exporter"
 include_recipe "alertmanager"
 include_recipe "grafana"
-include_recipe "prometheus"
 include_recipe "../iptables"
 
 ##

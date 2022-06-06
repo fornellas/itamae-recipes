@@ -48,6 +48,7 @@ end
       variables(
         targets: targets,
       )
+      notifies :restart, "service[prometheus]", :delayed
     end
   end
 
@@ -92,6 +93,7 @@ end
       variables(
         targets: targets,
       )
+      notifies :restart, "service[prometheus]", :delayed
     end
   end
 
@@ -135,6 +137,7 @@ end
       variables(
         targets: targets,
       )
+      notifies :restart, "service[prometheus]", :delayed
     end
   end
 
@@ -233,7 +236,7 @@ end
         recording_rules: recording_rules,
       )
 
-      notifies :restart, "service[prometheus]"
+      notifies :restart, "service[prometheus]", :delayed
     end
   end
 
@@ -277,5 +280,6 @@ end
       variables(
         targets: targets,
       )
+      notifies :restart, "service[prometheus]", :delayed
     end
   end

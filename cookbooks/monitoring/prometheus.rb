@@ -24,10 +24,6 @@ retention_size = node[:prometheus][:storage_tsdb_retention_size]
 var_path = "/var/lib/prometheus"
 tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{version}/prometheus-#{version}.linux-#{arch}.tar.gz"
 
-include_recipe "../backblaze"
-include_recipe "../nginx"
-include_recipe "../letsencrypt"
-
 ##
 ## prometheus
 ##
@@ -94,7 +90,13 @@ include_recipe "../letsencrypt"
       action [:enable, :start]
     end
 
+  # Defines
+
+    include_recipe "defines"
+
   # Backup
+
+    include_recipe "../backblaze"
 
     backblaze "#{node["fqdn"].tr(".", "-")}-prometheus" do
       command_before "/usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
@@ -111,6 +113,8 @@ include_recipe "../letsencrypt"
 
   # Certificate
 
+    include_recipe "../letsencrypt"
+
     letsencrypt domain
 
   # Auth
@@ -122,6 +126,8 @@ include_recipe "../letsencrypt"
     end
 
   # Configuration
+
+    include_recipe "../nginx"
 
     template "/etc/nginx/sites-enabled/prometheus" do
       mode "644"
