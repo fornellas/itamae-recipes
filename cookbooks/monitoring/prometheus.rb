@@ -54,40 +54,6 @@ include_recipe "../letsencrypt"
 
   # Configuration
 
-    directory "/etc/prometheus" do
-      owner "root"
-      group "root"
-      mode "755"
-    end
-
-    directory "/etc/prometheus/blackbox_http_2xx.d" do
-      owner "root"
-      group "root"
-      mode "755"
-    end
-    directory "/etc/prometheus/blackbox_http_401.d" do
-      owner "root"
-      group "root"
-      mode "755"
-    end
-    directory "/etc/prometheus/blackbox_ssh_banner.d" do
-      owner "root"
-      group "root"
-      mode "755"
-    end
-
-    directory "/etc/prometheus/rules.d" do
-      owner "root"
-      group "root"
-      mode "755"
-    end
-
-    directory "/etc/prometheus/node.d" do
-      owner "root"
-      group "root"
-      mode "755"
-    end
-
     template "/etc/prometheus/prometheus.yml" do
       mode "644"
       owner "root"
