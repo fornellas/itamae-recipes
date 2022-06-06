@@ -118,8 +118,6 @@ include_recipe "../letsencrypt"
 
     backblaze "#{node["fqdn"].tr(".", "-")}-alertmanager" do
       backup_paths [var_path]
-      cron_hour 6
-      cron_minute 15
       user "alertmanager"
       group "alertmanager"
       bin_path var_path

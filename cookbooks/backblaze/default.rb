@@ -1,4 +1,5 @@
 require "shellwords"
+include_recipe "../../cookbooks/monitoring"
 
 cache_path = "/var/cache/restic"
 
@@ -19,8 +20,6 @@ define(
   backup_cmd_stdout: nil,
   backup_cmd_stdout_filename: nil,
   command_after: "/bin/true",
-  cron_minute: 0,
-  cron_hour: 4,
   keep_hourly: 24,
   keep_daily: 7,
   keep_weekly: 4,
@@ -68,8 +67,6 @@ define(
   keep_weekly = params[:keep_weekly]
   keep_monthly = params[:keep_monthly]
   keep_yearly = params[:keep_yearly]
-  cron_minute = params[:cron_minute]
-  cron_hour = params[:cron_hour]
 
   env = {
     RESTIC_REPOSITORY: "b2:#{bucket}",
@@ -83,9 +80,9 @@ define(
     owner user
     group group
     content <<~EOF
-              #!/bin/sh
-              /usr/bin/sudo -u #{user} #{env.to_a.map { |key, value| "#{key}=#{Shellwords.shellescape(value)}" }.join(" ")} /usr/bin/restic --quiet --cache-dir #{Shellwords.shellescape(restic_cache_path)} \"$@\"
-            EOF
+      #!/bin/sh
+      /usr/bin/sudo -u #{user} #{env.to_a.map { |key, value| "#{key}=#{Shellwords.shellescape(value)}" }.join(" ")} /usr/bin/restic --quiet --cache-dir #{Shellwords.shellescape(restic_cache_path)} \"$@\"
+    EOF
   end
 
   file password_file_path do
@@ -121,53 +118,84 @@ define(
   backup_cmd = backup_cmd.join(" && ")
   forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
   check_cmd = "#{restic_script_path} check"
+  collector_textile_prefix = "/var/lib/node_exporter/collector_textfile/restic-#{bucket}"
 
   file restic_cron_script_path do
     mode "700"
     owner user
     group group
     content <<~EOF
-              #!/bin/bash
-              EXIT=0
-              if #{command_before}
-              then
-                  if #{backup_cmd}
-                  then
-                      if #{forget_cmd}
-                      then
-                          if date +%w | grep -qE ^0$
-                          then
-                              if ! #{check_cmd}
-                              then
-                                  echo Check failed! 1>&2
-                                  EXIT=1
-                              fi
-                          fi
-                      else
-                          echo Forget failed! 1>&2
-                          EXIT=1
-                      fi
-                  else
-                      echo Backup failed! 1>&2
-                      EXIT=1
-                  fi
-                  if ! #{command_after}
-                  then
-                      echo After hook failed! 1>&2
-                      EXIT=1
-                  fi
-              else
-                  echo Before hook failed! 1>&2
-                  EXIT=1
+      #!/bin/bash
+      set -e
+      if #{command_before} ; then
+        if #{backup_cmd}
+        then
+          if #{forget_cmd} ; then
+            if date +%w | grep -qE ^0$ ; then
+              if ! #{check_cmd} ; then
+                echo Check failed! 1>&2
+                exit 1
               fi
-              exit $EXIT
-            EOF
+            fi
+          else
+            echo Forget failed! 1>&2
+            exit 1
+          fi
+        else
+          echo Backup failed! 1>&2
+          exit 1
+        fi
+        if ! #{command_after} ; then
+          echo After hook failed! 1>&2
+          exit 1
+        fi
+      else
+        echo Before hook failed! 1>&2
+        exit 1
+      fi
+      echo 'restic_backup_completion_time{bucket="#{bucket}"}' $(date +%s) > #{collector_textile_prefix}.tmp
+      mv #{collector_textile_prefix}.tmp #{collector_textile_prefix}.prom
+    EOF
   end
 
-  file "/etc/cron.d/restic-#{bucket}" do
-    mode "644"
+  file "/etc/cron.daily/restic-#{bucket}" do
+    mode "755"
     owner "root"
     group "root"
-    content "#{cron_minute} #{cron_hour} * * * root #{restic_cron_script_path}\n"
+    content <<~EOF
+      #!/bin/bash
+      exec #{restic_cron_script_path}
+    EOF
+  end
+
+  prometheus_rules "restic-#{bucket}" do
+    alerting_rules [
+      {
+        alert: "Backup Has Not Completed Successfully Recently",
+        expr: <<~EOF,
+          group by (bucket)(
+            (
+              time()
+              -
+              restic_backup_completion_time{
+                bucket="#{bucket}",
+              }
+            ) > 3600*24*2
+          )
+        EOF
+      },
+      {
+        alert: "Backup Completion Data Absent",
+        expr: <<~EOF,
+          group by (bucket)(
+            absent(
+              restic_backup_completion_time{
+                bucket="#{bucket}",
+              }
+            )
+          )
+        EOF
+      },
+    ]
   end
 end

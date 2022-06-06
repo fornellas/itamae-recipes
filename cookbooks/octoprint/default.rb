@@ -134,8 +134,6 @@ include_recipe "../nginx"
       backup_paths [var_path]
       user "octoprint"
       group "octoprint"
-      cron_hour 3
-      cron_minute 10
     end
 
 ##

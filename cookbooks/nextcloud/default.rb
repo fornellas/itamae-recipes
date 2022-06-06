@@ -357,7 +357,5 @@ occ = "#{php} #{install_path}/occ"
     command_after "#{occ} maintenance:mode --off &> /dev/null"
     user "nextcloud"
     group "nextcloud"
-    cron_hour 6
-    cron_minute 30
     bin_path home_path
   end

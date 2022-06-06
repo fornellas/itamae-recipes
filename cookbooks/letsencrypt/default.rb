@@ -8,8 +8,6 @@ package "certbot"
 
 backblaze "#{node["fqdn"].tr(".", "-")}-letsencrypt" do
   backup_paths ["/etc/letsencrypt"]
-  cron_hour 3
-  cron_minute 0
 end
 
 define :letsencrypt, domain: nil do

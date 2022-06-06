@@ -134,8 +134,6 @@ include_recipe "../letsencrypt"
       command_before "sudo -u prometheus /usr/bin/curl -s -XPOST http://localhost:#{web_listen_port}/api/v1/admin/tsdb/snapshot > /dev/null"
       backup_paths ["#{var_path}/tsdb/snapshots"]
       command_after "/bin/rm -rf #{var_path}/tsdb/snapshots/*"
-      cron_hour 6
-      cron_minute 0
       user "prometheus"
       group "prometheus"
       bin_path var_path
