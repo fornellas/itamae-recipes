@@ -134,6 +134,7 @@ include_recipe "../nginx"
       backup_paths [var_path]
       user "octoprint"
       group "octoprint"
+      bin_path var_path
     end
 
 ##

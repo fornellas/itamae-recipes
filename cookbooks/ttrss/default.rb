@@ -253,4 +253,5 @@ shell_env = shell_env_lines.join(" ")
     backup_cmd_stdout_filename "ttrss.sql"
     user "ttrss"
     group "ttrss"
+    bin_path home_path
   end
