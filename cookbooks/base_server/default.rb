@@ -1,7 +1,7 @@
 # Base Server
 
 package "ifupdown"
-package "openntpd"
+package "systemd-timesyncd"
 package "plymouth" do
   action :remove
 end
