@@ -142,7 +142,7 @@ include_recipe "../iptables"
                 instance="#{node_exporter_instance}",
                 job="node_exporter",
               }[2d]
-            ) == 0
+            ) > 0
           )
         EOF
       },
