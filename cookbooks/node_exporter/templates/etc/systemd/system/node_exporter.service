@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=node_exporter
 Type=simple
-ExecStart=<%= "#{@install_path}/node_exporter" %> --collector.ntp --collector.systemd
+ExecStart=<%= "#{@install_path}/node_exporter" %> --collector.ntp --collector.systemd --collector.textfile.directory=<%= @collector_textfile_directory %>
 PrivateTmp=true
 Restart=always
 

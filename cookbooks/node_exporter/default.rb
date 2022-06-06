@@ -11,8 +11,10 @@ end
 version = node[:node_exporter][:version]
 arch = node[:node_exporter][:arch]
 port = node[:node_exporter][:port]
+collector_textfile_directory = node[:node_exporter][:collector_textfile_directory]
 
 home_path = "/var/lib/node_exporter"
+collector_textfile_directory = "#{home_path}/collector_textfile"
 tar_gz_url = "https://github.com/prometheus/node_exporter/releases/download/v#{version}/node_exporter-#{version}.linux-#{arch}.tar.gz"
 
 include_recipe "../iptables"
@@ -23,51 +25,60 @@ include_recipe "../iptables"
 
   # User / Group
 
-  group "node_exporter"
+    group "node_exporter"
 
-  user "node_exporter" do
-    gid "node_exporter"
-    home home_path
-    system_user true
-    shell "/usr/sbin/nologin"
-    create_home true
-  end
+    user "node_exporter" do
+      gid "node_exporter"
+      home home_path
+      system_user true
+      shell "/usr/sbin/nologin"
+      create_home true
+    end
 
   # Install
 
-  execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar.gz && chown root.root -R node_exporter-#{version}.linux-#{arch} && rm -rf /opt/node_exporter && mv node_exporter-#{version}.linux-#{arch} /opt/node_exporter && touch /opt/node_exporter/.#{version}.ok" do
-    user "root"
-    cwd "/tmp"
-    not_if "test -f /opt/node_exporter/.#{version}.ok"
-  end
+    execute "wget -O node_exporter.tar.gz #{tar_gz_url} && tar zxf node_exporter.tar.gz && chown root.root -R node_exporter-#{version}.linux-#{arch} && rm -rf /opt/node_exporter && mv node_exporter-#{version}.linux-#{arch} /opt/node_exporter && touch /opt/node_exporter/.#{version}.ok" do
+      user "root"
+      cwd "/tmp"
+      not_if "test -f /opt/node_exporter/.#{version}.ok"
+    end
+
+    directory collector_textfile_directory do
+      owner "node_exporter"
+      group "node_exporter"
+      mode "770"
+    end
 
   # Service
 
-  template "/etc/systemd/system/node_exporter.service" do
-    mode "644"
-    owner "root"
-    group "root"
-    variables(install_path: "/opt/node_exporter")
-    notifies :run, "execute[systemctl daemon-reload]"
-    notifies :restart, "service[node_exporter]"
-  end
+    template "/etc/systemd/system/node_exporter.service" do
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        install_path: "/opt/node_exporter",
+        collector_textfile_directory: collector_textfile_directory,
+      )
+      notifies :run, "execute[systemctl daemon-reload]"
+      notifies :restart, "service[node_exporter]"
+    end
 
-  execute "systemctl daemon-reload" do
-    action :nothing
-    user "root"
-    notifies :restart, "service[node_exporter]"
-  end
+    execute "systemctl daemon-reload" do
+      action :nothing
+      user "root"
+      notifies :restart, "service[node_exporter]"
+    end
 
-  service "node_exporter" do
-    action [:enable, :start]
-  end
+    service "node_exporter" do
+      action [:enable, :start]
+    end
 
   # iptables
 
-  iptables_rule_drop_not_user "Drop not prometheus user to NodeExporter" do
-    users ["prometheus"]
-    port port
-  end
+    iptables_rule_drop_not_user "Drop not prometheus user to NodeExporter" do
+      users ["prometheus"]
+      port port
+    end
 
 ##
 ## Monitoring
