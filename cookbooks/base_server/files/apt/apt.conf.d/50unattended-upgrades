@@ -4,12 +4,7 @@
 // from non-security sources (e.g. chromium). By allowing the release
 // pocket these get automatically pulled in.
 Unattended-Upgrade::Allowed-Origins {
-	"LP-PPA-hardkernel:${distro_codename}";
-	"LP-PPA-ondrej-php:${distro_codename}";
-	"${distro_id}:${distro_codename}";
-	"${distro_id}:${distro_codename}-backports";
-	"${distro_id}:${distro_codename}-security";
-	"${distro_id}:${distro_codename}-updates";
+	"*:*";
 };
 
 // Python regular expressions, matching packages to exclude from upgrading
