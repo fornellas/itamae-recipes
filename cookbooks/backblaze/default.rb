@@ -113,7 +113,7 @@ define(
     backup_cmd << "#{restic_script_path} backup #{exclude} #{backup_paths.map { |path| Shellwords.shellescape(path) }.join(" ")}"
   end
   if backup_cmd_stdout
-    backup_cmd << "#{backup_cmd_stdout} | #{restic_script_path} backup --stdin --stdin-filename #{Shellwords.shellescape(backup_cmd_stdout_filename)}"
+    backup_cmd << "/usr/bin/sudo -u #{user} #{backup_cmd_stdout} | #{restic_script_path} backup --stdin --stdin-filename #{Shellwords.shellescape(backup_cmd_stdout_filename)}"
   end
   backup_cmd = backup_cmd.join(" && ")
   forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
