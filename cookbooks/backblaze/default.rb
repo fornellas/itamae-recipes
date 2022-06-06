@@ -127,6 +127,7 @@ define(
     content <<~EOF
       #!/bin/bash
       set -e
+      cd #{bin_path}
       if #{command_before} ; then
         if #{backup_cmd}
         then
