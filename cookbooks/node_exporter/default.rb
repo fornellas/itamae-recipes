@@ -49,6 +49,17 @@ include_recipe "../iptables"
       mode "770"
     end
 
+    reboot_required_path = "/var/run/reboot-required"
+    reboot_required_metric = "node_reboot_required"
+    crontab = <<~EOF
+      */1  *  *  *  * /usr/bin/test -f #{reboot_required_path} && echo #{reboot_required_metric} 1 || echo #{reboot_required_metric} 0
+    EOF
+    escaped_crontab = Shellwords.shellescape(crontab)
+    execute "crontab" do
+      command "echo #{escaped_crontab} | crontab -u node_exporter -"
+      only_if '[ "$(crontab -u node_exporter -l)" != '"#{escaped_crontab}"' ]'
+    end
+
   # Service
 
     template "/etc/systemd/system/node_exporter.service" do
@@ -120,6 +131,17 @@ include_recipe "../iptables"
               state="failed",
             } == 1
           )
+        EOF
+      },
+      {
+        alert: "Reboot Required",
+        expr: <<~EOF
+          group by (instance)(
+            avg_over_time(
+              #{reboot_required_metric}{
+                job="node_exporter",
+              }[2d]
+            ) == 0
         EOF
       },
     ]
