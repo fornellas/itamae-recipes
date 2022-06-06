@@ -3,6 +3,11 @@ include_recipe "../../cookbooks/fornellas"
 include_recipe "../../cookbooks/base_server"
 include_recipe "../../cookbooks/no_auth_from_securetty"
 include_recipe "../../cookbooks/monitoring"
+backblaze "#{node["fqdn"].tr(".", "-")}-fornellas" do
+  backup_paths ["/home/fornellas"]
+  user "fornellas"
+  group "fornellas"
+end
 include_recipe "home"
 include_recipe "../../cookbooks/node_exporter"
 include_recipe "../../cookbooks/iptables_exporter"
