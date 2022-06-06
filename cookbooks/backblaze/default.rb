@@ -118,7 +118,7 @@ define(
   backup_cmd = backup_cmd.join(" && ")
   forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
   check_cmd = "#{restic_script_path} check"
-  collector_textile_prefix = "/var/lib/node_exporter/collector_textfile/restic-#{bucket}"
+  collector_textile_prefix = "/var/lib/node_exporter/collector_textfile/restic"
 
   file restic_cron_script_path do
     mode "700"
@@ -153,8 +153,9 @@ define(
         echo Before hook failed! 1>&2
         exit 1
       fi
-      echo 'restic_backup_completion_time{bucket="#{bucket}"}' $(date +%s) > #{collector_textile_prefix}.tmp
-      mv #{collector_textile_prefix}.tmp #{collector_textile_prefix}.prom
+      echo 'backup_completion_time{bucket="#{bucket}"}' $(date +%s) > #{collector_textile_prefix}-#{bucket}
+      cat #{collector_textile_prefix}-* > #{collector_textile_prefix}.prom.$$
+      mv #{collector_textile_prefix}.prom.$$ #{collector_textile_prefix}.prom
     EOF
   end
 
@@ -177,7 +178,7 @@ define(
             (
               time()
               -
-              restic_backup_completion_time{
+              backup_completion_time{
                 bucket="#{bucket}",
               }
             ) > 3600*24*2
@@ -189,7 +190,7 @@ define(
         expr: <<~EOF,
           group by (bucket)(
             absent(
-              restic_backup_completion_time{
+              backup_completion_time{
                 bucket="#{bucket}",
               }
             )

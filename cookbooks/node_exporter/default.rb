@@ -142,6 +142,7 @@ include_recipe "../iptables"
                 job="node_exporter",
               }[2d]
             ) == 0
+          )
         EOF
       },
     ]
