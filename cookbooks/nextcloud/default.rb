@@ -111,13 +111,13 @@ occ = "#{php} #{install_path}/occ"
     execute "Install NextCloud" do
       command <<~EOF
         set -e
-        # rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
-        # wget https://download.nextcloud.com/server/releases/nextcloud-#{nextcloud_version}.tar.bz2 -O /tmp/nextcloud-#{nextcloud_version}.tar.bz2
+        rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
+        wget https://download.nextcloud.com/server/releases/nextcloud-#{nextcloud_version}.tar.bz2 -O /tmp/nextcloud-#{nextcloud_version}.tar.bz2
         rm -rf nextcloud/
         tar jxf /tmp/nextcloud-#{nextcloud_version}.tar.bz2
-        # rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
-        # find nextcloud/ -type d -exec chmod 750 {} \\;
-        # find nextcloud/ -type f -exec chmod 640 {} \\;
+        rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
+        find nextcloud/ -type d -exec chmod 750 {} \\;
+        find nextcloud/ -type f -exec chmod 640 {} \\;
         touch #{first_config_pending_path}
         touch #{upgrade_ok_path}
         touch #{first_install_ok_path}
