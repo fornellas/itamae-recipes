@@ -29,7 +29,6 @@ define(
   group: "root",
   bin_path: nil,
 ) do
-  command_before = params[:command_before]
   bucket = if params[:bucket]
       params[:bucket]
     else
@@ -37,6 +36,7 @@ define(
     end
   user = params[:user]
   group = params[:group]
+  command_before = "/usr/bin/sudo -u #{user} #{params[:command_before]}"
   bin_path = params[:bin_path]
   if not bin_path
     bin_path = run_command("getent passwd #{user}").stdout.split(":")[5]
@@ -61,7 +61,7 @@ define(
   backup_exclude = params[:backup_exclude]
   backup_cmd_stdout = params[:backup_cmd_stdout]
   backup_cmd_stdout_filename = params[:backup_cmd_stdout_filename]
-  command_after = params[:command_after]
+  command_after = "/usr/bin/sudo -u #{user} #{params[:command_after]}"
   keep_hourly = params[:keep_hourly]
   keep_daily = params[:keep_daily]
   keep_weekly = params[:keep_weekly]
