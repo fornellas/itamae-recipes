@@ -169,10 +169,10 @@ occ = "#{php} #{install_path}/occ"
       mv nextcloud/ nextcloud-old/
 
       # Donwload & unpack
-      # rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
-      # wget https://download.nextcloud.com/server/releases/nextcloud-#{nextcloud_version}.tar.bz2 -O /tmp/nextcloud-#{nextcloud_version}.tar.bz2
+      rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
+      wget https://download.nextcloud.com/server/releases/nextcloud-#{nextcloud_version}.tar.bz2 -O /tmp/nextcloud-#{nextcloud_version}.tar.bz2
       tar jxf /tmp/nextcloud-#{nextcloud_version}.tar.bz2
-      # rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
+      rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
 
       # Move config
       mv -f nextcloud-old/config/config.php nextcloud/config/config.php
