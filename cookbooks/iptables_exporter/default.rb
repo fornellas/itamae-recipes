@@ -73,7 +73,7 @@ include_recipe "../iptables"
         hosts: ["127.0.0.1:#{listen_port}"],
         labels: {
           instance: iptables_exporter_instance,
-          exporter: "iptables_exporter",
+          job: "iptables_exporter",
         },
       },
     ]
@@ -87,7 +87,7 @@ include_recipe "../iptables"
           group(
             up{
               instance="#{iptables_exporter_instance}",
-              exporter="iptables_exporter",
+              job="iptables_exporter",
             } < 1
           )
         EOF
@@ -98,7 +98,7 @@ include_recipe "../iptables"
           rate(
             iptables_rule_bytes_total{
               instance="#{iptables_exporter_instance}",
-              exporter="iptables_exporter",
+              job="iptables_exporter",
               rule=~".* -j DROP$",
             }[1m]
           ) > 0

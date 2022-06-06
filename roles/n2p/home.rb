@@ -75,14 +75,14 @@
         hosts: ["#{brow_ip}:9100"],
         labels: {
           instance: brown_instance_node_exporter,
-          exporter: "node_exporter",
+          job: "node_exporter",
         },
       },
       {
         hosts: ["#{brow_ip}:9182"],
         labels: {
           instance: brown_instance_windows_exporter,
-          exporter: "windows_exporter",
+          job: "windows_exporter",
         },
       },
     ]
@@ -130,7 +130,7 @@
         hosts: [office_sensor_instance_ip],
         labels: {
           instance: office_sensor_instance,
-          exporter: "sensor",
+          job: "sensor",
         },
       },
     ]
@@ -185,7 +185,7 @@
         hosts: [living_room_instance_ip],
         labels: {
           instance: living_room_instance,
-          exporter: "sensor",
+          job: "sensor",
         },
       },
     ]
@@ -230,7 +230,7 @@
         hosts: [power_meter_instance_ip],
         labels: {
           instance: power_meter_instance,
-          exporter: "power_meter",
+          job: "power_meter",
         },
       },
     ]

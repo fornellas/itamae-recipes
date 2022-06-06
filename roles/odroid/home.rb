@@ -62,7 +62,7 @@ prometheus_scrape_targets "brown_windows_exporter" do
       hosts: ["192.168.0.221:9182"],
       labels: {
         instance: "brown.local:9182",
-        exporter: "windows_exporter",
+        job: "windows_exporter",
       },
     },
   ]
@@ -74,7 +74,7 @@ prometheus_scrape_targets "brown_node_exporter" do
       hosts: ["192.168.0.221:9100"],
       labels: {
         instance: "brown.local:9100",
-        exporter: "node_exporter",
+        job: "node_exporter",
       },
     },
   ]
@@ -90,7 +90,7 @@ prometheus_scrape_targets "office_sensors" do
       hosts: ["192.168.0.178:9090"],
       labels: {
         instance: "office_sensors.local:9090",
-        exporter: "sensor",
+        job: "sensor",
       },
     },
   ]
@@ -124,7 +124,7 @@ prometheus_scrape_targets "living_room_sensors" do
       hosts: ["192.168.0.164:9090"],
       labels: {
         instance: "living_room_sensors.local:9090",
-        exporter: "sensor",
+        job: "sensor",
       },
     },
   ]
@@ -156,7 +156,7 @@ prometheus_scrape_targets "power_meter" do
       hosts: ["192.168.0.121:9090"],
       labels: {
         instance: "power_meter.local:9090",
-        exporter: "sensor",
+        job: "sensor",
       },
     },
   ]

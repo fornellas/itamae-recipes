@@ -22,7 +22,7 @@ include_recipe "../iptables"
         hosts: ["localhost:#{node[:blackbox_exporter][:port]}"],
         labels: {
           instance: blackbox_exporter_instance,
-          exporter: "blackbox_exporter",
+          job: "blackbox_exporter",
         },
       },
     ]
@@ -36,7 +36,7 @@ include_recipe "../iptables"
           group(
             up{
               instance="#{blackbox_exporter_instance}",
-              exporter="blackbox_exporter",
+              job="blackbox_exporter",
             } < 1
           )
         EOF
@@ -66,7 +66,7 @@ include_recipe "../iptables"
         hosts: ["localhost:#{node[:alertmanager][:web_port]}"],
         labels: {
           instance: alertmanager_instance,
-          exporter: "alertmanager",
+          job: "alertmanager",
         },
       },
     ]
@@ -80,7 +80,7 @@ include_recipe "../iptables"
           group(
             up{
               instance="#{alertmanager_instance}",
-              exporter="alertmanager",
+              job="alertmanager",
             } < 1
           )
         EOF
@@ -92,7 +92,7 @@ include_recipe "../iptables"
             rate(
               alertmanager_alerts_invalid_total{
                 instance="#{alertmanager_instance}",
-                exporter="alertmanager",
+                job="alertmanager",
               }[5m]
             ) > 0
           )
@@ -105,7 +105,7 @@ include_recipe "../iptables"
             rate(
               alertmanager_notification_requests_failed_total{
                 instance="#{alertmanager_instance}",
-                exporter="alertmanager",
+                job="alertmanager",
               }[5m]
             ) > 0
           )
@@ -118,7 +118,7 @@ include_recipe "../iptables"
             rate(
               alertmanager_notifications_failed_total{
                 instance="#{alertmanager_instance}",
-                exporter="alertmanager",
+                job="alertmanager",
               }[5m]
             ) > 0
           )
@@ -131,7 +131,7 @@ include_recipe "../iptables"
             rate(
               alertmanager_silences_query_errors_total{
                 instance="#{alertmanager_instance}",
-                exporter="alertmanager",
+                job="alertmanager",
               }[5m]
             ) > 0
           )
@@ -219,7 +219,7 @@ include_recipe "../iptables"
         hosts: ["localhost:#{node[:prometheus][:port]}"],
         labels: {
           instance: prometheus_instance,
-          exporter: "prometheus",
+          job: "prometheus",
         },
       },
     ]
@@ -244,7 +244,7 @@ include_recipe "../iptables"
           group by (instance) (
             up{
               instance="#{prometheus_instance}",
-              exporter="prometheus",
+              job="prometheus",
             } < 1
           )
         EOF
@@ -256,7 +256,7 @@ include_recipe "../iptables"
             rate(
               prometheus_notifications_dropped_total{
                 instance="#{prometheus_instance}",
-                exporter="prometheus",
+                job="prometheus",
               }[5m]
             ) > 0
           )
@@ -269,7 +269,7 @@ include_recipe "../iptables"
             rate(
               prometheus_notifications_errors_total{
                 instance="#{prometheus_instance}",
-                exporter="prometheus",
+                job="prometheus",
               }[5m]
             ) > 0
           )
@@ -281,7 +281,7 @@ include_recipe "../iptables"
           group by (name) (
             prometheus_sd_failed_configs{
               instance="#{prometheus_instance}",
-              exporter="prometheus",
+              job="prometheus",
             } > 0
           )
         EOF
@@ -293,7 +293,7 @@ include_recipe "../iptables"
             rate(
               prometheus_sd_file_read_errors_total{
                 instance="#{prometheus_instance}",
-                exporter="prometheus",
+                job="prometheus",
               }[5m]
             ) > 0
           )
@@ -305,7 +305,7 @@ include_recipe "../iptables"
           group by (rule_group) (
               prometheus_rule_evaluation_failures_total{
                 instance="#{prometheus_instance}",
-                exporter="prometheus",
+                job="prometheus",
               } > 0
           )
         EOF

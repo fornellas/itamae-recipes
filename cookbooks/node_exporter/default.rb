@@ -92,7 +92,7 @@ include_recipe "../iptables"
         hosts: ["127.0.0.1:#{port}"],
         labels: {
           instance: node_exporter_instance,
-          exporter: "node_exporter",
+          job: "node_exporter",
         },
       },
     ]
@@ -106,7 +106,7 @@ include_recipe "../iptables"
           group(
             up{
               instance="#{node_exporter_instance}",
-              exporter="node_exporter",
+              job="node_exporter",
             } < 1
           )
         EOF
@@ -116,7 +116,7 @@ include_recipe "../iptables"
         expr: <<~EOF
           group by (instance,type,name) (
             node_systemd_unit_state{
-              exporter="node_exporter",
+              job="node_exporter",
               state="failed",
             } == 1
           )
