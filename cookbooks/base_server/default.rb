@@ -10,6 +10,16 @@ include_recipe "../../cookbooks/bind"
 include_recipe "../../cookbooks/postfix"
 
 ##
+## root
+##
+
+execute "Lock root account" do
+  user "root"
+  command "passwd -l root"
+  not_if "getent shadow root | cut -d: -f2 | cut -c 1 | grep -E '^\!$'"
+end
+
+##
 ## OpenSSH Server
 ##
 
