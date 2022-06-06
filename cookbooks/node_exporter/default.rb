@@ -52,7 +52,7 @@ include_recipe "../iptables"
     reboot_required_path = "/var/run/reboot-required"
     reboot_required_metric = "node_reboot_required"
     crontab = <<~EOF
-      */1  *  *  *  * /usr/bin/test -f #{reboot_required_path} && echo #{reboot_required_metric} 1 || echo #{reboot_required_metric} 0
+      */1  *  *  *  * /usr/bin/test -f #{reboot_required_path} && echo #{reboot_required_metric} 1 > #{collector_textfile_directory}/reboot_required.prom || echo #{reboot_required_metric} 0 > #{collector_textfile_directory}/reboot_required.prom
     EOF
     escaped_crontab = Shellwords.shellescape(crontab)
     execute "crontab" do
@@ -139,6 +139,7 @@ include_recipe "../iptables"
           group by (instance)(
             avg_over_time(
               #{reboot_required_metric}{
+                instance="#{node_exporter_instance}",
                 job="node_exporter",
               }[2d]
             ) == 0
