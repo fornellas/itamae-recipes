@@ -265,9 +265,7 @@ occ = "#{php} #{install_path}/occ"
   collector_textfile = "/var/lib/node_exporter/collector_textfile/nextcloud"
   cron_minutes = 5
 
-  crontab = <<~EOF
-    */#{cron_minutes}  *  *  *  * #{cron_cmd} && echo #{cron_metric} $(date +%s)
-  EOF
+  crontab = "*/#{cron_minutes}  *  *  *  * #{cron_cmd} && echo #{cron_metric} $(date +%s)"
   escaped_crontab = Shellwords.shellescape(crontab)
   execute "crontab" do
     command "echo #{escaped_crontab} | crontab -u nextcloud -"
