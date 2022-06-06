@@ -160,6 +160,16 @@
         EOF
       },
       {
+        alert: "High Office Humidity",
+        expr: <<~EOF,
+          group(
+            relative_humidity_ratio{
+              instance="#{office_sensor_instance}",
+            } > 0.65
+          )
+        EOF
+      },
+      {
         alert: "High Office CO₂ Concentration",
         expr: <<~EOF,
           group(
@@ -211,6 +221,16 @@
             temperature_celsius{
               instance="#{living_room_instance}",
             } < 20
+          )
+        EOF
+      },
+      {
+        alert: "High Living Room Humidity",
+        expr: <<~EOF,
+          group(
+            relative_humidity_ratio{
+              instance="#{living_room_instance}",
+            } > 0.65
           )
         EOF
       },
