@@ -116,8 +116,6 @@ occ = "#{php} #{install_path}/occ"
         rm -rf nextcloud/
         tar jxf /tmp/nextcloud-#{nextcloud_version}.tar.bz2
         rm -f /tmp/nextcloud-#{nextcloud_version}.tar.bz2
-        find nextcloud/ -type d -exec chmod 750 {} \\;
-        find nextcloud/ -type f -exec chmod 640 {} \\;
         touch #{first_config_pending_path}
         touch #{upgrade_ok_path}
         touch #{first_install_ok_path}
