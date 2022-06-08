@@ -51,7 +51,7 @@ include_recipe "../iptables"
 
     reboot_required_path = "/var/run/reboot-required"
     reboot_required_metric = "node_reboot_required"
-    crontab = <<~EOF
+    crontab = <<~EOF.chomp
       */1  *  *  *  * /usr/bin/test -f #{reboot_required_path} && echo #{reboot_required_metric} 1 > #{collector_textfile_directory}/reboot_required.prom || echo #{reboot_required_metric} 0 > #{collector_textfile_directory}/reboot_required.prom
     EOF
     escaped_crontab = Shellwords.shellescape(crontab)
