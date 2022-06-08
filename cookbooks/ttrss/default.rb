@@ -28,7 +28,7 @@ env_config = {
   "TTRSS_DB_NAME": "ttrss",
   "TTRSS_SELF_URL_PATH": "https://tt-rss.sigstop.co.uk/",
   "TTRSS_PHP_EXECUTABLE": php,
-  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes, data_migration",
+  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes, data_migration, swap_navigation",
   # https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git/tree/README.md
   "TTRSS_NGINX_XACCEL_PREFIX": "/",
 }
@@ -134,6 +134,20 @@ shell_env = shell_env_lines.join(" ")
     link "#{plugins_local_path}/data_migration" do
       user "ttrss"
       to "#{home_path}/data_migration"
+    end
+
+  # swap_navigation
+
+    directory "#{plugins_local_path}/swap_navigation" do
+      owner "ttrss"
+      group "ttrss"
+      mode "755"
+    end
+
+    remote_file "#{plugins_local_path}/swap_navigation/init.php" do
+      mode "644"
+      owner "ttrss"
+      group "ttrss"
     end
 
 ##
