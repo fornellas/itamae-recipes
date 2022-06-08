@@ -1,0 +1,8 @@
+n2p
+	fix man
+		apt install apparmor-utils
+		aa-disable /usr/bin/man
+	Candle
+mmoj
+	/etc/hosts
+		mmoj.sigstop.co.uk added

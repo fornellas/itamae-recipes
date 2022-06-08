@@ -270,14 +270,26 @@
         for: "5m",
       },
       {
-        alert: "High Power Usage",
+        alert: "High Power Usage (1h average)",
         expr: <<~EOF,
           group(
             avg_over_time(
               power_wats{
                 instance="#{power_meter_instance}",
               }[1h]
-            ) > 1500
+            ) > 1900
+          )
+        EOF
+      },
+      {
+        alert: "High Power Usage (1d average)",
+        expr: <<~EOF,
+          group(
+            avg_over_time(
+              power_wats{
+                instance="#{power_meter_instance}",
+              }[1d]
+            ) > 400
           )
         EOF
       },
