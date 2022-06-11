@@ -37,6 +37,7 @@ include_recipe "../nginx"
 ## Dependencies
 ##
 
+  package "avrdude"
   package "python3-pip"
   package "python3-dev"
   package "python3-virtualenv"
