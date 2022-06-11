@@ -28,7 +28,7 @@ env_config = {
   "TTRSS_DB_NAME": "ttrss",
   "TTRSS_SELF_URL_PATH": "https://tt-rss.sigstop.co.uk/",
   "TTRSS_PHP_EXECUTABLE": php,
-  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, ttrss-videoframes, data_migration, swap_navigation",
+  "TTRSS_PLUGINS": "auth_remote, nginx_xaccel, videoframes, data_migration, swap_navigation",
   # https://git.tt-rss.org/fox/ttrss-nginx-xaccel.git/tree/README.md
   "TTRSS_NGINX_XACCEL_PREFIX": "/",
 }
@@ -118,9 +118,9 @@ shell_env = shell_env_lines.join(" ")
       repository videoframes_repo
     end
 
-    link "#{plugins_local_path}/ttrss-videoframes" do
+    link "#{plugins_local_path}/videoframes" do
       user "ttrss"
-      to "#{home_path}/ttrss-videoframes"
+      to "#{home_path}/ttrss-videoframes/videoframes"
     end
 
   # ttrss-data-migration
