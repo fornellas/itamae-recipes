@@ -8,6 +8,7 @@ backblaze "#{node["fqdn"].tr(".", "-")}-fornellas" do
   user "fornellas"
   group "fornellas"
 end
+include_recipe "../../cookbooks/tigervnc"
 include_recipe "home"
 include_recipe "../../cookbooks/node_exporter"
 include_recipe "../../cookbooks/iptables_exporter"
