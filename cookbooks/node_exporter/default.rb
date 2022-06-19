@@ -124,7 +124,7 @@ include_recipe "../iptables"
       },
       {
         alert: "Failed systemd unit",
-        expr: <<~EOF
+        expr: <<~EOF,
           group by (instance,type,name) (
             node_systemd_unit_state{
               job="node_exporter",
@@ -135,16 +135,15 @@ include_recipe "../iptables"
       },
       {
         alert: "Reboot Required",
-        expr: <<~EOF
+        expr: <<~EOF,
           group by (instance)(
-            avg_over_time(
-              #{reboot_required_metric}{
-                instance="#{node_exporter_instance}",
-                job="node_exporter",
-              }[2d]
-            ) > 0
+            #{reboot_required_metric}{
+              instance="#{node_exporter_instance}",
+              job="node_exporter",
+            } > 0
           )
         EOF
+        for: "3h",
       },
     ]
   end
