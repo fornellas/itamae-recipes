@@ -15,8 +15,8 @@
         expr: <<~EOF,
           group by (instance) (
               up{
-                  instance="#{n2p_ssh}",
                   job="blackbox_ssh_banner",
+                  instance="#{n2p_ssh}",
               } < 1
           )
         EOF
@@ -96,6 +96,7 @@
           group(
             avg_over_time(
               up{
+                job="node_exporter",
                 instance="#{brown_instance_node_exporter}"
               }[4d]
             ) == 0
@@ -108,6 +109,7 @@
           group(
             avg_over_time(
               up{
+                job="windows_exporter",
                 instance="#{brown_instance_windows_exporter}"
               }[15d]
             ) == 0
