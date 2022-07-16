@@ -23,7 +23,6 @@ include_recipe "../iptables"
     gid "iptables_exporter"
     system_user true
     shell "/usr/sbin/nologin"
-    create_home true
   end
 
   # Install
