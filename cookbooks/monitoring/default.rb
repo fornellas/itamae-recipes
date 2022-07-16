@@ -47,12 +47,12 @@ include_recipe "../iptables"
 ## alertmanager
 ##
 
-  iptables_rule_drop_not_user "Drop unauthorized users to alertmanager" do
+  iptables_rule_drop_not_user "Drop unauthorized users to alertmanager cluster port" do
     users ["prometheus"]
     port node[:alertmanager][:cluster_port]
   end
 
-  iptables_rule_drop_not_user "Drop unauthorized users to alertmanager" do
+  iptables_rule_drop_not_user "Drop unauthorized users to alertmanager web port" do
     users ["www-data", "prometheus", "grafana"]
     port node[:alertmanager][:web_port]
   end
