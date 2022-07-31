@@ -28,10 +28,10 @@
 ## Internet
 ##
 
-  prometheus_scrape_targets_blackbox_http_2xx "google" do
+  prometheus_scrape_targets_blackbox_http_2xx "google_204" do
     targets [
       {
-        hosts: ["http://google.com/"],
+        hosts: ["https://www.google.com/generate_204"],
         labels: {
           internet: "true",
         },
@@ -39,10 +39,10 @@
     ]
   end
 
-  prometheus_scrape_targets_blackbox_http_2xx "facebook" do
+  prometheus_scrape_targets_blackbox_http_2xx "gstatic_204" do
     targets [
       {
-        hosts: ["http://facebook.com/"],
+        hosts: ["http://connectivitycheck.gstatic.com/generate_204"],
         labels: {
           internet: "true",
         },
@@ -57,6 +57,27 @@
         labels: {
           instance: "virgin.local",
         },
+      },
+    ]
+  end
+
+  prometheus_rules "internet" do
+    alerting_rules [
+      {
+        alert: "Internet Unreachable",
+        expr: <<~EOF,
+          sum(probe_success{
+              internet="true",
+          }) >= 1
+        EOF
+      },
+      {
+        alert: "Internet Down",
+        expr: <<~EOF,
+          sum(probe_success{
+              internet="true",
+          }) >= 1
+        EOF
       },
     ]
   end
