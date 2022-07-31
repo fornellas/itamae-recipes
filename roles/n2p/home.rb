@@ -54,9 +54,6 @@
     targets [
       {
         hosts: ["192.168.0.1:80"],
-        labels: {
-          instance: "virgin.local",
-        },
       },
     ]
   end
@@ -68,15 +65,15 @@
         expr: <<~EOF,
           sum(probe_success{
               internet="true",
-          }) >= 1
+          }) < 1
         EOF
       },
       {
-        alert: "Internet Down",
+        alert: "Virgin Router Unreachable",
         expr: <<~EOF,
-          sum(probe_success{
-              internet="true",
-          }) >= 1
+          probe_success{
+              instance="192.168.0.1:80"
+          } != 1
         EOF
       },
     ]
