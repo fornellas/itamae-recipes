@@ -66,20 +66,31 @@
 ##
 
   brow_ip = "192.168.0.221"
-  brown_instance_node_exporter = "brown.local:9100"
-  brown_instance_windows_exporter = "brown.local:9182"
+  brown_instance_node_exporter_port = "9100"
+  brown_instance_node_exporter = "brown.local:#{brown_instance_node_exporter_port}"
+  brown_instance_wifi_exporter_port = "8034"
+  brown_instance_wifi_exporter = "brown.local:#{brown_instance_wifi_exporter_port}"
+  brown_instance_windows_exporter_port = "9182"
+  brown_instance_windows_exporter = "brown.local:#{brown_instance_windows_exporter_port}"
 
   prometheus_scrape_targets "brown" do
     targets [
       {
-        hosts: ["#{brow_ip}:9100"],
+        hosts: ["#{brow_ip}:#{brown_instance_node_exporter_port}"],
         labels: {
           instance: brown_instance_node_exporter,
           job: "node_exporter",
         },
       },
       {
-        hosts: ["#{brow_ip}:9182"],
+        hosts: ["#{brow_ip}:#{brown_instance_wifi_exporter_port}"],
+        labels: {
+          instance: brown_instance_wifi_exporter,
+          job: "wifi_exporter",
+        },
+      },
+      {
+        hosts: ["#{brow_ip}:#{brown_instance_windows_exporter_port}"],
         labels: {
           instance: brown_instance_windows_exporter,
           job: "windows_exporter",
@@ -88,10 +99,14 @@
     ]
   end
 
+  channel_2_4GHz = 1
+  channel_5GHz = 52
+
   prometheus_rules "brown" do
     alerting_rules [
+      # node_exporter
       {
-        alert: "Brown Linux Offline for Too long",
+        alert: "Brown node_exporter Offline for Too long",
         expr: <<~EOF,
           group(
             avg_over_time(
@@ -103,8 +118,74 @@
           )
         EOF
       },
+      # wifi_exporter
       {
-        alert: "Brown Windows Offline for Too long",
+        alert: "Brown wifi_exporter Offline for Too long",
+        expr: <<~EOF,
+          group(
+            avg_over_time(
+              up{
+                job="node_exporter",
+                instance="#{brown_instance_wifi_exporter}"
+              }[4d]
+            ) == 0
+          )
+        EOF
+      },
+      # {
+      #   alert: "Competing 5GHz router found",
+      #   expr: <<~EOF,
+      #     group by (BSSID,SSID)(wifi_signal_db{
+      #         job="wifi_exporter",
+      #         instance=~"brown.local:8034",
+      #         interface=~"wlp4s0",
+      #         frequency_band=~"5GHz",
+      #         channel=~"#{channel_5GHz}",
+      #         BSSID!="90:5c:44:79:5e:4a"
+      #     })
+      #   EOF
+      # },
+      # {
+      #   alert: "5GHz Wifi changed channel",
+      #   expr: <<~EOF,
+      #     sum(wifi_channel{
+      #         job="wifi_exporter",
+      #         instance=~"brown.local:8034",
+      #         interface=~"wlp4s0",
+      #         frequency_band=~"5GHz",
+      #         BSSID="90:5c:44:79:5e:4a",
+      #     } != #{channel_5GHz})
+      #   EOF
+      # },
+      # {
+      #   alert: "Competing 2.4GHz router found",
+      #   expr: <<~EOF,
+      #     group by (BSSID,SSID)(wifi_signal_db{
+      #         job="wifi_exporter",
+      #         instance=~"brown.local:8034",
+      #         interface=~"wlp4s0",
+      #         frequency_band=~"2.4GHz",
+      #         channel=~"#{channel_2_4GHz}",
+      #         BSSID!="90:5c:44:79:5e:5e", # VM2B47AA2-2.4GHz
+      #         BSSID!="92:5c:14:79:5e:5e", # Horizon Wi-Free
+      #     })
+      #   EOF
+      # },
+      # {
+      #   alert: "2.4GHz Wifi changed channel",
+      #   expr: <<~EOF,
+      #     sum(wifi_channel{
+      #         job="wifi_exporter",
+      #         instance=~"brown.local:8034",
+      #         interface=~"wlp4s0",
+      #         frequency_band=~"2.4GHz",
+      #         BSSID="90:5c:44:79:5e:5e", # VM2B47AA2-2.4GHz
+      #     } != #{channel_2_4GHz})
+      #   EOF
+      # },
+      # windows_exporter
+      {
+        alert: "Brown windows_exporter Offline for Too long",
         expr: <<~EOF,
           group(
             avg_over_time(
@@ -167,7 +248,7 @@
           group(
             relative_humidity_ratio{
               instance="#{office_sensor_instance}",
-            } > 0.65
+            } > 0.80
           )
         EOF
       },
@@ -232,7 +313,7 @@
           group(
             relative_humidity_ratio{
               instance="#{living_room_instance}",
-            } > 0.65
+            } > 0.80
           )
         EOF
       },
