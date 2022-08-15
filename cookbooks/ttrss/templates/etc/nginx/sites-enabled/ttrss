@@ -63,7 +63,6 @@ server {
     try_files $uri $uri/ =404;
   }
 
-  # Allows favicon access
   location /images {
     auth_pam off;
     try_files $uri $uri/ =404;
