@@ -1,8 +1,15 @@
 n2p
+	reboot
+		prevent while there's print or CNC going on
 	fix man
 		apt install apparmor-utils
 		aa-disable /usr/bin/man
+	VNC
+		mate-desktop-environment
+		tigervnc-standalone-server
 	Candle
+		qtbase5-dev
+		libqt5serialport5-dev
 mmoj
 	/etc/hosts
 		mmoj.sigstop.co.uk added
