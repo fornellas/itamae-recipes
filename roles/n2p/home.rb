@@ -371,6 +371,15 @@
         for: "5m",
       },
       {
+        alert: "Power Meter Stuck",
+        expr: <<~EOF,
+          changes(voltage_volts{
+            instance="#{power_meter_instance}",
+          }[10m]) == 0
+        EOF
+        for: "5m",
+      },
+      {
         alert: "High Power Usage (1h average)",
         expr: <<~EOF,
           group(
