@@ -12,19 +12,13 @@ define(:php_fpm) do
   #   action :delete
   # end
 
-  file "/etc/php/#{php_version}/fpm/php.ini" do
-    action :edit
-    block do |content|
-      new_content = []
-      content.split("\n").each do |line|
-        if line.match(/^memory_limit /) then
-          new_content << "memory_limit = 256M"
-        else
-          new_content << line
-        end
-      end
-      content.replace(new_content.join("\n"))
-    end
+
+  remote_file "/etc/php/#{php_version}/fpm/php.ini" do
+    mode "644"
+    owner "root"
+    group "root"
+    source "files/etc/php/fpm/php.ini"
+    notifies :restart, "php#{php_version}-fpm"
   end
 
   service "php#{php_version}-fpm" do
