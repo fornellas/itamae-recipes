@@ -405,3 +405,19 @@
       },
     ]
   end
+
+##
+## Printer
+##
+
+  printer_address_port = "192.168.0.100:80"
+
+  prometheus_scrape_targets_brother_exporter "HL-L2350DW series" do
+    targets [
+      {
+        hosts: [
+          "http://#{printer_address_port}/etc/mnt_info.csv",
+        ],
+      }
+    ]
+  end

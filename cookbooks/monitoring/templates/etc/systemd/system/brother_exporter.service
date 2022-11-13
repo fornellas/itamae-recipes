@@ -1,0 +1,14 @@
+[Unit]
+Description=brother_exporter
+Requires=network.target
+After=network.target
+
+[Service]
+User=brother_exporter
+Type=simple
+ExecStart=/opt/bin/brother_exporter --server=<%= @listen_address %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

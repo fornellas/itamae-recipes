@@ -142,6 +142,54 @@ end
   end
 
 ##
+## brother_exporter
+##
+
+  directory "/etc/prometheus/brother_exporter.d" do
+    owner "root"
+    group "root"
+    mode "755"
+  end
+
+  # prometheus_scrape_targets_brother_exporter "test" do
+  #   targets [
+  #     {
+  #       # The targets specified by the static config.
+  #       hosts: [
+  #         "host1:123",
+  #         "host2:456",
+  #       ],
+  #       # Labels assigned to all metrics scraped from the targets.
+  #       # Optional
+  #       labels: {
+  #         a: "b",
+  #         c: "d",
+  #       },
+  #     }
+  #   ]
+  # end
+  define(
+    :prometheus_scrape_targets_brother_exporter,
+    targets: [],
+  ) do
+    name = params[:name]
+    targets = params[:targets]
+
+    rule_path = "/etc/prometheus/brother_exporter.d/#{name}.yml"
+
+    template rule_path do
+      mode "644"
+      owner "root"
+      group "root"
+      source "templates/etc/prometheus/file_sd.d/template.yml"
+      variables(
+        targets: targets,
+      )
+      notifies :restart, "service[prometheus]", :delayed
+    end
+  end
+
+##
 ## prometheus
 ##
 

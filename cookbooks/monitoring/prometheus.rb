@@ -55,8 +55,9 @@ tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{vers
       owner "root"
       group "root"
       variables(
-        blackbox_exporter_port: node[:blackbox_exporter][:port],
         alertmanager_port: node[:alertmanager][:web_port],
+        brother_exporter_port: node[:brother_exporter][:port],
+        blackbox_exporter_port: node[:blackbox_exporter][:port],
       )
       notifies :restart, "service[prometheus]"
     end

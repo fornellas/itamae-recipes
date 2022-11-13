@@ -1,5 +1,6 @@
 include_recipe "prometheus"
 include_recipe "blackbox_exporter"
+include_recipe "brother_exporter"
 include_recipe "alertmanager"
 include_recipe "grafana"
 include_recipe "../iptables"
@@ -42,6 +43,45 @@ include_recipe "../iptables"
       },
     ]
   end
+
+##
+## brother_exporter
+##
+
+  iptables_rule_drop_not_user "Drop not prometheus user to brother_exporter" do
+    users ["prometheus"]
+    port node[:brother_exporter][:port]
+  end
+
+  # blackbox_exporter_instance = "#{node["fqdn"]}:#{node[:blackbox_exporter][:port]}"
+
+  # prometheus_scrape_targets "blackbox_exporter" do
+  #   targets [
+  #     {
+  #       hosts: ["localhost:#{node[:blackbox_exporter][:port]}"],
+  #       labels: {
+  #         instance: blackbox_exporter_instance,
+  #         job: "blackbox_exporter",
+  #       },
+  #     },
+  #   ]
+  # end
+
+  # prometheus_rules "brother_exporter" do
+  #   alerting_rules [
+  #     {
+  #       alert: "Brother Exporter Down",
+  #       expr: <<~EOF,
+  #         group(
+  #           up{
+  #             instance="#{brother_exporter_instance}",
+  #             job="brother_exporter",
+  #           } < 1
+  #         )
+  #       EOF
+  #     },
+  #   ]
+  # end
 
 ##
 ## alertmanager
