@@ -170,10 +170,10 @@ end
   # end
   define(
     :prometheus_scrape_targets_brother_exporter,
-    targets: [],
+    instance: nil,
   ) do
     name = params[:name]
-    targets = params[:targets]
+    instance = params[:instance]
 
     rule_path = "/etc/prometheus/brother_exporter.d/#{name}.yml"
 
@@ -182,11 +182,25 @@ end
       owner "root"
       group "root"
       source "templates/etc/prometheus/file_sd.d/template.yml"
-      variables(
-        targets: targets,
-      )
+      variables(targets: [{hosts: [instance]}])
       notifies :restart, "service[prometheus]", :delayed
     end
+
+    prometheus_rules "brother_exporter_#{name}" do
+      alerting_rules [
+        {
+          alert: "Brother Exporter: #{name} down",
+          expr: <<~EOF,
+            group(
+              up{
+                instance="#{instance}",
+              } < 1
+            )
+          EOF
+        },
+      ]
+    end
+
   end
 
 ##

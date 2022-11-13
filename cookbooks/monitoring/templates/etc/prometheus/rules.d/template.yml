@@ -16,7 +16,7 @@ groups:
     rules:
 <% @alerting_rules.each do |rule| -%>
       # The name of the alert. Must be a valid label value.
-      - alert: <%= rule[:alert] %>
+      - alert: <%= rule[:alert].inspect %>
 
         # The PromQL expression to evaluate. Every evaluation cycle this is
         # evaluated at the current time, and all resultant time series become
