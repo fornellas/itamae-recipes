@@ -260,7 +260,7 @@ occ = "#{php} #{install_path}/occ"
 ## Cron
 ##
 
-  cron_cmd = "#{php} -f #{install_path}cron.php"
+  cron_cmd = "#{php} -f #{install_path}/cron.php"
   cron_metric = "nextcloud_cron_time"
   collector_textfile = "/var/lib/node_exporter/collector_textfile/nextcloud"
   cron_minutes = 5
