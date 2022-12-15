@@ -11,7 +11,7 @@
   prometheus_rules "n2p" do
     alerting_rules [
       {
-        alert: "SSH Down",
+        alert: "n2p SSH Down",
         expr: <<~EOF,
           group by (instance) (
               up{
@@ -20,6 +20,33 @@
               } < 1
           )
         EOF
+      },
+    ]
+  end
+
+##
+## mmoj
+##
+
+  mmoj_ssh = "mmoj.sigstop.co.uk:22"
+
+  prometheus_scrape_targets_blackbox_ssh_banner "mmoj" do
+    targets [{ hosts: [mmoj_ssh] }]
+  end
+
+  prometheus_rules "mmoj" do
+    alerting_rules [
+      {
+        alert: "mmoj SSH Down",
+        expr: <<~EOF,
+          group by (instance) (
+              up{
+                  job="blackbox_ssh_banner",
+                  instance="#{mmoj_ssh}",
+              } < 1
+          )
+        EOF
+        for: "2m",
       },
     ]
   end
