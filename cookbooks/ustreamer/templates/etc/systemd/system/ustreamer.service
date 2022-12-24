@@ -1,0 +1,10 @@
+[Unit]
+Description=ustreamer
+After=network.target
+
+[Service]
+User=ustreamer
+ExecStart=<%= @install_path %>/ustreamer --device=<%= @device %> --host=127.0.0.1 --port=<%= @port %> --resolution=<%= @resolution %>
+
+[Install]
+WantedBy=multi-user.target
