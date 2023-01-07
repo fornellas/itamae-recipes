@@ -4,8 +4,6 @@ node.validate! do
       domain: string,
       port: string,
       webcam_url: string,
-      webcam_stream_url: string,
-      webcam_still_url: string,
     },
   }
 end
@@ -168,8 +166,6 @@ include_recipe "../nginx"
         domain: domain,
         port: port,
         webcam_url: node[:octoprint][:webcam_url],
-        webcam_stream_url: node[:octoprint][:webcam_stream_url],
-        webcam_still_url: node[:octoprint][:webcam_still_url],
         api_allow_networks: local_networks,
       )
       notifies :restart, "service[nginx]", :immediately

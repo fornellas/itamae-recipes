@@ -53,21 +53,14 @@ server {
     proxy_http_version 1.1;
   }
 
-  location /webcam {
-    proxy_pass <%= @webcam_url %>;
-    more_clear_input_headers 'cookie' 'user-agent' 'accept';
-    proxy_http_version 1.1;
-  }
-
-  location /webcam/stream {
-    proxy_pass <%= @webcam_stream_url %>;
-    more_clear_input_headers 'cookie' 'user-agent' 'accept';
-    proxy_http_version 1.1;
-  }
-
-  location /webcam/still {
-    proxy_pass <%= @webcam_still_url %>;
-    more_clear_input_headers 'cookie' 'user-agent' 'accept';
+  location ~ ^/webcam/(.*)$ {
+    proxy_pass <%= @webcam_url %>$1;
+    proxy_set_header Host $http_host;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Scheme $scheme;
     proxy_http_version 1.1;
   }
 }
