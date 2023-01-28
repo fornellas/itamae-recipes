@@ -77,6 +77,28 @@
     ]
   end
 
+  prometheus_scrape_targets_blackbox_http_2xx "uol" do
+    targets [
+      {
+        hosts: ["https://www.uol.com.br/"],
+        labels: {
+          internet: "true",
+        },
+      },
+    ]
+  end
+
+  prometheus_scrape_targets_blackbox_http_2xx "facebook" do
+    targets [
+      {
+        hosts: ["https://www.facebook.com/"],
+        labels: {
+          internet: "true",
+        },
+      },
+    ]
+  end
+
   prometheus_scrape_targets_blackbox_http_2xx "virgin_router" do
     targets [
       {
