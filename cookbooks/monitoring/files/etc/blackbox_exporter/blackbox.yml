@@ -4,6 +4,12 @@ modules:
     timeout: 4s
     http:
       preferred_ip_protocol: ip4
+  http_302:
+    prober: http
+    timeout: 4s
+    http:
+      preferred_ip_protocol: ip4
+      valid_status_codes: [302]
   http_401:
     prober: http
     timeout: 4s

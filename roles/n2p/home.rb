@@ -77,10 +77,10 @@
     ]
   end
 
-  prometheus_scrape_targets_blackbox_http_2xx "uol" do
+  prometheus_scrape_targets_blackbox_http_302 "netflix" do
     targets [
       {
-        hosts: ["https://www.uol.com.br/"],
+        hosts: ["https://www.netflix.com"],
         labels: {
           internet: "true",
         },
