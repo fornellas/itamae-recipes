@@ -77,7 +77,7 @@
     ]
   end
 
-  prometheus_scrape_targets_blackbox_http_302 "netflix" do
+  prometheus_scrape_targets_blackbox_http_2xx "netflix" do
     targets [
       {
         hosts: ["https://www.netflix.com"],

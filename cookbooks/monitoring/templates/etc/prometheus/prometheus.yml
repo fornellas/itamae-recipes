@@ -24,10 +24,25 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:<%= @blackbox_exporter_port %>
+  - job_name: 'blackbox_http_302'
+    metrics_path: /probe
+    params:
+      module: [http_302]
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/blackbox_http_302.d/*.yml'
+        refresh_interval: 1m
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:<%= @blackbox_exporter_port %>
   - job_name: 'blackbox_http_401'
     metrics_path: /probe
     params:
-      module: [http_2xx]
+      module: [http_401]
     file_sd_configs:
       - files:
         - '/etc/prometheus/blackbox_http_401.d/*.yml'
