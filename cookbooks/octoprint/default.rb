@@ -187,7 +187,7 @@ include_recipe "../nginx"
         alert: "OctoPrint Down",
         expr: <<~EOF,
           group(
-            up{
+            probe_success{
               instance="#{octoprint_instance}",
               job="blackbox_http_401",
             } < 1

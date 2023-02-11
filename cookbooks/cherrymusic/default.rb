@@ -158,7 +158,7 @@ include_recipe "../nginx"
         alert: "CherryMusic Down",
         expr: <<~EOF,
           group(
-            up{
+            probe_success{
               instance="#{cherrymusic_instance}",
               job="blackbox_http_401",
             } < 1

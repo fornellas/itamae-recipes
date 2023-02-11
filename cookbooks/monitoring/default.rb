@@ -214,7 +214,7 @@ include_recipe "../iptables"
         alert: "Grafana URL Down",
         expr: <<~EOF,
           group by (instance) (
-            up{
+            probe_success{
               instance="#{grafana_url}",
               job="blackbox_http_401",
             } < 1
@@ -270,7 +270,7 @@ include_recipe "../iptables"
         alert: "Prometheus Down",
         expr: <<~EOF,
           group by (instance) (
-            up{
+            probe_success{
               instance="#{prometheus_blackbox_http_401_instance}",
               job="blackbox_http_401",
             } < 1

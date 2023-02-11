@@ -14,7 +14,7 @@
         alert: "n2p SSH Down",
         expr: <<~EOF,
           group by (instance) (
-              up{
+              probe_success{
                   job="blackbox_ssh_banner",
                   instance="#{n2p_ssh}",
               } < 1
@@ -40,7 +40,7 @@
         alert: "mmoj SSH Down",
         expr: <<~EOF,
           group by (instance) (
-              up{
+              probe_success{
                   job="blackbox_ssh_banner",
                   instance="#{mmoj_ssh}",
               } < 1

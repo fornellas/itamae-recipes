@@ -319,9 +319,9 @@ occ = "#{php} #{install_path}/occ"
 
   include_recipe "../../cookbooks/monitoring"
 
-  nextcloud_instance = "http://nextcloud.sigstop.co.uk/"
+  nextcloud_instance = "https://nextcloud.sigstop.co.uk/"
 
-  prometheus_scrape_targets_blackbox_http_401 "nextcloud" do
+  prometheus_scrape_targets_blackbox_http_2xx "nextcloud" do
     targets [{hosts: [nextcloud_instance]}]
   end
 
@@ -331,9 +331,9 @@ occ = "#{php} #{install_path}/occ"
         alert: "NextCloud Down",
         expr: <<~EOF,
           group(
-            up{
+            probe_success{
               instance="#{nextcloud_instance}",
-              job="blackbox_http_401",
+              job="blackbox_http_2xx",
             } < 1
           )
         EOF
