@@ -5,6 +5,7 @@ After=network.target mysql.service mysql.service
 [Service]
 User=ttrss
 ExecStart=env <%= @env %> <%= @php %> <%= @install_path %>/update_daemon2.php
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
