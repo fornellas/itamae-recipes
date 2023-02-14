@@ -193,6 +193,7 @@ include_recipe "../nginx"
             } < 1
           )
         EOF
+        for: "2m",
       },
     ]
   end

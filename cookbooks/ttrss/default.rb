@@ -267,6 +267,7 @@ shell_env = shell_env_lines.join(" ")
             } < 1
           )
         EOF
+        for: "2m",
       },
     ]
   end

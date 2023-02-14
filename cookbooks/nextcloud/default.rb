@@ -337,6 +337,7 @@ occ = "#{php} #{install_path}/occ"
             } < 1
           )
         EOF
+        for: "2m",
       },
       {
         alert: "NextCloud Stale Cron",

@@ -220,6 +220,7 @@ include_recipe "../iptables"
             } < 1
           )
         EOF
+        for: "2m",
       },
       {
         alert: "Grafana Metrics Down",
@@ -231,6 +232,7 @@ include_recipe "../iptables"
             } < 1
           )
         EOF
+        for: "2m",
       },
     ]
   end
@@ -276,6 +278,7 @@ include_recipe "../iptables"
             } < 1
           )
         EOF
+        for: "2m",
       },
       {
         alert: "Prometheus Scraping Down",
@@ -287,6 +290,7 @@ include_recipe "../iptables"
             } < 1
           )
         EOF
+        for: "2m",
       },
       {
         alert: "Prometheus Notifications Dropped",
