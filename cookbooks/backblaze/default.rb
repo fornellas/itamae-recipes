@@ -3,6 +3,7 @@ include_recipe "../../cookbooks/monitoring"
 
 cache_path = "/var/cache/restic"
 
+package "moreutils"
 package "restic"
 
 directory cache_path do
@@ -118,7 +119,7 @@ define(
   backup_cmd = backup_cmd.join(" && ")
   forget_cmd = "#{restic_script_path} forget --prune --keep-hourly #{keep_hourly} --keep-daily #{keep_daily} --keep-weekly #{keep_weekly} --keep-monthly #{keep_monthly} --keep-yearly #{keep_yearly}"
   check_cmd = "#{restic_script_path} check"
-  collector_textile_prefix = "/var/lib/node_exporter/collector_textfile/restic"
+  collector_textile = "/var/lib/node_exporter/collector_textfile/restic-#{bucket}.prom"
 
   file restic_cron_script_path do
     mode "700"
@@ -127,36 +128,82 @@ define(
     content <<~EOF
       #!/bin/bash
       set -e
+
+      START_TIME="$(date +%s)"
+
+      function echo_common_metrics() {
+        echo -n 'backup_info{bucket="#{bucket}"'
+        echo -n ',backup_paths="#{backup_paths&.sort&.join(",")&.gsub('"', '\\"')}"'
+        echo -n ',backup_exclude="#{backup_exclude&.sort&.join(",")&.gsub('"', '\\"')}"'
+        echo -n ',backup_cmd_stdout="#{backup_cmd_stdout&.gsub('"', '\\"')}"'
+        echo -n ',backup_cmd_stdout_filename="#{backup_cmd_stdout_filename&.gsub('"', '\\"')}"'
+        echo -n ',command_after="#{command_after&.gsub('"', '\\"')}"'
+        echo -n ',keep_hourly="#{keep_hourly}"'
+        echo -n ',keep_daily="#{keep_daily}"'
+        echo -n ',keep_weekly="#{keep_weekly}"'
+        echo -n ',keep_monthly="#{keep_monthly}"'
+        echo -n ',keep_yearly="#{keep_yearly}"'
+        echo -n ',user="#{user}"'
+        echo -n ',group="#{group}"'
+        echo "} 1"
+        echo 'backup_start_time{bucket="#{bucket}"}' $START_TIME
+      }
+
+      function write_start_metrics() {
+        cat << EOF_collector_textile | sponge "#{collector_textile}"
+      $(echo_common_metrics)
+      EOF_collector_textile
+      }
+
+      function write_success_metrics() {
+        END_TIME="$(date +%s)"
+        cat << EOF_collector_textile | sponge "#{collector_textile}"
+      $(echo_common_metrics)
+      backup_end_time{bucket="#{bucket}"} $END_TIME
+      backup_status_last_successful_time{bucket="#{bucket}"} $END_TIME
+      EOF_collector_textile
+      }
+
+      function write_fail_metrics() {
+        cat << EOF_collector_textile | sponge "#{collector_textile}"
+      $(echo_common_metrics)
+      backup_end_time{bucket="#{bucket}"} $(date +%s)
+      EOF_collector_textile
+      }
+
+      write_start_metrics
+
       cd #{bin_path}
-      if #{command_before} ; then
-        if #{backup_cmd}
-        then
-          if #{forget_cmd} ; then
-            if date +%w | grep -qE ^0$ ; then
-              if ! #{check_cmd} ; then
-                echo Check failed! 1>&2
-                exit 1
-              fi
-            fi
-          else
-            echo Forget failed! 1>&2
-            exit 1
-          fi
-        else
-          echo Backup failed! 1>&2
-          exit 1
-        fi
-        if ! #{command_after} ; then
-          echo After hook failed! 1>&2
-          exit 1
-        fi
-      else
-        echo Before hook failed! 1>&2
+
+      if ! #{command_before} ; then
+        write_fail_metrics "before hook"
         exit 1
       fi
-      echo 'backup_completion_time{bucket="#{bucket}"}' $(date +%s) > #{collector_textile_prefix}-#{bucket}
-      cat #{collector_textile_prefix}-* > #{collector_textile_prefix}.prom.$$
-      mv #{collector_textile_prefix}.prom.$$ #{collector_textile_prefix}.prom
+
+      if ! #{backup_cmd}
+      then
+        write_fail_metrics "restic backup"
+        exit 1
+      fi
+
+      if ! #{forget_cmd} ; then
+        write_fail_metrics "restic forget"
+        exit 1
+      fi
+
+      if date +%w | grep -qE ^0$ ; then
+        if ! #{check_cmd} ; then
+          write_fail_metrics "restic check"
+          exit 1
+        fi
+      fi
+
+      if ! #{command_after} ; then
+        write_fail_metrics "after hook"
+        exit 1
+      fi
+
+      write_success_metrics
     EOF
   end
 
@@ -173,28 +220,34 @@ define(
   prometheus_rules "restic-#{bucket}" do
     alerting_rules [
       {
-        alert: "Backup Has Not Completed Successfully Recently",
+        alert: "Backup: #{bucket}: Unsuccessful",
         expr: <<~EOF,
           group by (bucket)(
             (
               time()
               -
-              backup_completion_time{
-                bucket="#{bucket}",
-              }
+              backup_status_last_successful_time{bucket="#{bucket}"}
             ) > 3600*24*2
           )
         EOF
       },
       {
-        alert: "Backup Completion Data Absent",
+        alert: "Backup: #{bucket}: backup_info metric absent",
         expr: <<~EOF,
-          group by (bucket)(
-            absent(
-              backup_completion_time{
-                bucket="#{bucket}",
-              }
-            )
+          absent(
+            backup_info{
+              bucket="#{bucket}",
+            }
+          )
+        EOF
+      },
+      {
+        alert: "Backup: #{bucket}: backup_start_time metric absent",
+        expr: <<~EOF,
+          absent(
+            backup_start_time{
+              bucket="#{bucket}",
+            }
           )
         EOF
       },
