@@ -176,7 +176,7 @@ define(
       cd #{bin_path}
 
       if ! #{command_before} ; then
-        write_fail_metrics "before hook"
+        write_fail_metrics "command_before"
         exit 1
       fi
 
@@ -199,7 +199,7 @@ define(
       fi
 
       if ! #{command_after} ; then
-        write_fail_metrics "after hook"
+        write_fail_metrics "command_after"
         exit 1
       fi
 

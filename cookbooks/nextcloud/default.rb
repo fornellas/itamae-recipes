@@ -314,6 +314,31 @@ occ = "#{php} #{install_path}/occ"
     end
 
 ##
+## Backup
+##
+
+  # https://docs.nextcloud.com/server/latest/admin_manual/maintenance/backup.html
+
+  backblaze_bucket = "#{node["fqdn"].tr(".", "-")}-nextcloud"
+
+  backblaze backblaze_bucket do
+    command_before "#{occ} maintenance:mode --on &> /dev/null"
+    backup_paths [
+                   "#{install_path}/apps/",
+                   "#{install_path}/config/",
+                   "#{install_path}/data/",
+                   "#{install_path}/themes/",
+                 ]
+    backup_cmd_stdout "pg_dump nextcloud"
+    backup_cmd_stdout_filename "nextcloud.sql"
+    command_after "#{occ} maintenance:mode --off &> /dev/null"
+    user "nextcloud"
+    group "nextcloud"
+    bin_path home_path
+  end
+
+
+##
 ## Monitoring
 ##
 
@@ -336,6 +361,13 @@ occ = "#{php} #{install_path}/occ"
               job="blackbox_http_2xx",
             } < 1
           )
+          unless
+          # Backup active
+          on() (
+              backup_start_time{bucket="#{backblaze_bucket}"}
+              unless on(instance, bucket)
+              backup_end_time{bucket="#{backblaze_bucket}"}
+          )
         EOF
         for: "2m",
       },
@@ -354,26 +386,4 @@ occ = "#{php} #{install_path}/occ"
         EOF
       },
     ]
-  end
-
-##
-## Backup
-##
-
-  # https://docs.nextcloud.com/server/latest/admin_manual/maintenance/backup.html
-
-  backblaze "#{node["fqdn"].tr(".", "-")}-nextcloud" do
-    command_before "#{occ} maintenance:mode --on &> /dev/null"
-    backup_paths [
-                   "#{install_path}/apps/",
-                   "#{install_path}/config/",
-                   "#{install_path}/data/",
-                   "#{install_path}/themes/",
-                 ]
-    backup_cmd_stdout "pg_dump nextcloud"
-    backup_cmd_stdout_filename "nextcloud.sql"
-    command_after "#{occ} maintenance:mode --off &> /dev/null"
-    user "nextcloud"
-    group "nextcloud"
-    bin_path home_path
   end
