@@ -133,6 +133,7 @@ define(
 
       function echo_common_metrics() {
         echo -n 'backup_info{bucket="#{bucket}"'
+        echo -n ',command_before="#{command_before&.gsub('"', '\\"')}"'
         echo -n ',backup_paths="#{backup_paths&.sort&.join(",")&.gsub('"', '\\"')}"'
         echo -n ',backup_exclude="#{backup_exclude&.sort&.join(",")&.gsub('"', '\\"')}"'
         echo -n ',backup_cmd_stdout="#{backup_cmd_stdout&.gsub('"', '\\"')}"'
