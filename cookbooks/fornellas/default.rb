@@ -53,7 +53,6 @@ group_add username do
            "netdev",
            "operator",
            "plugdev",
-           "ssh",
            "staff",
            "sudo",
            "tty",

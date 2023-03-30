@@ -25,10 +25,11 @@ install_path = "#{home_path}/ustreamer"
 
 	# build
 
-	package "build-essential"
-	package "libevent-dev"
-	package "libjpeg-dev"
-	package "libbsd-dev"
+  package "build-essential"
+  package "libbsd-dev"
+  package "libevent-dev"
+  package "libjpeg-dev"
+  package "libc6-dev"
 
 ##
 ## User / Group
