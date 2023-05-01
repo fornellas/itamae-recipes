@@ -47,12 +47,14 @@ shell_env = shell_env_lines.join(" ")
   include_recipe "../../cookbooks/php-fpm"
 
   php_fpm php_version
-  package "php#{php_version}-common" # pdo
+  package "php#{php_version}-common" # pdo phar sockets ctype
   package "php#{php_version}-gd"
+  package "php#{php_version}-apcu" # pecl-apcu
+  package "php#{php_version}-opcache"
   package "php#{php_version}-pgsql" # pgsql, pdo_pgsql
   package "php#{php_version}-mbstring"
   package "php#{php_version}-intl"
-  package "php#{php_version}-xml" # xml, dom
+  package "php#{php_version}-xml" # xml, dom, xmlwriter, simplexml
   package "php#{php_version}-curl"
   package "php#{php_version}-common" # tokenizer
   package "php#{php_version}-common" # fileinfo

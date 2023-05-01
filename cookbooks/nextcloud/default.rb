@@ -249,6 +249,7 @@ collector_textile = "/var/lib/node_exporter/collector_textfile/nextcloud-#{domai
     end
   end
 
+  # https://github.com/nextcloud/user_external/issues/222
   package "php#{php_version}-ssh2"
   nextcloud_app "user_external"
   execute "Configure NextCloud App: user_external" do
