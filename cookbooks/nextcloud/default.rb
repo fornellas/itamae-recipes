@@ -22,6 +22,7 @@ first_config_pending_path = "#{install_path}/config/.pending.first_config"
 upgrade_ok_path = "#{first_install_ok_path}.#{nextcloud_version}"
 socket_path = "/run/php/php#{php_version}-fpm-nextcloud.sock"
 occ = "#{php} #{install_path}/occ"
+collector_textile = "/var/lib/node_exporter/collector_textfile/nextcloud-#{domain}.prom"
 
 ##
 ## Deps
@@ -77,11 +78,15 @@ occ = "#{php} #{install_path}/occ"
   group "nextcloud"
 
   user "nextcloud" do
-  gid "nextcloud"
-  home home_path
-  system_user true
-  shell "/usr/sbin/nologin"
-  create_home true
+    gid "nextcloud"
+    home home_path
+    system_user true
+    shell "/usr/sbin/nologin"
+    create_home true
+  end
+
+  group_add "nextcloud" do
+    groups ["node_exporter"]
   end
 
 ##
@@ -265,7 +270,7 @@ occ = "#{php} #{install_path}/occ"
   collector_textfile = "/var/lib/node_exporter/collector_textfile/nextcloud"
   cron_minutes = 5
 
-  crontab = "*/#{cron_minutes}  *  *  *  * #{cron_cmd} && echo #{cron_metric} $(date +%s)"
+  crontab = "*/#{cron_minutes}  *  *  *  * sh -c \"#{cron_cmd} && echo #{cron_metric} $(date +\%s) | sponge #{collector_textile}\""
   escaped_crontab = Shellwords.shellescape(crontab)
   execute "crontab" do
     command "echo #{escaped_crontab} | crontab -u nextcloud -"
@@ -383,6 +388,9 @@ occ = "#{php} #{install_path}/occ"
               }
             ) > #{cron_minutes * 2}
           )
+          or absent(#{cron_metric}{
+            instance="#{nextcloud_instance}",
+          })
         EOF
       },
     ]
