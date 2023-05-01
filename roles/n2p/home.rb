@@ -450,7 +450,7 @@
               power_wats{
                 instance="#{power_meter_instance}",
               }[1d]
-            ) > 400
+            ) > 450
           )
         EOF
       },
