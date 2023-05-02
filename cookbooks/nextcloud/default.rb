@@ -271,7 +271,7 @@ collector_textile = "/var/lib/node_exporter/collector_textfile/nextcloud-#{domai
   collector_textfile = "/var/lib/node_exporter/collector_textfile/nextcloud"
   cron_minutes = 5
 
-  crontab = "*/#{cron_minutes}  *  *  *  * sh -c \"#{cron_cmd} && echo #{cron_metric} $(date +\%s) | sponge #{collector_textile}\""
+  crontab = "*/#{cron_minutes}  *  *  *  * sh -c \"#{cron_cmd} && echo #{cron_metric} $(date +\\%s) | sponge #{collector_textile}\""
   escaped_crontab = Shellwords.shellescape(crontab)
   execute "crontab" do
     command "echo #{escaped_crontab} | crontab -u nextcloud -"
@@ -384,14 +384,10 @@ collector_textile = "/var/lib/node_exporter/collector_textfile/nextcloud-#{domai
             (
               time()
               -
-              #{cron_metric}{
-                instance="#{nextcloud_instance}",
-              }
-            ) > #{cron_minutes * 2}
+              #{cron_metric}{}
+            ) > #{(cron_minutes + 1) * 60}
           )
-          or absent(#{cron_metric}{
-            instance="#{nextcloud_instance}",
-          })
+          or absent(#{cron_metric}{})
         EOF
       },
     ]
