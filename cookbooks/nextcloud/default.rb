@@ -385,7 +385,7 @@ collector_textile = "/var/lib/node_exporter/collector_textfile/nextcloud-#{domai
               time()
               -
               #{cron_metric}{}
-            ) > #{(cron_minutes + 1) * 60}
+            ) / 60 > #{cron_minutes * 2}
           )
           or absent(#{cron_metric}{})
         EOF
