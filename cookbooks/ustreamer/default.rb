@@ -30,6 +30,7 @@ install_path = "#{home_path}/ustreamer"
   package "libevent-dev"
   package "libjpeg-dev"
   package "libc6-dev"
+  package 'v4l-utils'
 
 ##
 ## User / Group
