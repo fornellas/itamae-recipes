@@ -29,7 +29,7 @@ include_recipe "../iptables"
   # Install
 
   golang_install_bin "brother_exporter" do
-    package "github.com/fornellas/brother_exporter"
+    package "github.com/fornellas/brother_exporter@latest"
   end
 
   # Service
