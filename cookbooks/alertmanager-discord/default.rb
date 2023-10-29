@@ -21,7 +21,7 @@ end
 # Install
 
 golang_install_bin "alertmanager-discord" do
-  package "github.com/benjojo/alertmanager-discord"
+  package "github.com/benjojo/alertmanager-discord@latest"
 end
 
 # iptables
