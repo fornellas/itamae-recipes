@@ -16,6 +16,7 @@ execute update_hostname_command do
 end
 
 include_recipe "../../cookbooks/base_system"
+package 'systemd-timesyncd'
 include_recipe "../../cookbooks/fornellas"
 include_recipe "../../cookbooks/base_server"
 include_recipe "../../cookbooks/no_auth_from_securetty"
