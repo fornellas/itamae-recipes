@@ -28,7 +28,7 @@ include_recipe "../iptables"
   # Install
 
   golang_install_bin "iptables_exporter" do
-    package "github.com/retailnext/iptables_exporter"
+    package "github.com/retailnext/iptables_exporter@latest"
   end
 
   # iptables
