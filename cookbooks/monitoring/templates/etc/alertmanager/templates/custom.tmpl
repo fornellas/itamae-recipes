@@ -1,3 +1,65 @@
+{{- /* custom.alert.title(Labels) */ -}}
+{{- /* Alert title as a function of its labels. */ -}}
+{{- /* "[$alertname] ($label_key=$label_value)" */ -}}
+{{- /* "($label_key=$label_value)" */ -}}
+{{- define "custom.alert.title" -}}
+    {{- $labels := . -}}
+    {{- with index . "alertname" -}}
+        {{- "[" }}{{ . }}{{ "]" -}}
+    {{- end -}}
+    {{- with .Remove (stringSlice "alertname") -}}
+        {{- with index $labels "alertname" -}}
+            {{- " " -}}
+        {{- end -}}
+        {{ "(" }}
+        {{- with index .SortedPairs 0 -}}
+            {{- .Name }}={{ .Value -}}
+        {{- end -}}
+        {{- with slice .SortedPairs 1 -}}
+            {{- range . -}}
+                {{- " " }}{{ .Name }}={{ .Value -}}
+            {{- end -}}
+        {{- end -}}
+        {{ ")" }}
+    {{- end -}}
+{{- end -}}
+
+{{- /* custom.alert.details(Alert) */ -}}
+{{- /*  */ -}}
+{{- define "custom.alert.details" -}}
+    {{- template "custom.alert.title" . -}}{{- "\n" -}}
+    {{- "\n" -}}
+    {{- with .Annotations.SortedPairs -}}
+        {{- with index . 0 -}}
+            {{- .Name -}}{{- ":\n" -}}
+            {{- .Value -}}{{- "\n" -}}
+        {{- end -}}
+        {{- with slice . 1 -}}
+            {{- range . -}}
+                {{- "\n" }}
+                {{- .Name -}}{{- ":\n" -}}
+                {{- .Value -}}{{- "\n" -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* custom.alerts.details(Alerts) */ -}}
+{{- define "custom.alerts.details" -}}
+    {{- with . -}}
+        {{- with index . 0 -}}
+            {{- template "custom.alert.details" . -}}
+        {{- end -}}
+        {{- with slice . 1 -}}
+            {{- range . -}}
+                {{- "\n" }}
+                {{- "-~-~-~-\n\n" }}
+                {{- template "custom.alert.details" . -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
 {{- /* custom.subject(Data) */ -}}
 {{- /* This provides a stable subject value that is only a function of the static */ -}}
 {{- /* values used to group the alerts being notified (GroupLabels). */ -}}
@@ -9,9 +71,10 @@
 {{- /* is to me synchronized with another system (eg: PagerDuty), and we */ -}}
 {{- /* want to prevent a stale subject from misleading people. */ -}}
 {{- /* Examples: */ -}}
-{{- /* "Alerts for $receiver" */ -}}
-{{- /* "[$alertname_value] ($group_label_key=$group_label_value)" */ -}}
+{{- /* "[$alertname] ($group_label_key=$group_label_value)" */ -}}
 {{- /* "($group_label_key=$group_label_value)" */ -}}
+{{- /* "Firing alerts" */ -}}
+{{- /* "Resolved alerts" */ -}}
 {{- define "custom.subject" -}}
     {{- $data := . -}}
     {{- with .GroupLabels -}}
@@ -20,25 +83,7 @@
         {{- else -}}
             {{- "Resolved: " -}}
         {{- end -}}
-        {{- $groupLabels := . -}}
-        {{- with index . "alertname" -}}
-            {{- "[" }}{{ . }}{{ "]" -}}
-        {{- end -}}
-        {{- with .Remove (stringSlice "alertname") -}}
-            {{- with index $groupLabels "alertname" -}}
-                {{- " " -}}
-            {{- end -}}
-            {{ "(" }}
-            {{- with index .SortedPairs 0 -}}
-                {{- .Name }}={{ .Value -}}
-            {{- end -}}
-            {{- with slice .SortedPairs 1 -}}
-                {{- range . -}}
-                    {{- " " }}{{ .Name }}={{ .Value -}}
-                {{- end -}}
-            {{- end -}}
-            {{ ")" }}
-        {{- end -}}
+        {{- template "custom.alert.title" . -}}
     {{- else -}}
         {{- if eq .Status "firing" -}}
             {{- "Firing" -}}
@@ -65,34 +110,6 @@
         {{- "🚨" -}}
     {{- else -}}
         {{ "👌" }}
-    {{- end -}}
-{{- end -}}
-
-{{- /* custom.alert.title(Alert) */ -}}
-{{- define "custom.alert.title" -}}
-    {{- $alert := . -}}
-    {{- with index .Labels.alertname -}}
-        {{ . }}
-        {{- with ($alert.Labels.Remove (stringSlice "alertname")).SortedPairs -}}
-            {{- ": " }}
-            {{- with index . 0 -}}
-                {{- .Name }}={{ .Value -}}
-            {{- end -}}
-            {{- range slice . 1 -}}
-                {{- " " }}
-                {{ .Name }}={{ .Value -}}
-            {{- end -}}
-        {{- end -}}
-    {{- else -}}
-        {{- with index $alert.Labels.SortedPairs 0 -}}
-            {{- .Name }}={{ .Value -}}
-        {{- end -}}
-        {{- with slice $alert.Labels.SortedPairs 1 -}}
-            {{- range . -}}
-                {{- " " }}
-                {{ .Name }}={{ .Value -}}
-            {{- end -}}
-        {{- end -}}
     {{- end -}}
 {{- end -}}
 
