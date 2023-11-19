@@ -1,0 +1,14 @@
+[Unit]
+Description=tasmota_exporter
+Requires=network.target
+After=network.target
+
+[Service]
+User=tasmota_exporter
+Type=simple
+ExecStart=/opt/bin/tasmota_exporter server --address=<%= @listen_address %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

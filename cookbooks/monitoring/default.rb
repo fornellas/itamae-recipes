@@ -1,6 +1,7 @@
 include_recipe "prometheus"
 include_recipe "blackbox_exporter"
 include_recipe "brother_exporter"
+include_recipe "tasmota_exporter"
 include_recipe "alertmanager"
 include_recipe "grafana"
 include_recipe "../iptables"
@@ -82,6 +83,15 @@ include_recipe "../iptables"
   #     },
   #   ]
   # end
+
+##
+## tasmota_exporter
+##
+
+  iptables_rule_drop_not_user "Drop not prometheus user to tasmota_exporter" do
+    users ["prometheus"]
+    port node[:tasmota_exporter][:port]
+  end
 
 ##
 ## alertmanager

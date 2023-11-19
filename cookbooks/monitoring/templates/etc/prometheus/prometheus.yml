@@ -82,6 +82,19 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:<%= @brother_exporter_port %>
+  - job_name: 'tasmota_exporter'
+    metrics_path: /probe
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/tasmota_exporter.d/*.yml'
+        refresh_interval: 1m
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_address
+      - source_labels: [__param_address]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:<%= @tasmota_exporter_port %>
 alerting:
   alertmanagers:
     - static_configs:

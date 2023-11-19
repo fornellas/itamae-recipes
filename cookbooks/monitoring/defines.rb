@@ -244,7 +244,68 @@ end
         },
       ]
     end
+  end
 
+##
+## tasmota_exporter
+##
+
+  directory "/etc/prometheus/tasmota_exporter.d" do
+    owner "root"
+    group "root"
+    mode "755"
+  end
+
+  # prometheus_scrape_targets_tasmota_exporter "test" do
+  #   targets [
+  #     {
+  #       # The targets specified by the static config.
+  #       hosts: [
+  #         "host1:123",
+  #         "host2:456",
+  #       ],
+  #       # Labels assigned to all metrics scraped from the targets.
+  #       # Optional
+  #       labels: {
+  #         a: "b",
+  #         c: "d",
+  #       },
+  #     }
+  #   ]
+  # end
+  define(
+    :prometheus_scrape_targets_tasmota_exporter,
+    instance: nil,
+  ) do
+    name = params[:name]
+    instance = params[:instance]
+
+    rule_path = "/etc/prometheus/tasmota_exporter.d/#{name}.yml"
+
+    template rule_path do
+      mode "644"
+      owner "root"
+      group "root"
+      source "templates/etc/prometheus/file_sd.d/template.yml"
+      variables(targets: [{hosts: [instance]}])
+      notifies :restart, "service[prometheus]", :delayed
+    end
+
+    prometheus_rules "tasmota_exporter_#{name}" do
+      alerting_rules [
+        {
+          alert: "Tasmota Exporter: #{name} down",
+          expr: <<~EOF,
+            group(
+              up{
+                instance="#{instance}",
+              } < 1
+            )
+          EOF
+          for: "2m",
+        },
+      ]
+    end
   end
 
 ##

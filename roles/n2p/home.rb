@@ -466,3 +466,11 @@
   prometheus_scrape_targets_brother_exporter "HL-L2350DW series" do
     instance "http://#{printer_address_port}/etc/mnt_info.csv"
   end
+
+##
+## Tasmota
+##
+
+  prometheus_scrape_targets_tasmota_exporter "Office Desk" do
+    instance "http://192.168.0.207/"
+  end
