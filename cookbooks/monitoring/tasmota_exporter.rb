@@ -29,7 +29,7 @@ include_recipe "../iptables"
   # Install
 
   golang_install_bin "tasmota_exporter" do
-    package "github.com/fornellas/tasmota_exporter@v0.0.1"
+    package "github.com/fornellas/tasmota_exporter@v0.0.3"
   end
 
   # Service
