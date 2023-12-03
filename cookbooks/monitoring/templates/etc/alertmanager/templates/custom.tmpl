@@ -27,7 +27,7 @@
 {{- /* custom.alert.details(Alert) */ -}}
 {{- /*  */ -}}
 {{- define "custom.alert.details" -}}
-    {{- template "custom.alert.title" . -}}{{- "\n" -}}
+    {{- template "custom.alert.title" .Labels -}}{{- "\n" -}}
     {{- "\n" -}}
     {{- with .Annotations.SortedPairs -}}
         {{- with index . 0 -}}
@@ -173,7 +173,7 @@
     {{- " <" -}}
     {{- template "custom.alert.grafana.explore" . -}}
     {{- "|" -}}
-    {{- template "custom.alert.title" . -}}
+    {{- template "custom.alert.title" .Labels -}}
     {{- ">\n" -}}
 {{- end -}}
 
