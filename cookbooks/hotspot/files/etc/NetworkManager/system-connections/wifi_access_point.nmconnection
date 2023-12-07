@@ -1,0 +1,26 @@
+[connection]
+id=Wifi Access Point
+type=wifi
+autoconnect=false
+interface-name=wlan0
+
+[wifi]
+mode=ap
+ssid=odroid
+
+[wifi-security]
+group=ccmp;
+key-mgmt=wpa-psk
+pairwise=ccmp;
+proto=rsn;
+psk=D0jbh{#jZ&{EZ~e
+
+[ipv4]
+method=shared
+address1=192.168.1.0/24,192.168.1.1
+
+[ipv6]
+addr-gen-mode=stable-privacy
+method=ignore
+
+[proxy]
