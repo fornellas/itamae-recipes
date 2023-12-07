@@ -69,6 +69,35 @@ include_recipe "../iptables"
     end
 
 ##
+## DNS
+##
+
+  # Configuration
+
+    directory "/etc/systemd/resolved.conf.d" do
+      mode "755"
+      owner "root"
+      group "root"
+    end
+
+    template "/etc/systemd/resolved.conf.d/openvpn@#{domain}.conf" do
+      source "templates//etc/systemd/resolved.conf.d/openvpn@domain.conf"
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        dns: dns,
+      )
+      notifies :restart, "service[systemd-resolved]"
+    end
+
+  # Service
+
+    service "systemd-resolved" do
+      action [:enable, :start]
+    end
+
+##
 ## Let's Encrypt
 ##
 
@@ -102,22 +131,7 @@ include_recipe "../iptables"
         port: port,
         dns: dns,
         server_network: server_network,
-        server_netmask: server_network,
-      )
-      notifies :restart, "service[openvpn@#{domain}]"
-    end
-
-    template "/etc/openvpn/#{domain}-windows.conf" do
-      source "templates/etc/openvpn/domain-windows.conf"
-      mode "644"
-      owner "root"
-      group "root"
-      variables(
-        domain: domain,
-        port: port,
-        dns: dns,
-        server_network: server_network,
-        server_netmask: server_network,
+        server_netmask: server_netmask,
       )
       notifies :restart, "service[openvpn@#{domain}]"
     end
@@ -173,6 +187,18 @@ include_recipe "../iptables"
 
     template "/etc/openvpn/#{domain}/#{domain}.ovpn" do
       source "templates/etc/openvpn/domain/domain.ovpn"
+      mode "755"
+      owner "root"
+      group "root"
+      variables(
+        domain: domain,
+        port: port,
+        letsencrypt_ca: letsencrypt_ca,
+      )
+    end
+
+    template "/etc/openvpn/#{domain}/#{domain}-windows.ovpn" do
+      source "templates/etc/openvpn/domain/domain-windows.ovpn"
       mode "755"
       owner "root"
       group "root"
