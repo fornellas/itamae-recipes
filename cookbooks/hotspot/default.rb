@@ -75,61 +75,7 @@ nm_connection "ipv4.method" do
 	value "shared"
 end
 
-
-
-
-# nmcli con modify Hostspot wifi-sec.key-mgmt wpa-psk
-# nmcli con modify Hostspot wifi-sec.psk "veryveryhardpassword1234"
-# nmcli con up Hostspot
-
-
-# nmcli connection modify wifi_access_point ipv4.addresses 192.168.1.1/24
-
-
-#nmcli device wifi hotspot ifname wlan0 con-name wifi_access_point ssid odroid password 'D0jbh{#jZ&{EZ~e'
-
-# nmcli connection add type wifi ifname wlan0 con-name hotspot autoconnect yes ssid HA
-# nmcli connection modify hotspot ipv4.method shared ipv4.addresses 192.168.16.1/24
-# nmcli connection modify hotspot ipv4.dns 192.168.16.1
-
-
-# nmcli device wifi hotspot con-name hotspot ssid HA password 'wmt%rI3p8*D(`qX'
-# nmcli connection modify hotspot ipv4.method shared ipv4.addresses 192.168.16.1/24
-
-
-# remote_file "/etc/NetworkManager/system-connections/wifi_access_point.nmconnection" do
-#   owner "root"
-#   group "root"
-#   mode "644"
-#   notifies :restart, "service[NetworkManager]"
-# end
-
-# service "NetworkManager" do
-#   action [:enable, :start]
-# end
-
-# apt install dkms
-# #apt install iw
-# git clone https://github.com/Mange/rtl8192eu-linux-driver
-# vim Makefile
-# 	< CONFIG_PLATFORM_I386_PC = y
-# 	> CONFIG_PLATFORM_I386_PC = n
-# 	...
-# 	< CONFIG_PLATFORM_ARM_AARCH64 = n
-# 	> CONFIG_PLATFORM_ARM_AARCH64 = y
-# dkms add .
-# dkms install rtl8192eu/1.0
-# echo "blacklist rtl8xxxu" | sudo tee /etc/modprobe.d/rtl8xxxu.conf
-# echo "options 8192eu rtw_power_mgnt=0 rtw_enusbss=0" | sudo tee /etc/modprobe.d/8192eu.conf
-# sudo update-grub; sudo update-initramfs -u
-# systemctl reboot -i
-# #apt install hostapd
-# modprobe 8192eu
-# nmcli device wifi hotspot ifname wlan0 con-name odroid ssid odroid password 'D0jbh{#jZ&{EZ~e'
-# # connection created at
-# # /etc/NetworkManager/system-connections
-# # which has the range, may be able to create the file manually
-
-
-
-
+execute "Activate NetworkManager connection #{con_name}" do
+  command "nmcli connection up #{Shellwords.shellescape(con_name)}"
+  not_if "PAGER=cat nmcli connection show --active #{Shellwords.shellescape(con_name)} | grep -E '^connection\\.id: +#{Shellwords.shellescape(con_name)}$'"
+end
