@@ -10,5 +10,3 @@ end
 service "bind9" do
   action [:enable, :start]
 end
-
-package "bind9utils"

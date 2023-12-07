@@ -6,7 +6,6 @@ package "plymouth" do
   action :remove
 end
 
-include_recipe "../../cookbooks/bind"
 include_recipe "../../cookbooks/postfix"
 
 ##

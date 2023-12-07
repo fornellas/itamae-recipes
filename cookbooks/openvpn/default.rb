@@ -12,6 +12,9 @@ end
 
 domain = node[:openvpn][:domain]
 port = node[:openvpn][:port]
+dns = node[:openvpn][:dns]
+server_network = node[:openvpn][:server_network]
+server_netmask = node[:openvpn][:server_netmask]
 
 letsencrypt_ca = run_command("cat /usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt").stdout.chomp
 default_gateway_dev = run_command(
@@ -24,7 +27,6 @@ default_gateway_dev_addr = run_command(
 
 include_recipe "../nginx"
 include_recipe "../letsencrypt"
-include_recipe "../bind"
 include_recipe "../iptables"
 
 ##
@@ -98,8 +100,24 @@ include_recipe "../iptables"
       variables(
         domain: domain,
         port: port,
-        server_network: node[:openvpn][:server_network],
-        server_netmask: node[:openvpn][:server_netmask],
+        dns: dns,
+        server_network: server_network,
+        server_netmask: server_network,
+      )
+      notifies :restart, "service[openvpn@#{domain}]"
+    end
+
+    template "/etc/openvpn/#{domain}-windows.conf" do
+      source "templates/etc/openvpn/domain-windows.conf"
+      mode "644"
+      owner "root"
+      group "root"
+      variables(
+        domain: domain,
+        port: port,
+        dns: dns,
+        server_network: server_network,
+        server_netmask: server_network,
       )
       notifies :restart, "service[openvpn@#{domain}]"
     end

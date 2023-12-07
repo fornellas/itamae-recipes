@@ -2,6 +2,7 @@ require "ipaddr"
 
 package "aptitude"
 package "avahi-daemon"
+package "bind9utils"
 package "curl"
 package "dc"
 package "debhelper"
