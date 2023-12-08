@@ -11,21 +11,34 @@ execute "netfilter-persistent save" do
 end
 
 define(
-  :iptables_rule,
+  :iptables,
   table: nil,
-  rule: nil,
+  command: nil,
+  chain: nil,
+  rule_specification: nil,
 ) do
   table = params[:table]
-  rule = params[:rule]
 
-  package "netfilter-persistent"
+  chain = params[:chain]
 
-  execute "iptables -t #{table} -A #{rule}" do
+  case params[:command]
+  when :append
+    command = "-A #{chain}"
+  when :prepend
+    command = "-I #{chain} 1"
+  else
+    raise ArgumentError, "command must be either :append or :prepend"
+  end
+
+  rule_specification = params[:rule_specification]
+
+  execute "iptables --table #{table} #{command} #{rule_specification}" do
     user "root"
-    not_if "iptables -t #{table} -C #{rule}"
+    not_if "iptables -t #{table} -C #{chain} #{rule_specification}"
     notifies :run, "execute[netfilter-persistent save]", :immediately
   end
 end
+
 
 define(
   :iptables_rule_drop_not_user,
@@ -35,15 +48,19 @@ define(
   users = params[:users]
   port = params[:port]
 
-  iptables_rule "Accept output established and related" do
+  iptables "Accept OUTPUT established and related" do
     table "filter"
-    rule "OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
+    command :append
+    chain "OUTPUT"
+    rule_specification "--match conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
     notifies :run, "execute[netfilter-persistent save]", :immediately
   end
 
-  iptables_rule "Drop not #{users.join("|")} to 127.0.0.1:#{port}" do
+  iptables "Drop not #{users.join("|")} to 127.0.0.1:#{port}" do
     table "filter"
-    rule "OUTPUT -d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map { |user| "-m owner ! --uid-owner #{user}" }.join(" ")} -j DROP"
+    command :append
+    chain "OUTPUT"
+    rule_specification "-d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map { |user| "-m owner ! --uid-owner #{user}" }.join(" ")} -j DROP"
     notifies :run, "execute[netfilter-persistent save]", :immediately
   end
 end

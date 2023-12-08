@@ -1,5 +1,7 @@
 require "shellwords"
 
+include_recipe "../iptables"
+
 node.validate! do
   {
     hotspot: {
@@ -19,7 +21,73 @@ ipv4_address = node[:hotspot][:ipv4_address]
 
 con_name = "hotspot-#{ifname}"
 
-# nmcli con add type wifi ifname wlan0 con-name Hostspot autoconnect yes ssid Hostspot
+##
+## iptables
+##
+
+	# INPUT
+
+		iptables "Accept INPUT from hotspot #{ifname} for domain" do
+		  table "filter"
+		  command :prepend
+		  chain "INPUT"
+		  rule_specification "--in-interface #{ifname} --protocol udp --match udp --destination-port domain --jump ACCEPT"
+		end
+
+		iptables "Accept INPUT from hotspot #{ifname} for bootps" do
+		  table "filter"
+		  command :prepend
+		  chain "INPUT"
+		  rule_specification "--in-interface #{ifname} --protocol udp --match udp --destination-port bootps --jump ACCEPT"
+		end
+
+		iptables "Drop INPUT from hotspot #{ifname} by default" do
+		  table "filter"
+		  command :append
+		  chain "INPUT"
+		  rule_specification "--in-interface #{ifname} --jump DROP"
+		end
+
+	# OUTPUT
+
+		define :iptables_hotspot_allow_user do
+		  user = params[:name]
+
+			iptables "Accept OUTPUT to hotspot #{ifname} for #{user}" do
+			  table "filter"
+			  command :prepend
+			  chain "OUTPUT"
+			  rule_specification "--out-interface #{ifname} --match owner --uid-owner #{user} --jump ACCEPT"
+			end
+		end
+
+		iptables "Accept OUTPUT to hotspot #{ifname} for ESTABLISHED,RELATED" do
+		  table "filter"
+		  command :prepend
+		  chain "OUTPUT"
+		  rule_specification "--out-interface #{ifname} --match conntrack --ctstate ESTABLISHED,RELATED --jump ACCEPT"
+		end
+
+		iptables "Drop OUTPUT to hotspot #{ifname} by default" do
+		  table "filter"
+		  command :append
+		  chain "OUTPUT"
+		  rule_specification "--out-interface #{ifname} --jump DROP"
+		end
+
+	# FORWARD
+
+		iptables "Drop FORWARD to hotspot #{ifname}" do
+		  table "filter"
+		  command :append
+		  chain "FORWARD"
+		  rule_specification "--out-interface #{ifname} --jump DROP"
+		end
+
+##
+## NetworkManager
+##
+
 execute "Add NetworkManager connection #{con_name}" do
   command "nmcli connection add type wifi ifname #{Shellwords.shellescape(ifname)} con-name #{Shellwords.shellescape(con_name)} ssid #{Shellwords.shellescape(ssid)}"
   not_if "PAGER=cat nmcli connection show #{Shellwords.shellescape(con_name)}"

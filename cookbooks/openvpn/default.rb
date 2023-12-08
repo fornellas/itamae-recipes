@@ -63,9 +63,11 @@ include_recipe "../iptables"
 
   # iptables
 
-    iptables_rule "Masquerade outgoing traffic" do
+    iptables "Masquerade outgoing traffic" do
       table "nat"
-      rule "POSTROUTING -o #{default_gateway_dev} ! -s #{default_gateway_dev_addr} -j MASQUERADE"
+      command :append
+      chain "POSTROUTING"
+      rule_specification "-o #{default_gateway_dev} ! -s #{default_gateway_dev_addr} -j MASQUERADE"
     end
 
 ##
