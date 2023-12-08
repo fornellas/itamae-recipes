@@ -32,6 +32,7 @@ define :nm_connection, connection: nil, value: nil do
 	execute "Set NetworkManager connection #{con_name} #{setting_property}" do
 		command "nmcli connection modify #{Shellwords.shellescape(con_name)} #{Shellwords.shellescape(setting_property)} #{Shellwords.shellescape(value)}"
 		not_if "/bin/test \"$(PAGER=cat nmcli connection show #{Shellwords.shellescape(con_name)} --show-secrets | sed -rn 's/^#{Shellwords.shellescape(setting_property)}: +([^ ].*)$/\\1/p')\" == #{Shellwords.shellescape(value)}"
+		notifies :run, "execute[Deactivate NetworkManager connection #{con_name}]"
 	end
 end
 
@@ -73,6 +74,16 @@ end
 nm_connection "ipv4.method" do
 	connection con_name
 	value "shared"
+end
+
+nm_connection "ipv4.addresses" do
+	connection con_name
+	value ipv4_address
+end
+
+execute "Deactivate NetworkManager connection #{con_name}" do
+  command "nmcli connection down #{Shellwords.shellescape(con_name)}"
+  action :nothing
 end
 
 execute "Activate NetworkManager connection #{con_name}" do
