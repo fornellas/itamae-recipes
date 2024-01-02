@@ -5,6 +5,9 @@ node.validate! do
       port: string,
       webcam_url: string,
     },
+    network: {
+      local: string,
+    },
   }
 end
 
@@ -16,14 +19,9 @@ octoprint_bin = "#{var_path}/.local/bin/octoprint"
 basedir_path = "#{var_path}/.octoprint"
 config_path = "#{basedir_path}/config.yaml"
 restart_service_cmd = "/bin/systemctl restart octoprint.service"
-local_networks = run_command(
-  "/sbin/ip addr | /bin/grep -E ' inet ' | awk '{print $2}'",
-).stdout.split("\n").map do |line|
-  address, mask = line.split("/")
-  mask = "32" unless mask
-  network_address = IPAddr.new(line).to_s
-  "#{network_address}/#{mask}"
-end
+trusted_network_addresses = [
+  node[:network][:local],
+]
 
 include_recipe "../group_add"
 include_recipe "../backblaze"
@@ -166,7 +164,7 @@ include_recipe "../nginx"
         domain: domain,
         port: port,
         webcam_url: node[:octoprint][:webcam_url],
-        api_allow_networks: local_networks,
+        api_allow_networks: trusted_network_addresses,
       )
       notifies :restart, "service[nginx]", :immediately
     end
