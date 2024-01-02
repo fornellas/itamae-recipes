@@ -1,3 +1,11 @@
+node.validate! do
+  {
+    network: {
+      local: string,
+    },
+  }
+end
+
 # Base Server
 
 package "ifupdown"
@@ -7,6 +15,10 @@ package "plymouth" do
 end
 
 include_recipe "../../cookbooks/postfix"
+
+trusted_network_addresses = [
+  node[:network][:local],
+]
 
 ##
 ## root
@@ -22,22 +34,13 @@ end
 ## OpenSSH Server
 ##
 
-local_networks = run_command(
-  "/sbin/ip addr | /bin/grep -E ' inet(|6) ' | awk '{print $2}'",
-).stdout.split("\n").map do |line|
-  address, mask = line.split("/")
-  mask = "32" if not mask
-  network_address = IPAddr.new(line).to_s
-  "#{network_address}/#{mask}"
-end
-
 package "libpam-google-authenticator"
 
 template "/etc/security/access-no-google-authenticator.conf" do
   owner "root"
   group "root"
   mode "644"
-  variables(no_google_authenticator_networks: local_networks)
+  variables(no_google_authenticator_networks: trusted_network_addresses)
 end
 
 remote_file "/etc/pam.d/common-auth-google-authenticator" do
@@ -68,7 +71,7 @@ template "/etc/ssh/sshd_config" do
   owner "root"
   group "root"
   mode "644"
-  variables(trusted_network_addresses: local_networks)
+  variables(trusted_network_addresses: trusted_network_addresses)
   notifies :restart, "service[ssh]", :immediately
 end
 

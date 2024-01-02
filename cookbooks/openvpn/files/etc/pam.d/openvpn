@@ -1,8 +1,5 @@
-# Unix Password + Google Authenticator
-auth requisite pam_google_authenticator.so forward_pass
-
 # Standard Un*x authentication.
-auth requisite pam_unix.so nullok_secure use_first_pass
+@include common-auth
 
 # Standard Un*x authorization.
 @include common-account
