@@ -1,5 +1,15 @@
+include_recipe "../iptables"
+
 package "aptitude"
+
 package "avahi-daemon"
+iptables "Allow OUTPUT avahi traffic" do
+  table "nat"
+  command :prepend
+  chain "OUTPUT"
+  rule_specification "-m owner ! --uid-owner avahi -j ACCEPT"
+end
+
 package "bind9utils"
 package "curl"
 package "dc"
