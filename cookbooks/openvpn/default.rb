@@ -59,7 +59,14 @@ include_recipe "../iptables"
 
   # iptables
 
-    iptables "Drop traffic to local network" do
+    iptables "Log FORWARD DROP traffic to local network" do
+      table "filter"
+      command :append
+      chain "FORWARD"
+      rule_specification "--source #{server_network}/#{server_netmask} --destination #{node[:network][:local]} -j LOG --log-prefix 'FORWARD DROP traffic to local network' --log-uid"
+    end
+
+    iptables "FORWARD DROP traffic to local network" do
       table "filter"
       command :append
       chain "FORWARD"

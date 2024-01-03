@@ -41,6 +41,13 @@ con_name = "hotspot-#{ifname}"
 		  rule_specification "--in-interface #{ifname} --protocol udp --match udp --destination-port bootps --jump ACCEPT"
 		end
 
+		iptables "Log INPUT DROP from hotspot #{ifname}" do
+		  table "filter"
+		  command :append
+		  chain "INPUT"
+		  rule_specification "--in-interface #{ifname} --jump LOG --log-prefix 'INPUT from hotspot #{ifname}' --log-uid"
+		end
+
 		iptables "Drop INPUT from hotspot #{ifname} by default" do
 		  table "filter"
 		  command :append
@@ -68,6 +75,13 @@ con_name = "hotspot-#{ifname}"
 		  rule_specification "--out-interface #{ifname} --match conntrack --ctstate ESTABLISHED,RELATED --jump ACCEPT"
 		end
 
+		iptables "Log OUTPUT DROP to hotspot #{ifname}" do
+		  table "filter"
+		  command :append
+		  chain "OUTPUT"
+		  rule_specification "--out-interface #{ifname} --jump LOG --log-prefix 'OUTPUT DROP to hotspot #{ifname}' --log-uid"
+		end
+
 		iptables "Drop OUTPUT to hotspot #{ifname} by default" do
 		  table "filter"
 		  command :append
@@ -76,6 +90,13 @@ con_name = "hotspot-#{ifname}"
 		end
 
 	# FORWARD
+
+		iptables "Log FORWARD DROP to hotspot #{ifname}" do
+		  table "filter"
+		  command :append
+		  chain "FORWARD"
+		  rule_specification "--out-interface #{ifname} --jump LOG --log-prefix 'FORWARD DROP to hotspot #{ifname}' --log-uid"
+		end
 
 		iptables "Drop FORWARD to hotspot #{ifname}" do
 		  table "filter"
