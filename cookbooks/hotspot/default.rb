@@ -45,7 +45,7 @@ con_name = "hotspot-#{ifname}"
 		  table "filter"
 		  command :append
 		  chain "INPUT"
-		  rule_specification "--in-interface #{ifname} --jump LOG --log-prefix 'INPUT from hotspot #{ifname}' --log-uid"
+		  rule_specification "--in-interface #{ifname} --jump LOG --log-prefix 'INPUT from hotspot #{ifname}: ' --log-uid"
 		end
 
 		iptables "Drop INPUT from hotspot #{ifname} by default" do
@@ -79,7 +79,7 @@ con_name = "hotspot-#{ifname}"
 		  table "filter"
 		  command :append
 		  chain "OUTPUT"
-		  rule_specification "--out-interface #{ifname} --jump LOG --log-prefix 'OUTPUT DROP to hotspot #{ifname}' --log-uid"
+		  rule_specification "--out-interface #{ifname} --jump LOG --log-prefix 'OUTPUT DROP to hotspot #{ifname}: ' --log-uid"
 		end
 
 		iptables "Drop OUTPUT to hotspot #{ifname} by default" do
@@ -95,7 +95,7 @@ con_name = "hotspot-#{ifname}"
 		  table "filter"
 		  command :append
 		  chain "FORWARD"
-		  rule_specification "--out-interface #{ifname} --jump LOG --log-prefix 'FORWARD DROP to hotspot #{ifname}' --log-uid"
+		  rule_specification "--out-interface #{ifname} --jump LOG --log-prefix 'FORWARD DROP to hotspot #{ifname}: ' --log-uid"
 		end
 
 		iptables "Drop FORWARD to hotspot #{ifname}" do

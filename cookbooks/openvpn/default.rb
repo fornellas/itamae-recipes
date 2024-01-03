@@ -63,7 +63,7 @@ include_recipe "../iptables"
       table "filter"
       command :append
       chain "FORWARD"
-      rule_specification "--source #{server_network}/#{server_netmask} --destination #{node[:network][:local]} -j LOG --log-prefix 'FORWARD DROP traffic to local network' --log-uid"
+      rule_specification "--source #{server_network}/#{server_netmask} --destination #{node[:network][:local]} -j LOG --log-prefix 'FORWARD DROP traffic to local network: ' --log-uid"
     end
 
     iptables "FORWARD DROP traffic to local network" do

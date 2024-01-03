@@ -60,7 +60,7 @@ define(
     table "filter"
     command :append
     chain "OUTPUT"
-    rule_specification "-d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map { |user| "-m owner ! --uid-owner #{user}" }.join(" ")} -j LOG --log-prefix 'OUTPUT not #{users.join("|")} to 127.0.0.1:#{port}' --log-uid"
+    rule_specification "-d 127.0.0.1 -p tcp -m tcp --dport #{port} #{users.map { |user| "-m owner ! --uid-owner #{user}" }.join(" ")} -j LOG --log-prefix 'OUTPUT not #{users.join("|")} to 127.0.0.1:#{port}: ' --log-uid"
     notifies :run, "execute[netfilter-persistent save]", :immediately
   end
 
