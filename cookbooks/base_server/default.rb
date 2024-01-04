@@ -17,6 +17,8 @@ end
 include_recipe "../../cookbooks/postfix"
 
 trusted_network_addresses = [
+  "127.0.0.0/8",
+  "::1/128",
   node[:network][:local],
 ]
 
