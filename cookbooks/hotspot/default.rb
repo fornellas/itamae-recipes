@@ -41,6 +41,13 @@ con_name = "hotspot-#{ifname}"
 		  rule_specification "--in-interface #{ifname} --protocol udp --match udp --destination-port bootps --jump ACCEPT"
 		end
 
+		iptables "Accept INPUT from hotspot #{ifname} for mDNS" do
+		  table "filter"
+		  command :prepend
+		  chain "OUTPUT"
+		  rule_specification "--in-interface #{ifname} --source #{ipv4_address} --destination 224.0.0.251 --protocol udp --match udp --source-port mdns --destination-port mdns -j ACCEPT"
+		end
+
 		iptables "Log INPUT DROP from hotspot #{ifname}" do
 		  table "filter"
 		  command :append
