@@ -1,0 +1,14 @@
+[Unit]
+Description=prometheus-mdns-http-sd
+Requires=network.target
+After=network.target
+
+[Service]
+User=prometheus-mdns-http-sd
+Type=simple
+ExecStart=/opt/bin/prometheus-mdns-http-sd server --address=<%= @listen_address %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

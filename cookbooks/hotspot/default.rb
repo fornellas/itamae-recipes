@@ -179,6 +179,7 @@ end
 
 execute "Deactivate NetworkManager connection #{con_name}" do
   command "nmcli connection down #{Shellwords.shellescape(con_name)}"
+  only_if "PAGER=cat nmcli connection show --active #{Shellwords.shellescape(con_name)} | grep -E '^connection\\.id: +#{Shellwords.shellescape(con_name)}$'"
   action :nothing
 end
 
