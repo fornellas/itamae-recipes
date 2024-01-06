@@ -100,10 +100,10 @@ scrape_configs:
       - url: http://127.0.0.1:<%= @prometheus_mdns_http_sd_port %>/targets
         refresh_interval: 15s
     metric_relabel_configs:
-      - source_labels: [host,port]
+      - source_labels: [mdns_host,mdns_port]
         separator: ":"
         target_label: instance
-      - regex: "^host|port$"
+      - regex: "^mdns_host|mdns_port$"
         action: labeldrop
 alerting:
   alertmanagers:

@@ -30,7 +30,7 @@ include_recipe "../hotspot"
   # Install
 
   golang_install_bin "prometheus-mdns-http-sd" do
-    package "github.com/fornellas/prometheus-mdns-http-sd@v0.0.5"
+    package "github.com/fornellas/prometheus-mdns-http-sd@v0.0.6"
   end
 
   iptables_hotspot_allow_user "prometheus-mdns-http-sd" do
