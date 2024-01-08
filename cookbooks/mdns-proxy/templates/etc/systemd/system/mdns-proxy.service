@@ -1,0 +1,14 @@
+[Unit]
+Description=mDNS Proxy
+Requires=network.target
+After=network.target
+
+[Service]
+User=mdns-proxy
+Type=simple
+ExecStart=/opt/bin/mdns-proxy server --address=<%= @address %> --base-domain=<%= @base_domain %> --disable-ipv6 --interface <%= @interface %> --service <%= @service %>
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
