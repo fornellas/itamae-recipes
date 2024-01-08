@@ -84,6 +84,13 @@ con_name = "hotspot-#{ifname}"
 
 		iptables_hotspot_allow_user "root"
 
+		iptables "Accept OUTPUT to #{ifname} for IGMP" do
+		  table "filter"
+		  command :prepend
+		  chain "OUTPUT"
+		  rule_specification "--out-interface #{ifname} --source #{ipv4_address} --destination 224.0.0.0/24 --protocol igmp -j ACCEPT"
+		end
+
 		iptables "Accept OUTPUT to hotspot #{ifname} for ESTABLISHED,RELATED" do
 		  table "filter"
 		  command :prepend
