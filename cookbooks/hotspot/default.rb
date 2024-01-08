@@ -45,7 +45,14 @@ con_name = "hotspot-#{ifname}"
 		  table "filter"
 		  command :prepend
 		  chain "INPUT"
-		  rule_specification "--in-interface #{ifname} --source #{ipv4_address} --destination 224.0.0.251 --protocol udp --match udp --source-port mdns --destination-port mdns -j ACCEPT"
+		  rule_specification "--in-interface #{ifname} --source #{ipv4_address} --destination 224.0.0.0/24 --protocol udp --match udp --source-port mdns --destination-port mdns -j ACCEPT"
+		end
+
+		iptables "Accept INPUT from hotspot #{ifname} for IGMP" do
+		  table "filter"
+		  command :prepend
+		  chain "INPUT"
+		  rule_specification "--in-interface #{ifname} --source #{ipv4_address} --destination 224.0.0.0/24 --protocol igmp -j ACCEPT"
 		end
 
 		iptables "Log INPUT DROP from hotspot #{ifname}" do
@@ -74,6 +81,8 @@ con_name = "hotspot-#{ifname}"
 			  rule_specification "--out-interface #{ifname} --match owner --uid-owner #{user} --jump ACCEPT"
 			end
 		end
+
+		iptables_hotspot_allow_user "root"
 
 		iptables "Accept OUTPUT to hotspot #{ifname} for ESTABLISHED,RELATED" do
 		  table "filter"
