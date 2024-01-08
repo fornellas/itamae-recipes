@@ -10,6 +10,7 @@ n2p
 	Candle
 		qtbase5-dev
 		libqt5serialport5-dev
+	https://plugins.octoprint.org/plugins/prometheus_exporter/
 mmoj
 	/etc/hosts
 		mmoj.sigstop.co.uk added
