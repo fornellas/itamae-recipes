@@ -44,6 +44,21 @@ include_recipe "../nginx"
       port port
     end
 
+    iptables "Allow OUTPUT mdns-proxy traffic to #{interface}" do
+      table "filter"
+      command :prepend
+      chain "OUTPUT"
+      rule_specification "--out-interface #{interface} -m owner --uid-owner mdns-proxy -j ACCEPT"
+    end
+
+    iptables "Allow ESTABLISHED,RELATED INPUT from #{interface} to mdns-proxy" do
+      table "filter"
+      command :prepend
+      chain "INPUT"
+      rule_specification "--in-interface #{interface} --match conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
+      notifies :run, "execute[netfilter-persistent save]", :immediately
+    end
+
   # Install
 
     golang_install_bin "mdns-proxy" do
