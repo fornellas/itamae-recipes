@@ -2,12 +2,14 @@ node.validate! do
   {
     prometheus_mdns_http_sd: {
       port: string,
+      version: string,
     },
   }
 end
 
 listen_port = node[:prometheus_mdns_http_sd][:port]
 listen_address_port = "127.0.0.1:#{listen_port}"
+version = node[:prometheus_mdns_http_sd][:version]
 
 include_recipe "../golang"
 include_recipe "../iptables"
@@ -30,7 +32,7 @@ include_recipe "../hotspot"
   # Install
 
   golang_install_bin "prometheus-mdns-http-sd" do
-    package "github.com/fornellas/prometheus-mdns-http-sd@v0.0.6"
+    package "github.com/fornellas/prometheus-mdns-http-sd@#{version}"
   end
 
   iptables_hotspot_allow_user "prometheus-mdns-http-sd" do
