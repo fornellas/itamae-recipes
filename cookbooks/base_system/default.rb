@@ -1,6 +1,7 @@
 include_recipe "../iptables"
 
 package "aptitude"
+package "arping"
 
 package "avahi-daemon"
 iptables "Allow OUTPUT avahi traffic" do

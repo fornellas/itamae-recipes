@@ -9,6 +9,7 @@ node.validate! do
       ssid: string,
       password: string,
       ipv4_address: string,
+      allow_users: array_of(string),
     },
   }
 end
@@ -18,6 +19,7 @@ ifname = node[:hotspot][:ifname]
 ssid = node[:hotspot][:ssid]
 password = node[:hotspot][:password]
 ipv4_address = node[:hotspot][:ipv4_address]
+allow_users = node[:hotspot][:allow_users] + ["root"]
 
 con_name = "hotspot-#{ifname}"
 
@@ -82,7 +84,9 @@ con_name = "hotspot-#{ifname}"
 			end
 		end
 
-		iptables_hotspot_allow_user "root"
+		allow_users.each do |user|
+			iptables_hotspot_allow_user user
+		end
 
 		iptables "Accept OUTPUT to #{ifname} for IGMP" do
 		  table "filter"
