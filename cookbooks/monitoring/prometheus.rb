@@ -58,7 +58,6 @@ tar_gz_url = "https://github.com/prometheus/prometheus/releases/download/v#{vers
         alertmanager_port: node[:alertmanager][:web_port],
         brother_exporter_port: node[:brother_exporter][:port],
         blackbox_exporter_port: node[:blackbox_exporter][:port],
-        tasmota_exporter_port: node[:tasmota_exporter][:port],
         prometheus_mdns_http_sd_port: node[:prometheus_mdns_http_sd][:port],
       )
       notifies :restart, "service[prometheus]"
