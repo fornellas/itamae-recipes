@@ -1,0 +1,13 @@
+[Unit]
+Description=Home Assistant
+Requires=network.target docker.service
+After=network.target docker.service
+
+[Service]
+User=homeassistant
+Type=simple
+ExecStart=/usr/bin/docker run --rm --name homeassistant -e TZ=<%= @tz %> -v <%= @config_path %>:/config --network=host ghcr.io/home-assistant/home-assistant:<%= @version %>
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
