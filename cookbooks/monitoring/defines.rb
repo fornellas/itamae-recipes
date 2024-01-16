@@ -38,6 +38,13 @@ end
     name = params[:name]
     targets = params[:targets]
 
+    targetst.each do |target|
+      if target.has_key? :labels and target[:labels].has_key? :job
+          raise UserInputError, "target[:labels] can not have job key: #{target}"
+        end
+      end
+    end
+
     rule_path = "/etc/prometheus/blackbox_http_2xx.d/#{name}.yml"
 
     template rule_path do
@@ -81,6 +88,13 @@ end
   ) do
     name = params[:name]
     targets = params[:targets]
+
+    targetst.each do |target|
+      if target.has_key? :labels and target[:labels].has_key? :job
+          raise UserInputError, "target[:labels] can not have job key: #{target}"
+        end
+      end
+    end
 
     rule_path = "/etc/prometheus/blackbox_http_302.d/#{name}.yml"
 
@@ -126,6 +140,13 @@ end
     name = params[:name]
     targets = params[:targets]
 
+    targetst.each do |target|
+      if target.has_key? :labels and target[:labels].has_key? :job
+          raise UserInputError, "target[:labels] can not have job key: #{target}"
+        end
+      end
+    end
+
     rule_path = "/etc/prometheus/blackbox_http_401.d/#{name}.yml"
 
     template rule_path do
@@ -169,6 +190,13 @@ end
   ) do
     name = params[:name]
     targets = params[:targets]
+
+    targetst.each do |target|
+      if target.has_key? :labels and target[:labels].has_key? :job
+          raise UserInputError, "target[:labels] can not have job key: #{target}"
+        end
+      end
+    end
 
     rule_path = "/etc/prometheus/blackbox_ssh_banner.d/#{name}.yml"
 
