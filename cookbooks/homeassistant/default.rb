@@ -5,6 +5,7 @@ node.validate! do
       port: string,
       version: string,
       tz: string,
+      long_lived_access_token: string,
     },
   }
 end
@@ -13,6 +14,7 @@ domain = node[:homeassistant][:domain]
 port = node[:homeassistant][:port]
 version = node[:homeassistant][:version]
 tz = node[:homeassistant][:tz]
+long_lived_access_token = node[:homeassistant][:long_lived_access_token]
 
 home_path = "/var/lib/homeassistant"
 config_path = "#{home_path}/config"
@@ -26,6 +28,7 @@ include_recipe "../nginx"
 ##
 ## Home Assistant
 ##
+
   # Docker
 
     package "docker.io"
@@ -76,6 +79,28 @@ include_recipe "../nginx"
 
     service "homeassistant" do
       action [:enable, :start]
+    end
+
+  # Prometheus
+
+    prometheus_scrape_config "homeassistant" do
+      scrape_configs [
+        {
+          job_name: "homeassistant",
+          metrics_path: "/api/prometheus",
+          authorization: {
+            credentials: long_lived_access_token,
+          },
+          scheme: "https",
+          static_configs: [
+            {
+              targets: [
+                domain,
+              ],
+            },
+          ],
+        }
+      ]
     end
 
   # Backup

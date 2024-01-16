@@ -1,3 +1,5 @@
+require 'yaml'
+
 directory "/etc/prometheus" do
   owner "root"
   group "root"
@@ -14,7 +16,7 @@ end
     mode "755"
   end
 
-  # prometheus_scrape_targets_blackbox_http_2xx "test" do
+  # prometheus_scrape_targets_blackbox_http_2xx "foo" do
   #   targets [
   #     {
   #       # The targets specified by the static config.
@@ -38,10 +40,9 @@ end
     name = params[:name]
     targets = params[:targets]
 
-    targetst.each do |target|
+    targets.each do |target|
       if target.has_key? :labels and target[:labels].has_key? :job
-          raise UserInputError, "target[:labels] can not have job key: #{target}"
-        end
+        raise UserInputError, "target[:labels] can not have job key: #{target}"
       end
     end
 
@@ -65,7 +66,7 @@ end
     mode "755"
   end
 
-  # prometheus_scrape_targets_blackbox_http_302 "test" do
+  # prometheus_scrape_targets_blackbox_http_302 "foo" do
   #   targets [
   #     {
   #       # The targets specified by the static config.
@@ -89,10 +90,9 @@ end
     name = params[:name]
     targets = params[:targets]
 
-    targetst.each do |target|
+    targets.each do |target|
       if target.has_key? :labels and target[:labels].has_key? :job
-          raise UserInputError, "target[:labels] can not have job key: #{target}"
-        end
+        raise UserInputError, "target[:labels] can not have job key: #{target}"
       end
     end
 
@@ -116,7 +116,7 @@ end
     mode "755"
   end
 
-  # prometheus_scrape_targets_blackbox_http_401 "test" do
+  # prometheus_scrape_targets_blackbox_http_401 "foo" do
   #   targets [
   #     {
   #       # The targets specified by the static config.
@@ -140,10 +140,9 @@ end
     name = params[:name]
     targets = params[:targets]
 
-    targetst.each do |target|
+    targets.each do |target|
       if target.has_key? :labels and target[:labels].has_key? :job
-          raise UserInputError, "target[:labels] can not have job key: #{target}"
-        end
+        raise UserInputError, "target[:labels] can not have job key: #{target}"
       end
     end
 
@@ -167,7 +166,7 @@ end
     mode "755"
   end
 
-  # prometheus_scrape_targets_blackbox_ssh_banner "test" do
+  # prometheus_scrape_targets_blackbox_ssh_banner "foo" do
   #   targets [
   #     {
   #       # The targets specified by the static config.
@@ -191,10 +190,9 @@ end
     name = params[:name]
     targets = params[:targets]
 
-    targetst.each do |target|
+    targets.each do |target|
       if target.has_key? :labels and target[:labels].has_key? :job
-          raise UserInputError, "target[:labels] can not have job key: #{target}"
-        end
+        raise UserInputError, "target[:labels] can not have job key: #{target}"
       end
     end
 
@@ -222,7 +220,7 @@ end
     mode "755"
   end
 
-  # prometheus_scrape_targets_brother_exporter "test" do
+  # prometheus_scrape_targets_brother_exporter "foo" do
   #   targets [
   #     {
   #       # The targets specified by the static config.
@@ -284,7 +282,7 @@ end
     mode "755"
   end
 
-  # prometheus_rules "test" do
+  # prometheus_rules "foo" do
   #   # How often rules in the group are evaluated.
   #   # Optional.
   #   interval "1m"
@@ -379,7 +377,7 @@ end
     mode "755"
   end
 
-  # prometheus_scrape_targets "test" do
+  # prometheus_scrape_targets "foo" do
   #   targets [
   #     {
   #       # The targets specified by the static config.
@@ -403,7 +401,7 @@ end
     name = params[:name]
     targets = params[:targets]
 
-    targetst.each do |target|
+    targets.each do |target|
       unless target.has_key? :labels
         raise UserInputError, "target missing :labels key: #{target}"
       end
@@ -422,6 +420,44 @@ end
       variables(
         targets: targets,
       )
+      notifies :restart, "service[prometheus]", :delayed
+    end
+  end
+
+  directory "/etc/prometheus/scrape_config.d" do
+    owner "root"
+    group "root"
+    mode "755"
+  end
+
+  # prometheus_scrape_config "foo" do
+  #   scrape_config(
+  #     job_name: "foo"
+  #     static_configs: [
+  #       {
+  #         targets: [
+  #           "example.com:9090",
+  #         ],
+  #       },
+  #     ]
+  #   )
+  # end
+  define(
+    :prometheus_scrape_config,
+    scrape_configs: [],
+  ) do
+    name = params[:name]
+    content = {
+      "scrape_configs" => params[:scrape_configs].map do |scrape_config|
+        scrape_config.to_hash
+      end.to_a
+    }
+
+    file "/etc/prometheus/scrape_config.d/#{name}.yml" do
+      mode "644"
+      owner "root"
+      group "root"
+      content YAML.dump content
       notifies :restart, "service[prometheus]", :delayed
     end
   end
