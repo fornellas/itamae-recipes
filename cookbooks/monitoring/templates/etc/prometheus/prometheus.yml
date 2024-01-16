@@ -82,10 +82,6 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 127.0.0.1:<%= @brother_exporter_port %>
-  - job_name: 'esphome'
-    http_sd_configs:
-      - url: http://127.0.0.1:<%= @prometheus_mdns_http_sd_port %>/targets
-        refresh_interval: 15s
 alerting:
   alertmanagers:
     - static_configs:

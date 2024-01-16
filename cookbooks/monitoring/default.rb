@@ -1,7 +1,6 @@
 include_recipe "prometheus"
 include_recipe "blackbox_exporter"
 include_recipe "brother_exporter"
-include_recipe "prometheus-mdns-http-sd"
 include_recipe "alertmanager"
 include_recipe "grafana"
 include_recipe "../iptables"
@@ -83,15 +82,6 @@ include_recipe "../iptables"
   #     },
   #   ]
   # end
-
-##
-## prometheus-mdns-http-sd
-##
-
-  iptables_rule_drop_not_user "Drop not prometheus user to prometheus-mdns-http-sd" do
-    users ["prometheus"]
-    port node[:prometheus_mdns_http_sd][:port]
-  end
 
 ##
 ## alertmanager
