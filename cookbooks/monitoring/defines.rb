@@ -345,7 +345,7 @@ end
     end
   end
 
-  directory "/etc/prometheus/node.d" do
+  directory "/etc/prometheus/file_sd.d" do
     owner "root"
     group "root"
     mode "755"
@@ -375,7 +375,16 @@ end
     name = params[:name]
     targets = params[:targets]
 
-    rule_path = "/etc/prometheus/node.d/#{name}.yml"
+    targetst.each do |target|
+      unless target.has_key? :labels
+        raise UserInputError, "target missing :labels key: #{target}"
+      end
+      unless target[:labels].has_key? :job
+        raise UserInputError, "target[:labels] missing job key: #{target}"
+      end
+    end
+
+    rule_path = "/etc/prometheus/file_sd.d/#{name}.yml"
 
     template rule_path do
       mode "644"

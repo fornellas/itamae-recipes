@@ -4,10 +4,10 @@ global:
 rule_files:
   - '/etc/prometheus/rules.d/*.yml'
 scrape_configs:
-  - job_name: node
+  - job_name: file_sd
     file_sd_configs:
       - files:
-        - '/etc/prometheus/node.d/*.yml'
+        - '/etc/prometheus/file_sd.d/*.yml'
         refresh_interval: 1m
   - job_name: 'blackbox_http_2xx'
     metrics_path: /probe
