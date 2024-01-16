@@ -57,6 +57,13 @@ con_name = "hotspot-#{ifname}"
 		  rule_specification "--in-interface #{ifname} --source #{ipv4_address} --destination 224.0.0.0/24 --protocol igmp -j ACCEPT"
 		end
 
+		iptables "Accept INPUT from hotspot #{ifname} for UDP/1900" do
+		  table "filter"
+		  command :prepend
+		  chain "INPUT"
+		  rule_specification "--in-interface #{ifname} --source #{ipv4_address} --destination 239.0.0.0/8 --protocol udp --match udp --destination-port 1900 -j ACCEPT"
+		end
+
 		iptables "Log INPUT DROP from hotspot #{ifname}" do
 		  table "filter"
 		  command :append
