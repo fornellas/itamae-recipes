@@ -390,68 +390,22 @@
   end
 
 ##
-## Power Meter
+## Energy Meter
 ##
 
-  power_meter_instance_ip = "192.168.0.121:9090"
-  power_meter_instance = "power_meter.local:9090"
 
-  prometheus_scrape_targets "power_meter" do
-    targets [
-      {
-        hosts: [power_meter_instance_ip],
-        labels: {
-          instance: power_meter_instance,
-          job: "power_meter",
-        },
-      },
-    ]
-  end
-
-  prometheus_rules "power_meter" do
+  prometheus_rules "energy_meter" do
     alerting_rules [
       {
-        alert: "Power Meter Down",
+        alert: "Energy Meter Stuck",
         expr: <<~EOF,
-          group(
-              up{
-                  instance="#{power_meter_instance}"
-              } < 1
-          )
-        EOF
-        for: "5m",
-      },
-      {
-        alert: "Power Meter Stuck",
-        expr: <<~EOF,
-          changes(voltage_volts{
-            instance="#{power_meter_instance}",
-          }[10m]) == 0
-        EOF
-        for: "5m",
-      },
-      {
-        alert: "High Power Usage (1h average)",
-        expr: <<~EOF,
-          group(
-            avg_over_time(
-              power_wats{
-                instance="#{power_meter_instance}",
-              }[1h]
-            ) > 1900
-          )
-        EOF
-      },
-      {
-        alert: "High Power Usage (1d average)",
-        expr: <<~EOF,
-          group(
-            avg_over_time(
-              power_wats{
-                instance="#{power_meter_instance}",
-              }[1d]
-            ) > 450
-          )
+          changes(
+              homeassistant_sensor_energy_wh{
+                  job="homeassistant",
+                  instance="homeassistant.sigstop.co.uk:443",
+                  entity="sensor.energy_monitor_a1fb4f_energy",
+              }[1m]
+          ) == 0
         EOF
       },
     ]
