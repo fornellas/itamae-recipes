@@ -404,7 +404,7 @@
                   job="homeassistant",
                   instance="homeassistant.sigstop.co.uk:443",
                   entity="sensor.energy_monitor_a1fb4f_energy",
-              }[1m]
+              }[3m]
           ) == 0
         EOF
       },
