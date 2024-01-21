@@ -5,21 +5,23 @@ include_recipe "../iptables"
 node.validate! do
   {
     hotspot: {
-      ifname: string,
-      ssid: string,
-      password: string,
-      ipv4_address: string,
       allow_users: array_of(string),
+      channel: string,
+      ifname: string,
+      ipv4_address: string,
+      password: string,
+      ssid: string,
     },
   }
 end
 
 
-ifname = node[:hotspot][:ifname]
-ssid = node[:hotspot][:ssid]
-password = node[:hotspot][:password]
-ipv4_address = node[:hotspot][:ipv4_address]
 allow_users = node[:hotspot][:allow_users] + ["root"]
+channel = node[:hotspot][:channel]
+ifname = node[:hotspot][:ifname]
+ipv4_address = node[:hotspot][:ipv4_address]
+password = node[:hotspot][:password]
+ssid = node[:hotspot][:ssid]
 
 con_name = "hotspot-#{ifname}"
 
@@ -192,6 +194,21 @@ end
 nm_connection "802-11-wireless-security.psk" do
 	connection con_name
 	value password
+end
+
+nm_connection "802-11-wireless.band" do
+	connection con_name
+	value "bg"
+end
+
+nm_connection "802-11-wireless.channel" do
+	connection con_name
+	value channel
+end
+
+nm_connection "802-11-wireless.powersave" do
+	connection con_name
+	value "disable"
 end
 
 nm_connection "ipv4.method" do
