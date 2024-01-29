@@ -7,9 +7,6 @@ node.validate! do
       server_network: string,
       server_netmask: string,
     },
-    network: {
-      local: string,
-    },
   }
 end
 
@@ -18,6 +15,20 @@ port = node[:openvpn][:port]
 dns = node[:openvpn][:dns]
 server_network = node[:openvpn][:server_network]
 server_netmask = node[:openvpn][:server_netmask]
+
+# https://en.wikipedia.org/wiki/Reserved_IP_addresses
+local_networks = [
+  # RFC1918 Private Internet
+  "10.0.0.0/8",
+  "172.16.0.0/12",
+  "192.168.0.0/16",
+  # RFC6890 Loopback
+  "127.0.0.0/8",
+  # RFC3927 Link Local
+  "169.254.0.0/16",
+  # RFC5771 Multicast
+  "224.0.0.0/4",
+]
 
 letsencrypt_ca = run_command("cat /usr/share/ca-certificates/mozilla/ISRG_Root_X1.crt").stdout.chomp
 
@@ -59,19 +70,21 @@ include_recipe "../iptables"
 
   # iptables
 
-    iptables "Log FORWARD DROP traffic to local network" do
-      table "filter"
-      command :append
-      chain "FORWARD"
-      rule_specification "--source #{server_network}/#{server_netmask} --destination #{node[:network][:local]} -j LOG --log-prefix 'FORWARD DROP traffic to local network: ' --log-uid"
-    end
+    local_networks.each do |network|
+      iptables "Log FORWARD DROP traffic to #{network}" do
+        table "filter"
+        command :append
+        chain "FORWARD"
+        rule_specification "--source #{server_network}/#{server_netmask} --destination #{network} -j LOG --log-prefix 'FORWARD DROP traffic to #{network}: ' --log-uid"
+      end
 
-    iptables "FORWARD DROP traffic to local network" do
-      table "filter"
-      command :append
-      chain "FORWARD"
-      rule_specification "--source #{server_network}/#{server_netmask} --destination #{node[:network][:local]} -j DROP"
-    end
+      iptables "FORWARD DROP traffic to #{network}" do
+        table "filter"
+        command :append
+        chain "FORWARD"
+        rule_specification "--source #{server_network}/#{server_netmask} --destination #{network} -j DROP"
+      end
+    done
 
     iptables "Masquerade outgoing traffic" do
       table "nat"
