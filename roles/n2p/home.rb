@@ -100,14 +100,6 @@
     ]
   end
 
-  prometheus_scrape_targets_blackbox_http_2xx "virgin_router" do
-    targets [
-      {
-        hosts: ["192.168.0.1:80"],
-      },
-    ]
-  end
-
   prometheus_rules "internet" do
     alerting_rules [
       {
@@ -118,15 +110,6 @@
           }) < 1
         EOF
       },
-      {
-        alert: "Virgin Router Unreachable",
-        expr: <<~EOF,
-          probe_success{
-              instance="192.168.0.1:80"
-          } != 1
-        EOF
-        for: "1m",
-      },
     ]
   end
 
@@ -134,7 +117,7 @@
 ## Brown
 ##
 
-  brow_ip = "192.168.0.221"
+  brow_ip = "192.168.88.252"
   brown_instance_node_exporter_port = "9100"
   brown_instance_node_exporter = "brown.local:#{brown_instance_node_exporter_port}"
   brown_instance_wifi_exporter_port = "8034"
@@ -267,156 +250,4 @@
         EOF
       },
     ]
-  end
-
-##
-## Office Sensor
-##
-
-  office_sensor_instance_ip = "192.168.0.178:9090"
-  office_sensor_instance = "office_sensors.local:9090"
-
-  prometheus_scrape_targets "office_sensors" do
-    targets [
-      {
-        hosts: [office_sensor_instance_ip],
-        labels: {
-          instance: office_sensor_instance,
-          job: "sensor",
-        },
-      },
-    ]
-  end
-
-  prometheus_rules "office_sensors" do
-    alerting_rules [
-      {
-        alert: "Office Sensor Down",
-        expr: <<~EOF,
-          group(
-              up{
-                  instance="#{office_sensor_instance}",
-              } < 1
-          )
-        EOF
-        for: "5m",
-      },
-      {
-        alert: "Low Office Temperature",
-        expr: <<~EOF,
-          group(
-            temperature_celsius{
-              instance="#{office_sensor_instance}",
-            } < 20
-          )
-        EOF
-      },
-      {
-        alert: "High Office Humidity",
-        expr: <<~EOF,
-          group(
-            relative_humidity_ratio{
-              instance="#{office_sensor_instance}",
-            } > 0.80
-          )
-        EOF
-      },
-      {
-        alert: "High Office CO₂ Concentration",
-        expr: <<~EOF,
-          group(
-            co2_concentration_ppm{
-              instance="#{office_sensor_instance}",
-            } > 1600
-          )
-        EOF
-      },
-    ]
-  end
-
-##
-## Living Room
-##
-
-  living_room_instance_ip = "192.168.0.164:9090"
-  living_room_instance = "living_room_sensors.local:9090"
-
-  prometheus_scrape_targets "living_room_sensors" do
-    targets [
-      {
-        hosts: [living_room_instance_ip],
-        labels: {
-          instance: living_room_instance,
-          job: "sensor",
-        },
-      },
-    ]
-  end
-
-  prometheus_rules "living_room_sensors" do
-    alerting_rules [
-      {
-        alert: "Living Room Sensor Down",
-        expr: <<~EOF,
-          group(
-              up{
-                  instance="#{living_room_instance}",
-              } < 1
-          )
-        EOF
-        for: "5m",
-      },
-      {
-        alert: "Living Room Low Temperature",
-        expr: <<~EOF,
-          group(
-            temperature_celsius{
-              instance="#{living_room_instance}",
-            } < 20
-          )
-        EOF
-      },
-      {
-        alert: "High Living Room Humidity",
-        expr: <<~EOF,
-          group(
-            relative_humidity_ratio{
-              instance="#{living_room_instance}",
-            } > 0.80
-          )
-        EOF
-      },
-    ]
-  end
-
-##
-## Energy Meter
-##
-
-
-  prometheus_rules "energy_meter" do
-    alerting_rules [
-      {
-        alert: "Energy Meter Stuck",
-        expr: <<~EOF,
-          changes(
-              homeassistant_sensor_energy_wh{
-                  job="homeassistant",
-                  instance="homeassistant.sigstop.co.uk:443",
-                  entity="sensor.energy_monitor_a1fb4f_energy",
-              }[3m]
-          ) == 0
-        EOF
-      },
-    ]
-  end
-
-##
-## Printer
-##
-
-  printer_address_port = "192.168.0.100:80"
-
-  prometheus_scrape_targets_brother_exporter "HL-L2350DW series" do
-    instance "http://#{printer_address_port}/etc/mnt_info.csv"
   end
