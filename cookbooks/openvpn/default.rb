@@ -84,7 +84,7 @@ include_recipe "../iptables"
         chain "FORWARD"
         rule_specification "--source #{server_network}/#{server_netmask} --destination #{network} -j DROP"
       end
-    done
+    end
 
     iptables "Masquerade outgoing traffic" do
       table "nat"
