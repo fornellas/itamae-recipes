@@ -1,3 +1,11 @@
+node.validate! do
+  {
+    fornellas: {
+      shadow: string,
+    },
+  }
+end
+
 require "etc"
 require "itamae/plugin/resource/authorized_keys"
 require "shellwords"
@@ -6,8 +14,7 @@ include_recipe "../group_add"
 username = Etc.getlogin
 shellname = Etc.getpwuid.shell
 home_dir = Etc.getpwuid.dir
-shadow_encrypted_password = `sudo getent shadow #{username} | cut -d: -f2`.chomp
-raise unless $?.success?
+shadow_encrypted_password = node[:fornellas][:shadow]
 groupname = Etc.getgrgid.name
 
 define :user_shadow, encrypted_password: nil do
