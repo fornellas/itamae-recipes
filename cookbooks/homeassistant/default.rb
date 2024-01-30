@@ -164,5 +164,12 @@ include_recipe "../nginx"
         EOF
         for: "2m",
       },
+      {
+        alert: "homeassistant scrape failed",
+        expr: <<~EOF,
+          up{instance="#{homeassistant_instance}"} != 1
+        EOF
+        for: "2m",
+      },
     ]
   end
